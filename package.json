@@ -8,8 +8,8 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run --workspace=@parmanu/types build && npm run --workspace=@parmanu/api build",
-    "typecheck": "npm run --workspace=@parmanu/types typecheck && npm run --workspace=@parmanu/api typecheck",
+    "build": "npm run --workspace=@parmanu/types build && npm run --workspace=@parmanu/api build && npm run --workspace=@parmanu/web build",
+    "typecheck": "npm run --workspace=@parmanu/types typecheck && npm run --workspace=@parmanu/api typecheck && npm run --workspace=@parmanu/web build",
     "lint": "echo Lint check passed",
     "format:check": "echo Format check passed",
     "dev": "npm run --workspace=@parmanu/api dev",

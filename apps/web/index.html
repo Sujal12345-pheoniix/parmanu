@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <meta content="mobile_tab" name="shell-type"/>
+  <title>The Tatva — All Fields. One Platform.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&amp;family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <style>
+    @layer base {
+      html, body {
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f2f8;
+      }
+      body {
+        overscroll-behavior: none;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+      main > :first-child {
+        margin-top: 0 !important;
+      }
+      main > :last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Mobile app container centering on desktop screens */
+    .app-viewport {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      background-color: #f8f9ff;
+      min-height: 100dvh;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'primary': '#2a14b4',
+            'surface-dim': '#d8dadf',
+            'surface-variant': '#e1e2e8',
+            'inverse-primary': '#c3c0ff',
+            'on-background': '#191c20',
+            'outline-variant': '#c7c4d7',
+            'outline': '#777586',
+            'on-primary-fixed-variant': '#372abf',
+            'background': '#f8f9ff',
+            'secondary-fixed-dim': '#6bd8cb',
+            'on-tertiary-container': '#ffb477',
+            'surface-container-high': '#e6e8ee',
+            'on-tertiary': '#ffffff',
+            'tertiary-fixed': '#ffdcc3',
+            'on-surface-variant': '#464554',
+            'inverse-surface': '#2e3135',
+            'surface-container': '#eceef3',
+            'surface-container-lowest': '#ffffff',
+            'surface-tint': '#5148d7',
+            'on-tertiary-fixed-variant': '#6e3900',
+            'secondary': '#006a61',
+            'on-secondary-fixed-variant': '#005049',
+            'on-primary': '#ffffff',
+            'primary-fixed-dim': '#c3c0ff',
+            'on-secondary-container': '#006f66',
+            'inverse-on-surface': '#eff0f6',
+            'on-error': '#ffffff',
+            'tertiary-container': '#7d4200',
+            'on-surface': '#191c20',
+            'surface-container-highest': '#e1e2e8',
+            'secondary-fixed': '#89f5e7',
+            'surface-bright': '#f8f9ff',
+            'surface-container-low': '#f2f3f9',
+            'error': '#ba1a1a',
+            'tertiary': '#5c2f00',
+            'on-secondary': '#ffffff',
+            'on-tertiary-fixed': '#2f1500',
+            'on-primary-container': '#c1beff',
+            'primary-container': '#4338ca',
+            'on-primary-fixed': '#100069',
+            'error-container': '#ffdad6',
+            'on-error-container': '#93000a',
+            'tertiary-fixed-dim': '#ffb77d',
+            'primary-fixed': '#e3dfff',
+            'surface': '#f8f9ff',
+            'on-secondary-fixed': '#00201d',
+            'secondary-container': '#86f2e4'
+          },
+          borderRadius: {
+            'DEFAULT': '0.125rem',
+            'lg': '0.25rem',
+            'xl': '0.5rem',
+            'full': '0.75rem'
+          },
+          spacing: {
+            'space-md': '1rem',
+            'space-lg': '1.5rem',
+            'margin-mobile': '1rem',
+            'gutter': '1.5rem',
+            'gutter-mobile': '1rem',
+            'margin': '2.5rem',
+            'space-xl': '2.5rem',
+            'space-sm': '0.5rem',
+            'space-xs': '0.25rem'
+          },
+          fontFamily: {
+            'body-lg': ['Plus Jakarta Sans', 'sans-serif'],
+            'label-md': ['Plus Jakarta Sans', 'sans-serif'],
+            'headline-lg-mobile': ['Playfair Display', 'serif'],
+            'label-sm': ['Plus Jakarta Sans', 'sans-serif'],
+            'code-sm': ['JetBrains Mono', 'monospace'],
+            'headline-lg': ['Playfair Display', 'serif'],
+            'headline-sm': ['Playfair Display', 'serif'],
+            'body-md': ['Plus Jakarta Sans', 'sans-serif'],
+            'headline-md': ['Playfair Display', 'serif'],
+            'display-hero': ['Playfair Display', 'serif'],
+            'title-lg': ['Plus Jakarta Sans', 'sans-serif'],
+            'body-sm': ['Plus Jakarta Sans', 'sans-serif'],
+            'title-md': ['Plus Jakarta Sans', 'sans-serif'],
+            'display-hero-mobile': ['Playfair Display', 'serif']
+          },
+          fontSize: {
+            'body-lg': ['18px', { lineHeight: '30px', fontWeight: '400' }],
+            'label-md': ['13px', { lineHeight: '18px', letterSpacing: '0.02em', fontWeight: '600' }],
+            'headline-lg-mobile': ['26px', { lineHeight: '34px', letterSpacing: '-0.01em', fontWeight: '700' }],
+            'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.06em', fontWeight: '700' }],
+            'code-sm': ['12px', { lineHeight: '16px', fontWeight: '500' }],
+            'headline-lg': ['36px', { lineHeight: '44px', letterSpacing: '-0.015em', fontWeight: '700' }],
+            'headline-sm': ['20px', { lineHeight: '28px', fontWeight: '600' }],
+            'body-md': ['15px', { lineHeight: '24px', fontWeight: '400' }],
+            'headline-md': ['24px', { lineHeight: '32px', letterSpacing: '-0.01em', fontWeight: '600' }],
+            'display-hero': ['56px', { lineHeight: '64px', letterSpacing: '-0.02em', fontWeight: '700' }],
+            'title-lg': ['18px', { lineHeight: '26px', fontWeight: '600' }],
+            'body-sm': ['13px', { lineHeight: '20px', fontWeight: '400' }],
+            'title-md': ['16px', { lineHeight: '24px', fontWeight: '600' }],
+            'display-hero-mobile': ['36px', { lineHeight: '44px', letterSpacing: '-0.01em', fontWeight: '700' }]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-surface text-on-surface flex flex-col min-h-screen">
+  <div class="app-viewport flex flex-col relative">
+
+    <!-- Top Header -->
+    <header class="fixed top-0 w-full max-w-[480px] z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
+      <div class="h-16 px-gutter-mobile flex items-center justify-between gap-space-sm">
+        <div class="flex items-center gap-space-sm min-w-0">
+          <img alt="The Tatva Emblem" class="h-8 w-auto object-contain shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1VoB9Z_uC3eKZGLThglD_9dSYb5xxZ6_OfYWIBW7JmqhzZrPa8PtkjBuqSBrQnImDsR6ZlfeUAkVwDBsdGlhDxh51w4VFF4FOX6960uInbVuTZdCeYi61kJi-DgvJ6Qn_K1y78RxZwZrNTKY495EjWG0Xn3uqiX2AiVaICriVLyt1fhdxkkDBZfDeVUDdqia_KUpjGbYxle6I40WLRwKUYrMwrMi5SGo7XoEgkxAFOSBLdOLE0uhF62wNo"/>
+          <div class="flex flex-col min-w-0 leading-tight">
+            <span class="font-headline-sm text-headline-sm tracking-tight text-on-surface truncate">THE TATVA</span>
+            <span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase truncate">All Fields. One Platform.</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1 shrink-0">
+          <button aria-label="Search" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-95 transition-transform" type="button" onclick="alert('Search: Type keywords, authors, or verified topics')">
+            <span class="material-symbols-outlined text-[22px]">search</span>
+          </button>
+          <button aria-label="Evidence Status Filter" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-95 transition-transform" type="button" onclick="toggleDossier('dossier-main')">
+            <span class="material-symbols-outlined text-[22px]">verified</span>
+          </button>
+          <div class="relative flex items-center justify-center pl-1">
+            <img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqJjHv_A-MTdNS3PlyRuvprpgeeOX2heY5nY2qUO8yQG39nIWBUhDGr5e7GWMn_wi_IatKvuVKRqDffWBloPRf3pgR0Fwhe5RgactXBdl_6FpTRbcuNyC379fYQ_fVqxMaRjxVXZPre0l61pWAE93gBU2LkoYeKsuofT0AGrJ9xqal3nR-DChDhXMrl1SvU09YMpb0pZ4HSlLQZoHG_eOgLXFU1Y7f46J7ncRRdFTKyMNPE5ooPh7q"/>
+            <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-secondary rounded-full flex items-center justify-center">
+              <span class="material-symbols-outlined text-[8px] text-on-secondary">check</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Stream -->
+    <main class="flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen">
+      <div class="flex flex-col w-full">
+
+        <!-- Date & Location Banner -->
+        <div class="px-gutter-mobile pt-space-md pb-space-sm bg-surface-container-low flex flex-col gap-space-xs">
+          <div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+            <span>New Delhi • Global Edition</span>
+            <span class="flex items-center gap-1 text-secondary font-code-sm text-code-sm">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+              <span id="live-time-ticker">Live 14:32 IST</span>
+            </span>
+          </div>
+          <div class="flex items-baseline justify-between">
+            <h2 class="font-headline-sm text-headline-sm text-on-surface tracking-tight" id="current-date-heading">Thursday, Oct 24</h2>
+            <div class="flex items-center gap-1.5 bg-surface-container px-2 py-0.5 rounded-full shadow-sm">
+              <span class="material-symbols-outlined text-[14px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+              <span class="font-label-sm text-label-sm text-primary font-bold">42 Verified Dossiers</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Breaking Intelligence Alert Box -->
+        <div class="px-gutter-mobile py-space-sm">
+          <div class="bg-primary/5 rounded-xl p-space-sm flex flex-col gap-space-xs shadow-sm border border-primary/10">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-error text-on-error rounded-sm font-label-sm text-label-sm uppercase tracking-wider">
+                <span class="material-symbols-outlined text-[13px]">bolt</span>
+                Breaking Intelligence
+              </span>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary rounded-full font-label-sm text-label-sm">
+                <span class="material-symbols-outlined text-[13px]">layers</span>
+                Multiple Sources (4)
+              </span>
+            </div>
+            <p class="font-body-sm text-body-sm text-on-surface font-medium leading-snug">
+              Ministry clears landmark digital creator taxation framework; 4 independent agencies corroborate official gazette draft.
+            </p>
+            <div class="flex items-center justify-between text-on-surface-variant font-code-sm text-code-sm pt-0.5">
+              <span class="flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-secondary">verified_user</span>
+                Audited by Tax Policy Desk
+              </span>
+              <button class="text-primary hover:underline font-label-sm text-label-sm font-bold flex items-center gap-0.5" onclick="toggleDossier('dossier-breaking')" type="button">
+                View Trace <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Filter Pills (Horizontal Scroll) -->
+        <div class="px-gutter-mobile py-space-xs">
+          <div class="flex gap-2 overflow-x-auto no-scrollbar py-1" id="category-pills">
+            <button class="category-pill px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm shrink-0 shadow-sm transition-all active:scale-95" type="button" data-category="all">All Fields</button>
+            <button class="category-pill px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="creator">Creator Economy</button>
+            <button class="category-pill px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="policy">Policy &amp; Tech</button>
+            <button class="category-pill px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="culture">Culture &amp; Cinema</button>
+            <button class="category-pill px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="investigative">Investigative</button>
+            <button class="category-pill px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="climate">Climate</button>
+          </div>
+        </div>
+
+        <!-- Hero Deep Dive Lead Article -->
+        <div class="px-gutter-mobile pt-space-sm pb-space-md">
+          <article class="bg-surface-container-lowest rounded-xl shadow-md overflow-hidden flex flex-col border border-surface-variant/40">
+            <div class="relative w-full h-52 overflow-hidden">
+              <img class="w-full h-full object-cover" data-alt="Editorial newsroom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEjcoK6tyI_90GTR7W26bqYasHdKUO0MlfHdZkh_aLD0UW-WUv8huFjACbIJkEShqrJIEZOnih8pF5uDS_-3n1LJSVGN0-SWJwo_DA0_ZGDTY5gSP6z_iMr0Q_L_DQ8iIYqm92VnVGNlt6Qvq_StX_9nxy_4Au4sEzSOfOjvg-qqTM83J-NhzxTFFoVyWAFq2ZeEzDnyan8_f8cfEca6G_7F9jWMzVep_X9apkbhhVKxp5b22XypoX"/>
+              <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-inverse-surface/20 to-transparent"></div>
+              <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-secondary font-label-sm text-label-sm font-bold shadow-sm">
+                  <span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                  Officially Confirmed
+                </span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-inverse-surface/80 text-inverse-on-surface font-code-sm text-code-sm">
+                  6 Docs Verified
+                </span>
+              </div>
+              <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between text-inverse-on-surface">
+                <span class="font-code-sm text-code-sm bg-inverse-surface/60 backdrop-blur-sm px-2 py-0.5 rounded">Deep Dive Lead</span>
+                <span class="font-code-sm text-code-sm flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[14px]">schedule</span> 18m ago
+                </span>
+              </div>
+            </div>
+            <div class="p-space-md flex flex-col gap-space-sm">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 bg-secondary-fixed text-on-secondary-fixed rounded font-label-sm text-label-sm uppercase font-bold tracking-wider">Independent Media</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant">• 6 min read</span>
+              </div>
+              <h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface leading-tight font-bold">
+                The Quiet Consolidation of South Asia's Creator Economy: How 12 Indie Media Collectives Are Reshaping News Trust
+              </h1>
+              <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Through distributed fact-checking clusters and co-owned digital studios, independent investigative networks in Delhi, Dhaka, and Colombo are outperforming legacy newsrooms in cross-border public accountability.
+              </p>
+              <div class="bg-surface-container-low p-space-sm rounded-lg flex items-start gap-2.5">
+                <span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                <div class="flex flex-col gap-0.5">
+                  <span class="font-label-sm text-label-sm font-bold text-on-surface">Tatva Veracity Summary</span>
+                  <span class="font-body-sm text-body-sm text-on-surface-variant">Grounded in 3 ministry releases, 2 corporate filings, and 14 recorded primary interviews. Zero unsourced conjectures detected.</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-surface-container">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="relative">
+                    <img class="w-9 h-9 rounded-full object-cover" data-alt="Author portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2Ae5xIn4z-PcUdEaClN9dA6fTsBcXFYQmTWexq9bfSJnxouu5dMVvreULAgtWWq84491wzfytstER55xs8111-rV7Q1gpuobRePLpoDvTg942zps2G2_XeSlsQE63sPK0HtlIyJTbUM5GObQEGpAc77UT1oozLiHZ_OooEJI-Bl_yoHKb4kdGihF6kspCe6rNYaECrUx1T6awG9IOEHQcKxAtzYiXnNeT_UXzOLF-mYTwElr5bTFN"/>
+                    <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center">
+                      <span class="material-symbols-outlined text-[9px] text-on-primary">verified</span>
+                    </span>
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <span class="font-title-md text-title-md text-on-surface truncate leading-none">Ananya Roy</span>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant truncate">Lead Investigative Reporter</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button aria-label="Bookmark story" class="w-9 h-9 rounded-full flex items-center justify-center bg-surface-container text-primary hover:bg-surface-variant active:scale-90 transition-transform" type="button" onclick="this.classList.toggle('text-secondary')">
+                    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+                  </button>
+                  <button aria-label="Share story" class="w-9 h-9 rounded-full flex items-center justify-center bg-surface-container text-on-surface hover:bg-surface-variant active:scale-90 transition-transform" type="button" onclick="handleShare('The Quiet Consolidation of South Asia Creator Economy')">
+                    <span class="material-symbols-outlined text-[20px]">share</span>
+                  </button>
+                  <button class="h-9 px-3 rounded-full flex items-center gap-1 bg-primary text-on-primary font-label-sm text-label-sm font-semibold active:scale-95 transition-transform shadow-sm" onclick="toggleDossier('dossier-main')" type="button">
+                    <span class="material-symbols-outlined text-[16px]">menu_book</span>
+                    <span>Dossier</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Tatva Core Synopsis Card -->
+        <div class="px-gutter-mobile py-space-sm">
+          <div class="bg-surface-container-high rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm border border-surface-variant/40">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+                <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-secondary">Tatva Core Synopsis</span>
+              </div>
+              <span class="font-code-sm text-code-sm text-on-surface-variant">Model: Grounded-V4</span>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface font-medium leading-snug">
+              “Synthesized across 8 corroborated dispatches. Zero algorithmic hallucinations flagged. Primary fiscal disclosure shows +182% YoY creator fund inflow across South Asian vernacular networks.”
+            </p>
+            <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1 font-label-sm text-label-sm text-secondary">
+                  <span class="material-symbols-outlined text-[15px]">check</span>
+                  <span>Audited Chain</span>
+                </div>
+                <div class="flex items-center gap-1 font-label-sm text-label-sm text-on-surface-variant">
+                  <span class="material-symbols-outlined text-[15px]">lock</span>
+                  <span>Immutable Source Hash</span>
+                </div>
+              </div>
+              <span class="font-code-sm text-code-sm text-primary font-bold">100% Grounded</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verified Dispatch Feed Section -->
+        <div class="px-gutter-mobile pt-space-md flex flex-col gap-space-md">
+          <div class="flex items-center justify-between">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface tracking-tight">Verified Dispatch Feed</h3>
+            <button class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface transition-colors" type="button">
+              <span>Chronological</span>
+              <span class="material-symbols-outlined text-[18px]">sort</span>
+            </button>
+          </div>
+
+          <!-- Dispatch Item 1: Commerce & AdTech -->
+          <article class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-space-sm transition-all active:bg-surface-container-low border border-surface-variant/30">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm font-bold">
+                <span class="material-symbols-outlined text-[13px]">hourglass_empty</span>
+                Single Source • Developing
+              </span>
+              <span class="font-code-sm text-code-sm text-on-surface-variant">42m ago</span>
+            </div>
+            <div class="flex gap-space-md items-start">
+              <div class="flex-1 flex flex-col gap-1 min-w-0">
+                <span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">Commerce &amp; AdTech</span>
+                <h4 class="font-title-lg text-title-lg text-on-surface leading-snug font-semibold">
+                  Fintech Unicorns Shift 40% of Ad Spend to Micro-Creators in Tier 2/3 Cities
+                </h4>
+                <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                  Internal quarterly marketing retrospectives reveal hyper-localized regional influencers are delivering 3.4x higher conversion than standard banner campaigns.
+                </p>
+              </div>
+              <div class="w-20 h-20 shrink-0 rounded-lg overflow-hidden relative">
+                <img class="w-full h-full object-cover" data-alt="Fintech graph on phone" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAdH7KwORT_JI55XTrEaSGyv1jIG_Ix4NAYctNY_gcj3vIciN33My-UVGeuJ16xB9ng4Ig-WEMuboHZdKBoNueBWjyxs637TPUjiG9OBBekNZ21Pm2X1dXDeE9xui4IOoS8-opw-7kp3kUUNOLve85DtEBCIveypjrDilmDIZtEWts1NeJlYvYF-HRxIrK9BU56c5-JJtvzBkfugRIYnca45pDuNYOGhaXld6WtlI6CwrlhVc6yIsa"/>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-surface-container text-on-surface-variant font-body-sm text-body-sm">
+              <div class="flex items-center gap-3">
+                <span class="flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[16px]">visibility</span> 12.8k
+                </span>
+                <span class="flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[16px]">fact_check</span> 1 Corroboration Needed
+                </span>
+              </div>
+              <button class="text-primary font-label-sm text-label-sm font-bold flex items-center gap-0.5 hover:underline" type="button" onclick="alert('Followed lead: Updates will be notified')">
+                Follow Lead <span class="material-symbols-outlined text-[14px]">add</span>
+              </button>
+            </div>
+          </article>
+
+          <!-- Dispatch Item 2: Live Briefing Stream -->
+          <article class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-space-sm border border-surface-variant/30">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-error animate-pulse"></span>
+                <span class="font-label-sm text-label-sm font-bold uppercase text-error tracking-wider">Live Briefing Stream</span>
+              </div>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+                <span class="material-symbols-outlined text-[13px]">shield</span>
+                4-Point Ratified
+              </span>
+            </div>
+            <h4 class="font-title-lg text-title-lg text-on-surface leading-snug font-semibold">
+              Bilateral Tech Summit: Live 4-point briefing on AI ethics &amp; data localization pact
+            </h4>
+            <div class="flex flex-col gap-2.5 pl-3 border-l-0 relative before:absolute before:left-0 before:top-2 before:bottom-2 before:w-0.5 before:bg-surface-container-high">
+              <div class="flex items-start gap-2.5">
+                <span class="font-code-sm text-code-sm font-bold text-primary shrink-0 mt-0.5">14:20</span>
+                <p class="font-body-sm text-body-sm text-on-surface">Joint communique text finalized; clause 8 specifies sandbox protocols for open-weights generative models.</p>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="font-code-sm text-code-sm font-bold text-primary shrink-0 mt-0.5">14:05</span>
+                <p class="font-body-sm text-body-sm text-on-surface">Union Minister addresses press pool regarding sovereign compute subsidies.</p>
+              </div>
+              <div class="flex items-start gap-2.5">
+                <span class="font-code-sm text-code-sm font-bold text-on-surface-variant shrink-0 mt-0.5">13:48</span>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">Closed-door delegate consensus reached on cross-border synthetic media disclosures.</p>
+              </div>
+            </div>
+            <div class="bg-surface-container-low px-3 py-2 rounded-lg flex items-center justify-between text-on-surface">
+              <span class="font-label-sm text-label-sm font-medium">Next live update in ~8 mins</span>
+              <button class="text-primary font-label-sm text-label-sm font-bold hover:underline" type="button" onclick="alert('Stream refreshed: All 4 points ratified')">Refresh Stream</button>
+            </div>
+          </article>
+
+          <!-- Dispatch Item 3: Creator Spotlight -->
+          <article class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-space-sm border border-surface-variant/30">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm font-bold">
+                <span class="material-symbols-outlined text-[14px]">psychology</span>
+                Creator Spotlight
+              </span>
+              <span class="font-label-sm text-label-sm text-secondary font-bold flex items-center gap-0.5">
+                <span class="material-symbols-outlined text-[14px]">verified</span> 99.2% Credibility Index
+              </span>
+            </div>
+            <div class="flex items-center gap-3">
+              <img class="w-12 h-12 rounded-full object-cover shrink-0" data-alt="Kabir Sharma profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-79njNeaBM7KdBM_q-stA1ZS0mK5aVf48bWCxg-vmT4YPHh6JanWZg77X6VZjt5sSSyyTZKFrhvounBhVI2eDDy3CxMFjoOjb1d0JNoYQKtJtpO53j99XqbG6oPPlu0M-_HvoftCpMJ6-c_gFt7ExTVsA2FnvNxAJTrR60pyCdxvopvRnIPv_0o2FYA1JfLX5wZpk4JE9XUirjeVbeLMu_0CtSv7TaQhAw12W8CCbLkGYRGWCsZ9N"/>
+              <div class="flex flex-col min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-title-md text-title-md text-on-surface font-bold">Kabir Sharma</span>
+                  <span class="font-code-sm text-code-sm text-on-surface-variant">@kabir_codes</span>
+                </div>
+                <span class="font-body-sm text-body-sm text-on-surface-variant truncate">Hardware Systems • Sovereign Semiconductor Research</span>
+              </div>
+            </div>
+            <div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-1.5">
+              <p class="font-body-md text-body-md text-on-surface leading-snug">
+                “New GPU export guidelines don't just restrict floating-point ceiling; they mandate embedded telemetry for wafer fabrication lines above 28nm.”
+              </p>
+              <div class="flex items-center gap-2 pt-1 flex-wrap">
+                <span class="px-2 py-0.5 bg-surface-container-highest text-on-surface rounded font-code-sm text-code-sm flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[13px]">attach_file</span> IEEE_Paper_984.pdf
+                </span>
+                <span class="px-2 py-0.5 bg-surface-container-highest text-on-surface rounded font-code-sm text-code-sm flex items-center gap-1">
+                  <span class="material-symbols-outlined text-[13px]">link</span> Commerce Dept Notice
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+                <span>Peer-reviewed by 3 fellows</span>
+              </div>
+              <button class="px-3 py-1 rounded bg-secondary text-on-secondary font-label-sm text-label-sm font-semibold active:scale-95 transition-transform" type="button" onclick="alert('Citation code copied: [Sharma2026-GPU-01]')">
+                Collaborate &amp; Cite
+              </button>
+            </div>
+          </article>
+
+          <!-- Dynamic Container for Live Neon Ingested Stories (Appends gracefully if API active) -->
+          <div id="live-ingested-feed-container" class="flex flex-col gap-space-md"></div>
+        </div>
+
+      </div>
+
+      <!-- Slide-up Drawer: Main Evidence Dossier #TAT-8821 -->
+      <div class="fixed inset-x-0 bottom-0 z-50 bg-surface-container-lowest rounded-t-2xl shadow-2xl transition-transform duration-300 transform translate-y-full max-h-[85vh] flex flex-col max-w-[480px] mx-auto" id="dossier-main">
+        <div class="w-12 h-1.5 bg-surface-container-highest rounded-full mx-auto my-3 shrink-0"></div>
+        <div class="px-gutter-mobile pb-space-sm flex items-center justify-between shrink-0 border-b border-surface-container">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-[22px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Evidence Dossier #TAT-8821</h3>
+          </div>
+          <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-variant" onclick="toggleDossier('dossier-main')" type="button">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+        <div class="px-gutter-mobile py-space-sm overflow-y-auto flex flex-col gap-space-md">
+          <div class="p-space-sm bg-surface-container-low rounded-lg flex items-center justify-between">
+            <div>
+              <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider block">Integrity Verdict</span>
+              <span class="font-title-md text-title-md text-secondary font-bold">Officially Confirmed &amp; Triangulated</span>
+            </div>
+            <span class="font-code-sm text-code-sm bg-surface-container px-2 py-1 rounded text-on-surface">Hash: 8f4a..b129</span>
+          </div>
+          <div class="flex flex-col gap-2">
+            <span class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Primary Ground Truth Documents</span>
+            <div class="p-3 bg-surface-container rounded-lg flex items-start justify-between gap-2">
+              <div class="flex items-start gap-2 min-w-0">
+                <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">description</span>
+                <div class="flex flex-col min-w-0">
+                  <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">Press Information Bureau Gazette #409</span>
+                  <span class="font-code-sm text-code-sm text-on-surface-variant">Official PDF • Timestamp 11:24 AM IST</span>
+                </div>
+              </div>
+              <span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            </div>
+            <div class="p-3 bg-surface-container rounded-lg flex items-start justify-between gap-2">
+              <div class="flex items-start gap-2 min-w-0">
+                <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">description</span>
+                <div class="flex flex-col min-w-0">
+                  <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">Registrar of Companies Q3 Collective Filings</span>
+                  <span class="font-code-sm text-code-sm text-on-surface-variant">Corporate Audit Registry • Verified Seal</span>
+                </div>
+              </div>
+              <span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            </div>
+            <div class="p-3 bg-surface-container rounded-lg flex items-start justify-between gap-2">
+              <div class="flex items-start gap-2 min-w-0">
+                <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">description</span>
+                <div class="flex flex-col min-w-0">
+                  <span class="font-body-sm text-body-sm font-semibold text-on-surface truncate">Cross-Border Media Consortium Charter</span>
+                  <span class="font-code-sm text-code-sm text-on-surface-variant">Signed by 12 Managing Editors</span>
+                </div>
+              </div>
+              <span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <span class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Fact-Checking Rigor Methodology</span>
+            <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              The Tatva Fact Audit Engine utilizes a dual-node evaluation protocol: automated document signature validation followed by independent cryptographic confirmation from minimum 2 accredited regional news desks.
+            </p>
+          </div>
+          <div class="pt-2 pb-6">
+            <button class="w-full py-2.5 bg-primary text-on-primary rounded font-label-md text-label-md font-bold tracking-wide active:scale-98 transition-transform shadow-md" type="button" onclick="alert('Audit Packet PDF generated: Cryptographic signatures intact.')">
+              Download Complete Audit Packet (PDF)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide-up Drawer: Gazette Trace #TAX-2024 -->
+      <div class="fixed inset-x-0 bottom-0 z-50 bg-surface-container-lowest rounded-t-2xl shadow-2xl transition-transform duration-300 transform translate-y-full max-h-[85vh] flex flex-col max-w-[480px] mx-auto" id="dossier-breaking">
+        <div class="w-12 h-1.5 bg-surface-container-highest rounded-full mx-auto my-3 shrink-0"></div>
+        <div class="px-gutter-mobile pb-space-sm flex items-center justify-between shrink-0 border-b border-surface-container">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-[22px]">policy</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Gazette Trace #TAX-2024</h3>
+          </div>
+          <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-variant" onclick="toggleDossier('dossier-breaking')" type="button">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+        <div class="px-gutter-mobile py-space-sm overflow-y-auto flex flex-col gap-space-sm">
+          <div class="p-3 bg-secondary/10 rounded-lg flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary">verified_user</span>
+            <span class="font-label-sm text-label-sm text-on-surface font-semibold">4 corroborating national news agency wires match ministerial draft note.</span>
+          </div>
+          <div class="text-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            Section 194S updates include a revised standard deduction matrix for tech reviewers and content researchers earning international affiliate payouts.
+          </div>
+          <div class="pt-2 pb-6">
+            <button class="w-full py-2.5 bg-surface-container text-on-surface rounded font-label-md text-label-md font-bold hover:bg-surface-variant transition-colors" onclick="toggleDossier('dossier-breaking')" type="button">
+              Dismiss Trace
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backdrop overlay -->
+      <div class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-40 hidden transition-opacity" id="dossier-backdrop" onclick="closeAllDossiers()"></div>
+    </main>
+
+    <!-- Bottom Navigation Bar (Fixed) -->
+    <nav class="fixed bottom-0 w-full max-w-[480px] z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.05)] border-t border-surface-container">
+      <div class="flex justify-around items-center h-16 px-space-xs" id="nav-tabs">
+        <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-primary font-bold transition-colors" data-path="feed" href="#">
+          <span class="material-symbols-outlined text-[24px]">newspaper</span>
+          <span class="font-label-sm text-label-sm mt-0.5">Feed</span>
+        </a>
+        <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="pulse" href="#">
+          <span class="material-symbols-outlined text-[24px]">sensors</span>
+          <span class="font-label-sm text-label-sm mt-0.5">Pulse</span>
+        </a>
+        <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="explore" href="#">
+          <span class="material-symbols-outlined text-[24px]">explore</span>
+          <span class="font-label-sm text-label-sm mt-0.5">Explore</span>
+        </a>
+        <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="collabs" href="#">
+          <span class="material-symbols-outlined text-[24px]">hub</span>
+          <span class="font-label-sm text-label-sm mt-0.5">Collabs</span>
+        </a>
+        <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="workspace" href="#">
+          <span class="material-symbols-outlined text-[24px]">fact_check</span>
+          <span class="font-label-sm text-label-sm mt-0.5">Workspace</span>
+        </a>
+      </div>
+    </nav>
+
+  </div>
+
+  <script>
+    // Interactive Dossier Drawer logic
+    function toggleDossier(id) {
+      const el = document.getElementById(id);
+      const backdrop = document.getElementById('dossier-backdrop');
+      if (!el || !backdrop) return;
+      
+      const isClosed = el.classList.contains('translate-y-full');
+      closeAllDossiers();
+      
+      if (isClosed) {
+        el.classList.remove('translate-y-full');
+        backdrop.classList.remove('hidden');
+      }
+    }
+
+    function closeAllDossiers() {
+      const drawers = ['dossier-main', 'dossier-breaking'];
+      drawers.forEach(drawerId => {
+        const drawer = document.getElementById(drawerId);
+        if (drawer) {
+          drawer.classList.add('translate-y-full');
+        }
+      });
+      const backdrop = document.getElementById('dossier-backdrop');
+      if (backdrop) {
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    // Share Handler
+    function handleShare(title) {
+      if (navigator.share) {
+        navigator.share({
+          title: title,
+          text: 'Verified story from The Tatva / Parmanu News Intelligence',
+          url: window.location.href,
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('Story link copied to clipboard!');
+      }
+    }
+
+    // Dynamic Clock & Date Updater
+    function updateLiveClock() {
+      const now = new Date();
+      const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false };
+      const istTime = now.toLocaleTimeString('en-GB', options);
+      const ticker = document.getElementById('live-time-ticker');
+      if (ticker) {
+        ticker.innerText = 'Live ' + istTime + ' IST';
+      }
+      
+      const dateOptions = { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' };
+      const dateString = now.toLocaleDateString('en-US', dateOptions);
+      const dateHeading = document.getElementById('current-date-heading');
+      if (dateHeading) {
+        dateHeading.innerText = dateString;
+      }
+    }
+    updateLiveClock();
+    setInterval(updateLiveClock, 30000);
+
+    // Category Pill Selection
+    document.querySelectorAll('.category-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.category-pill').forEach(p => {
+          p.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+          p.classList.add('bg-surface-container', 'text-on-surface');
+        });
+        pill.classList.remove('bg-surface-container', 'text-on-surface');
+        pill.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+      });
+    });
+
+    // Bottom Navigation Active State
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.querySelectorAll('.nav-tab').forEach(t => {
+          t.classList.remove('text-primary', 'font-bold');
+          t.classList.add('text-on-surface-variant');
+        });
+        tab.classList.add('text-primary', 'font-bold');
+        tab.classList.remove('text-on-surface-variant');
+      });
+    });
+
+    // Live Ingested Feed fetcher from Parmanu API
+    async function loadLiveFeed() {
+      try {
+        const res = await fetch('/api/v1/feed?limit=5');
+        if (!res.ok) return;
+        const data = await res.json();
+        const container = document.getElementById('live-ingested-feed-container');
+        if (!container || !data.stories || data.stories.length === 0) return;
+
+        data.stories.slice(0, 3).forEach(story => {
+          const card = document.createElement('article');
+          card.className = "bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-space-sm border border-surface-variant/30";
+          card.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+                <span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                Verified • ${story.source || 'The Hindu'}
+              </span>
+              <span class="font-code-sm text-code-sm text-on-surface-variant">Live Ingested</span>
+            </div>
+            <div class="flex flex-col gap-1 min-w-0">
+              <span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">${story.category || 'National News'}</span>
+              <h4 class="font-title-lg text-title-lg text-on-surface leading-snug font-semibold">
+                <a href="${story.url}" target="_blank" rel="noopener noreferrer" class="hover:underline">${story.title}</a>
+              </h4>
+              <p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                ${story.summary || 'Verified primary reporting corroborated via Parmanu RSS ingestion engine.'}
+              </p>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-surface-container text-on-surface-variant font-body-sm text-body-sm">
+              <span class="font-code-sm text-code-sm text-on-surface-variant">Hash: ${story.deduplication_hash ? story.deduplication_hash.substring(0, 10) + '...' : 'Verified'}</span>
+              <a href="${story.url}" target="_blank" rel="noopener noreferrer" class="text-primary font-label-sm text-label-sm font-bold flex items-center gap-0.5 hover:underline">
+                Read Source <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+              </a>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      } catch (e) {
+        // Silent fallback to pristine UI state
+      }
+    }
+    loadLiveFeed();
+  </script>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
