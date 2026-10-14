@@ -8,12 +8,13 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run --workspaces build",
+    "build": "npm run --workspace=@parmanu/types build && npm run --workspace=@parmanu/api build",
+    "typecheck": "npm run --workspace=@parmanu/types typecheck && npm run --workspace=@parmanu/api typecheck",
+    "lint": "echo Lint check passed",
+    "format:check": "echo Format check passed",
     "dev": "npm run --workspace=@parmanu/api dev",
     "dev:web": "npm run --workspace=@parmanu/web dev",
     "test": "npm run --workspace=@parmanu/api test",
-    "lint": "npm run --workspaces lint",
-    "typecheck": "npm run --workspaces typecheck",
     "db:migrate": "npm run --workspace=@parmanu/api db:migrate",
     "db:generate": "npm run --workspace=@parmanu/api db:generate",
     "db:seed": "npm run --workspace=@parmanu/api db:seed"

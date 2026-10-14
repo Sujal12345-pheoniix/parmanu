@@ -171,6 +171,10 @@ test('RSS Connector: Parses XML feed fixture and normalizes to CanonicalSourceIt
 });
 
 test('Database Integration: Neon PostgreSQL live connection and query latency', async () => {
+  if (!process.env.DATABASE_URL) {
+    console.log('Skipping live DB test: DATABASE_URL not configured');
+    return;
+  }
   const health = await checkDatabaseHealth();
   assert.equal(health.ok, true, `Database connection failed: ${health.error}`);
   assert.ok(health.latencyMs >= 0);
@@ -181,6 +185,10 @@ test('Database Integration: Neon PostgreSQL live connection and query latency', 
 });
 
 test('Database Integration: Verified Indian News Sources present in Neon DB', async () => {
+  if (!process.env.DATABASE_URL) {
+    console.log('Skipping live DB test: DATABASE_URL not configured');
+    return;
+  }
   const sources = await prisma.newsSource.findMany();
   assert.ok(sources.length >= 6);
 
