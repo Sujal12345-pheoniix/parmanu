@@ -93,8 +93,8 @@ export function validateUrlForSsrf(targetUrl: string): void {
  * Calculates SHA-256 dedupe hash from normalized headline and source ID
  */
 export function calculateDedupeHash(sourceId: string, headline: string): string {
-  const normalized = headline.toLowerCase().replace(/[^a-z0-9]/g, '');
-  return crypto.createHash('sha256').update(`${sourceId}:${normalized}`).digest('hex');
+  const normalized = headline.toLowerCase().normalize('NFKD').replace(/[^\p{L}\p{N}]/gu, '');
+  return crypto.createHash('sha256').update(`${sourceId}:${normalized || headline.trim().toLowerCase()}`).digest('hex');
 }
 
 /**

@@ -19,6 +19,7 @@ import { apiRateLimiter, authRateLimiter } from './security/rate-limiter';
 
 const env = getEnv();
 const app = express();
+app.set('trust proxy', 1);
 
 // Security: Headers, CORS, and payload size limits
 app.use(securityHeadersMiddleware);
