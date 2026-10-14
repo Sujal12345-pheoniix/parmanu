@@ -1,0 +1,471 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─── USERS AND AUTH ───────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String?
+  name          String?
+  avatarUrl     String?
+  role          UserRole  @default(READER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  identities    UserIdentity[]
+  interests     UserInterest[]
+  follows       UserFollow[]
+  bookmarks     Bookmark[]
+  auditLogs     AuditLog[]     @relation("ActorAuditLogs")
+
+  @@index([email])
+  @@index([role])
+}
+
+enum UserRole {
+  READER
+  EDITOR
+  ADMIN
+}
+
+model UserIdentity {
+  id                String    @id @default(cuid())
+  userId            String
+  provider          String    // "google" | "instagram" | "credentials"
+  providerAccountId String
+  accessToken       String?   // Encrypted at rest
+  refreshToken      String?   // Encrypted at rest
+  tokenExpiry       DateTime?
+  scope             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+// ─── CREATOR INTELLIGENCE ─────────────────────────────────────────
+
+model CreatorProfile {
+  id              String    @id @default(cuid())
+  instagramHandle String?   @unique
+  displayName     String
+  bio             String?
+  avatarUrl       String?
+  category        String[]
+  verifiedAt      DateTime?
+  isVerified      Boolean   @default(false)
+  followerRange   String?
+  officialLinks   Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  connections     CreatorConnection[]
+  claims          CollaborationClaim[]
+  follows         UserFollow[]
+
+  @@index([instagramHandle])
+  @@index([isVerified])
+}
+
+model CreatorConnection {
+  id                  String         @id @default(cuid())
+  creatorProfileId    String
+  instagramUserId     String         @unique
+  accessToken         String         // Encrypted at rest
+  tokenType           String         // "basic_display" | "graph_api"
+  tokenExpiry         DateTime
+  scopes              String[]
+  connectedAt         DateTime       @default(now())
+  revokedAt           DateTime?
+  deletionScheduledAt DateTime?
+
+  creatorProfile      CreatorProfile @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+
+  @@index([creatorProfileId])
+  @@index([tokenExpiry])
+}
+
+// ─── BRANDS AND ORGANIZATIONS ─────────────────────────────────────
+
+model BrandProfile {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  sector        String?
+  description   String?
+  logoUrl       String?
+  officialLinks Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  claims        CollaborationClaim[]
+
+  @@index([slug])
+}
+
+// ─── NEWS SOURCES AND INGESTION ───────────────────────────────────
+
+model NewsSource {
+  id                     String         @id @default(cuid())
+  name                   String
+  slug                   String         @unique
+  type                   SourceType
+  feedUrl                String?
+  apiProvider            String?
+  apiConfig              Json?
+  category               String[]
+  language               String         @default("en")
+  country                String         @default("IN")
+  isActive               Boolean        @default(true)
+  pollingIntervalMinutes Int            @default(15)
+  lastPolledAt           DateTime?
+  lastSuccessAt          DateTime?
+  failureCount           Int            @default(0)
+  attributionName        String
+  attributionUrl         String
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+
+  sourceItems            SourceItem[]
+  ingestionJobs          IngestionJob[]
+
+  @@index([isActive, pollingIntervalMinutes])
+  @@index([type])
+}
+
+enum SourceType {
+  RSS
+  ATOM
+  API_GNEWS
+  API_GUARDIAN
+  API_NEWSDATA
+  MANUAL_PR
+  GOVERNMENT_FEED
+  INSTAGRAM_API
+}
+
+model SourceItem {
+  id                  String             @id @default(cuid())
+  sourceId            String
+  externalId          String?
+  canonicalUrl        String
+  headline            String
+  excerpt             String?
+  author              String?
+  publishedAt         DateTime
+  firstSeenAt         DateTime           @default(now())
+  lastCheckedAt       DateTime           @default(now())
+  contentType         ContentType        @default(NEWS_ARTICLE)
+  category            String[]
+  language            String             @default("en")
+  imageUrl            String?
+  processingState     ProcessingState    @default(PENDING)
+  provenanceState     ProvenanceState    @default(SINGLE_SOURCE)
+  rightsStatus        RightsStatus       @default(METADATA_ONLY)
+  retentionDays       Int                @default(90)
+  retainUntil         DateTime
+  dedupeHash          String             @unique
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  source              NewsSource         @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  evidenceLinks       EvidenceLink[]
+  collaborationClaims CollaborationClaim[]
+  bookmarks           Bookmark[]
+
+  @@unique([sourceId, canonicalUrl])
+  @@index([publishedAt(sort: Desc)])
+  @@index([processingState])
+  @@index([provenanceState])
+}
+
+enum ContentType {
+  NEWS_ARTICLE
+  PRESS_RELEASE
+  GOVERNMENT_ANNOUNCEMENT
+  SPORTS_UPDATE
+  CREATOR_ANNOUNCEMENT
+  INSTAGRAM_POST
+}
+
+enum ProcessingState {
+  PENDING
+  PROCESSING
+  NORMALIZED
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum ProvenanceState {
+  OFFICIAL_CONFIRMED
+  CORROBORATED
+  SINGLE_SOURCE
+  UNVERIFIED
+  DISPUTED
+  INFERRED
+}
+
+enum RightsStatus {
+  UNKNOWN
+  METADATA_ONLY
+  LICENSED_EXCERPT
+  LICENSED_FULL
+  PUBLIC_DOMAIN
+}
+
+// ─── COLLABORATION INTELLIGENCE ───────────────────────────────────
+
+model CollaborationClaim {
+  id               String          @id @default(cuid())
+  creatorProfileId String
+  brandProfileId   String
+  campaignName     String?
+  claimType        ClaimType
+  provenanceState  ProvenanceState @default(UNVERIFIED)
+  claimDate        DateTime?
+  observedAt       DateTime        @default(now())
+  resolvedAt       DateTime?
+  reviewedBy       String?
+  reviewNote       String?
+  isActive         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  creatorProfile   CreatorProfile  @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+  brandProfile     BrandProfile    @relation(fields: [brandProfileId], references: [id], onDelete: Cascade)
+  evidenceLinks    EvidenceLink[]
+  sourceItems      SourceItem[]
+
+  @@index([creatorProfileId])
+  @@index([brandProfileId])
+  @@index([provenanceState])
+  @@index([claimDate(sort: Desc)])
+}
+
+enum ClaimType {
+  BRAND_COLLABORATION
+  SPONSORED_POST
+  AMBASSADOR
+  PRODUCT_GIFTING
+  EVENT_APPEARANCE
+}
+
+// ─── EVIDENCE ENGINE ──────────────────────────────────────────────
+
+model EvidenceLink {
+  id                   String              @id @default(cuid())
+  collaborationClaimId String?
+  editorialStoryId     String?
+  sourceItemId         String
+  relationshipType     EvidenceRelation
+  evidenceStatus       EvidenceStatus      @default(ACTIVE)
+  observedAt           DateTime            @default(now())
+  reviewerUserId       String?
+  reviewedAt           DateTime?
+  supersededById       String?
+  notes                String?
+  createdAt            DateTime            @default(now())
+
+  collaborationClaim   CollaborationClaim? @relation(fields: [collaborationClaimId], references: [id], onDelete: SetNull)
+  editorialStory       EditorialStory?     @relation(fields: [editorialStoryId], references: [id], onDelete: SetNull)
+  sourceItem           SourceItem          @relation(fields: [sourceItemId], references: [id], onDelete: Cascade)
+
+  @@index([collaborationClaimId])
+  @@index([sourceItemId])
+  @@index([evidenceStatus])
+}
+
+enum EvidenceRelation {
+  PRIMARY_SOURCE
+  CORROBORATING
+  CONTRADICTING
+  BACKGROUND
+  OFFICIAL_STATEMENT
+}
+
+enum EvidenceStatus {
+  ACTIVE
+  SUPERSEDED
+  RETRACTED
+  DISPUTED
+}
+
+// ─── EDITORIAL STORIES ────────────────────────────────────────────
+
+model EditorialStory {
+  id            String         @id @default(cuid())
+  slug          String         @unique
+  headline      String
+  summary       String
+  category      String[]
+  status        StoryStatus    @default(DRAFT)
+  authorId      String
+  publishedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  versions      StoryVersion[]
+  evidenceLinks EvidenceLink[]
+  bookmarks     Bookmark[]
+
+  @@index([status])
+  @@index([publishedAt(sort: Desc)])
+}
+
+enum StoryStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+model StoryVersion {
+  id               String         @id @default(cuid())
+  editorialStoryId String
+  versionNumber    Int
+  headline         String
+  summary          String
+  changeNote       String?
+  createdBy        String
+  createdAt        DateTime       @default(now())
+
+  editorialStory   EditorialStory @relation(fields: [editorialStoryId], references: [id], onDelete: Cascade)
+
+  @@unique([editorialStoryId, versionNumber])
+}
+
+// ─── USER ENGAGEMENT ──────────────────────────────────────────────
+
+model UserInterest {
+  id        String   @id @default(cuid())
+  userId    String
+  category  String
+  weight    Float    @default(1.0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category])
+}
+
+model UserFollow {
+  id               String          @id @default(cuid())
+  userId           String
+  creatorProfileId String?
+  brandProfileId   String?
+  followedAt       DateTime        @default(now())
+
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  creatorProfile   CreatorProfile? @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, creatorProfileId])
+  @@unique([userId, brandProfileId])
+}
+
+model Bookmark {
+  id           String          @id @default(cuid())
+  userId       String
+  sourceItemId String?
+  storyId      String?
+  createdAt    DateTime        @default(now())
+
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceItem   SourceItem?     @relation(fields: [sourceItemId], references: [id], onDelete: Cascade)
+  story        EditorialStory? @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sourceItemId])
+  @@unique([userId, storyId])
+  @@index([userId])
+}
+
+// ─── INGESTION INFRASTRUCTURE ─────────────────────────────────────
+
+model IngestionJob {
+  id           String             @id @default(cuid())
+  sourceId     String
+  jobType      JobType
+  status       JobStatus          @default(PENDING)
+  scheduledAt  DateTime
+  startedAt    DateTime?
+  completedAt  DateTime?
+  itemsFound   Int?               @default(0)
+  itemsNew     Int?               @default(0)
+  errorSummary String?
+  createdAt    DateTime           @default(now())
+
+  source       NewsSource         @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  attempts     IngestionAttempt[]
+
+  @@index([sourceId, scheduledAt])
+  @@index([status])
+}
+
+enum JobType {
+  RSS_POLL
+  API_POLL
+  INSTAGRAM_SYNC
+  TOKEN_REFRESH
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+model IngestionAttempt {
+  id             String       @id @default(cuid())
+  ingestionJobId String
+  attemptNumber  Int
+  startedAt      DateTime     @default(now())
+  completedAt    DateTime?
+  success        Boolean
+  errorCode      String?
+  errorMessage   String?
+  httpStatus     Int?
+  responseTimeMs Int?
+
+  ingestionJob   IngestionJob @relation(fields: [ingestionJobId], references: [id], onDelete: Cascade)
+
+  @@index([ingestionJobId])
+}
+
+// ─── AUDIT LOG (IMMUTABLE) ────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actorRole  String?
+  action     String
+  entityType String
+  entityId   String
+  before     Json?
+  after      Json?
+  reason     String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  actor      User?    @relation("ActorAuditLogs", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt(sort: Desc)])
+}

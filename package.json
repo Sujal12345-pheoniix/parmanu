@@ -1,0 +1,24 @@
+{
+  "name": "parmanu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "India-first news and creator intelligence platform with verifiable provenance",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run --workspaces build",
+    "dev": "npm run --workspace=@parmanu/api dev",
+    "dev:web": "npm run --workspace=@parmanu/web dev",
+    "test": "npm run --workspace=@parmanu/api test",
+    "lint": "npm run --workspaces lint",
+    "typecheck": "npm run --workspaces typecheck",
+    "db:migrate": "npm run --workspace=@parmanu/api db:migrate",
+    "db:generate": "npm run --workspace=@parmanu/api db:generate",
+    "db:seed": "npm run --workspace=@parmanu/api db:seed"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
