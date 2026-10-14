@@ -105,7 +105,7 @@ jobs:
       - name: Run database migrations (production)
         run: npm exec --workspace=@parmanu/api -- prisma migrate deploy
         env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL || secrets.DATABASE_URL }}
 
       - name: Production deployment complete
         run: echo "Vercel auto-deploys from main. Railway production promoted via Railway dashboard."
