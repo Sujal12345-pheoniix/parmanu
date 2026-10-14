@@ -9,19 +9,19 @@ async function verify() {
   try {
     // 1. Test Health
     const resHealth = await fetch('http://localhost:3002/api/v1/health');
-    const health = await resHealth.json();
+    const health = (await resHealth.json()) as any;
     console.log('✅ Health status:', health.status, 'DB:', health.services.database.status);
 
     // 2. Test News Feed
     const resFeed = await fetch('http://localhost:3002/api/v1/source-items?limit=3');
-    const feed = await resFeed.json();
+    const feed = (await resFeed.json()) as any;
     console.log(`✅ News feed items returned: ${feed.data.length}, total in DB: ${feed.meta.total}`);
     console.log(`   Sample headline: "${feed.data[0].headline}"`);
     console.log(`   Provenance: ${feed.data[0].provenanceState} from ${feed.data[0].source.name}`);
 
     // 3. Test Categories
     const resCat = await fetch('http://localhost:3002/api/v1/source-items?category=India&limit=2');
-    const cat = await resCat.json();
+    const cat = (await resCat.json()) as any;
     console.log(`✅ Category query 'India': ${cat.data.length} articles`);
 
     // 4. Test Static Frontend UI

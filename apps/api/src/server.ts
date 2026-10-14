@@ -14,11 +14,14 @@ import * as SourceItemsController from './controllers/source-items.controller';
 import * as IngestionController from './controllers/ingestion.controller';
 import * as EditorialController from './controllers/editorial.controller';
 import * as CollaborationController from './controllers/collaboration.controller';
+import { securityHeadersMiddleware } from './security/headers';
+import { apiRateLimiter, authRateLimiter } from './security/rate-limiter';
 
 const env = getEnv();
 const app = express();
 
-// Security: CORS and payload size limits
+// Security: Headers, CORS, and payload size limits
+app.use(securityHeadersMiddleware);
 app.use(
   cors({
     origin: env.CORS_ORIGIN === '*' ? true : env.CORS_ORIGIN.split(','),
@@ -26,6 +29,7 @@ app.use(
   })
 );
 app.use(express.json({ limit: '1mb' }));
+app.use(apiRateLimiter);
 
 // Request ID & Request logging middleware
 app.use((req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -55,9 +59,9 @@ const router = express.Router();
 router.get('/health', HealthController.getHealth);
 router.get('/readiness', HealthController.getReadiness);
 
-// Authentication (Public & Protected)
-router.post('/auth/register', AuthController.register);
-router.post('/auth/login', AuthController.login);
+// Authentication (Public & Protected with dedicated rate limiter)
+router.post('/auth/register', authRateLimiter, AuthController.register);
+router.post('/auth/login', authRateLimiter, AuthController.login);
 router.get('/auth/me', authenticateToken, AuthController.getMe);
 
 // News Feeds & Source Items (Public Read)

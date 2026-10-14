@@ -16,9 +16,9 @@ import {
 } from './base.connector';
 
 /**
- * Strips HTML tags and unescapes common entities from excerpts
+ * Strips HTML tags and unescapes common entities from text (headlines and excerpts)
  */
-function cleanExcerpt(rawText?: string): string | undefined {
+function cleanText(rawText?: string, maxLength: number = 500): string | undefined {
   if (!rawText) return undefined;
   const noHtml = rawText.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   const unescaped = noHtml
@@ -29,7 +29,7 @@ function cleanExcerpt(rawText?: string): string | undefined {
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, ' ');
 
-  return unescaped.slice(0, 500);
+  return unescaped.slice(0, maxLength).trim();
 }
 
 /**
@@ -145,7 +145,7 @@ export class RssSourceConnector implements SourceConnector {
     const canonicalItems: CanonicalSourceItem[] = [];
 
     for (const raw of rawItems) {
-      const headline = String(raw.title || '').trim();
+      const headline = cleanText(String(raw.title || ''), 400);
       let canonicalUrl = '';
 
       if (typeof raw.link === 'string') {
@@ -159,7 +159,7 @@ export class RssSourceConnector implements SourceConnector {
       // Skip invalid items lacking headline or URL
       if (!headline || !canonicalUrl) continue;
 
-      const excerpt = cleanExcerpt(raw.description || raw.summary || raw['content:encoded']);
+      const excerpt = cleanText(raw.description || raw.summary || raw['content:encoded'], 600);
       const author = typeof raw['dc:creator'] === 'string' ? raw['dc:creator'] : typeof raw.author === 'string' ? raw.author : undefined;
       const pubDate = parsePubDate(raw.pubDate || raw.published || raw.updated || raw['dc:date']);
 

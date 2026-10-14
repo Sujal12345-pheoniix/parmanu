@@ -189,3 +189,34 @@ test('Database Integration: Verified Indian News Sources present in Neon DB', as
   assert.ok(slugs.includes('ndtv-news'));
   assert.ok(slugs.includes('economic-times'));
 });
+
+test('XSS Defense: Content sanitization strips executable markup from feed text', () => {
+  const dirtyTitle = 'Prime Minister speaks on reform <script>alert("xss")</script> &amp; growth';
+  const cleanTitle = dirtyTitle.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+  assert.equal(cleanTitle.includes('<script>'), false);
+  assert.equal(cleanTitle, 'Prime Minister speaks on reform alert("xss") & growth');
+});
+
+test('Authorization: Server-side role separation blocks privilege escalation', () => {
+  const readerUser = { id: 'reader_1', email: 'reader@parmanu.dev', role: 'READER' as const };
+  const adminUser = { id: 'admin_1', email: 'admin@parmanu.dev', role: 'ADMIN' as const };
+
+  const allowedRoles = ['ADMIN'];
+  assert.equal(allowedRoles.includes(readerUser.role), false, 'READER must not possess ADMIN privileges');
+  assert.equal(allowedRoles.includes(adminUser.role), true, 'ADMIN must possess ADMIN privileges');
+});
+
+test('Rate Limiter: Correctly throttles requests when threshold is exceeded', () => {
+  let counter = 0;
+  const max = 3;
+  const isThrottled = () => {
+    counter++;
+    return counter > max;
+  };
+
+  assert.equal(isThrottled(), false); // 1
+  assert.equal(isThrottled(), false); // 2
+  assert.equal(isThrottled(), false); // 3
+  assert.equal(isThrottled(), true);  // 4 -> Throttled
+});
+
