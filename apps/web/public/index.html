@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
   <meta content="mobile_tab" name="shell-type"/>
-  <title>The Tatva — All Fields. One Platform.</title>
+  <title>The Parmanu — All Fields. One Platform.</title>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com" rel="preconnect"/>
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -45,6 +45,7 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+    /* Mobile app container centering on desktop screens */
     .app-viewport {
       width: 100%;
       max-width: 480px;
@@ -171,9 +172,9 @@
     <header class="fixed top-0 w-full max-w-[480px] z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
       <div class="h-16 px-gutter-mobile flex items-center justify-between gap-space-sm">
         <div class="flex items-center gap-space-sm min-w-0">
-          <img alt="The Tatva Emblem" class="h-8 w-auto object-contain shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1VoB9Z_uC3eKZGLThglD_9dSYb5xxZ6_OfYWIBW7JmqhzZrPa8PtkjBuqSBrQnImDsR6ZlfeUAkVwDBsdGlhDxh51w4VFF4FOX6960uInbVuTZdCeYi61kJi-DgvJ6Qn_K1y78RxZwZrNTKY495EjWG0Xn3uqiX2AiVaICriVLyt1fhdxkkDBZfDeVUDdqia_KUpjGbYxle6I40WLRwKUYrMwrMi5SGo7XoEgkxAFOSBLdOLE0uhF62wNo"/>
+          <img alt="The Parmanu Emblem" class="h-8 w-auto object-contain shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1VoB9Z_uC3eKZGLThglD_9dSYb5xxZ6_OfYWIBW7JmqhzZrPa8PtkjBuqSBrQnImDsR6ZlfeUAkVwDBsdGlhDxh51w4VFF4FOX6960uInbVuTZdCeYi61kJi-DgvJ6Qn_K1y78RxZwZrNTKY495EjWG0Xn3uqiX2AiVaICriVLyt1fhdxkkDBZfDeVUDdqia_KUpjGbYxle6I40WLRwKUYrMwrMi5SGo7XoEgkxAFOSBLdOLE0uhF62wNo"/>
           <div class="flex flex-col min-w-0 leading-tight">
-            <span class="font-headline-sm text-headline-sm tracking-tight text-on-surface truncate">THE TATVA</span>
+            <span class="font-headline-sm text-headline-sm tracking-tight text-on-surface truncate">THE PARMANU</span>
             <span class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase truncate">All Fields. One Platform.</span>
           </div>
         </div>
@@ -292,7 +293,7 @@
               <div class="bg-surface-container-low p-space-sm rounded-lg flex items-start gap-2.5">
                 <span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
                 <div class="flex flex-col gap-0.5">
-                  <span class="font-label-sm text-label-sm font-bold text-on-surface">Tatva Veracity Summary</span>
+                  <span class="font-label-sm text-label-sm font-bold text-on-surface">Parmanu Veracity Summary</span>
                   <span class="font-body-sm text-body-sm text-on-surface-variant">Grounded in 3 ministry releases, 2 corporate filings, and 14 recorded primary interviews. Zero unsourced conjectures detected.</span>
                 </div>
               </div>
@@ -326,13 +327,13 @@
           </article>
         </div>
 
-        <!-- Tatva Core Synopsis Card -->
+        <!-- Parmanu Core Synopsis Card -->
         <div class="px-gutter-mobile py-space-sm">
           <div class="bg-surface-container-high rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm border border-surface-variant/40">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
-                <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-secondary">Tatva Core Synopsis</span>
+                <span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-secondary">Parmanu Core Synopsis</span>
               </div>
               <span class="font-code-sm text-code-sm text-on-surface-variant">Model: Grounded-V4</span>
             </div>
@@ -482,19 +483,19 @@
             </div>
           </article>
 
-          <!-- Dynamic Container for Live Neon Ingested Stories -->
+          <!-- Dynamic Container for Live Neon Ingested Stories (Appends gracefully if API active) -->
           <div id="live-ingested-feed-container" class="flex flex-col gap-space-md"></div>
         </div>
 
       </div>
 
-      <!-- Slide-up Drawer: Main Evidence Dossier #TAT-8821 -->
+      <!-- Slide-up Drawer: Main Evidence Dossier #PAR-8821 -->
       <div class="fixed inset-x-0 bottom-0 z-50 bg-surface-container-lowest rounded-t-2xl shadow-2xl transition-transform duration-300 transform translate-y-full max-h-[85vh] flex flex-col max-w-[480px] mx-auto" id="dossier-main">
         <div class="w-12 h-1.5 bg-surface-container-highest rounded-full mx-auto my-3 shrink-0"></div>
         <div class="px-gutter-mobile pb-space-sm flex items-center justify-between shrink-0 border-b border-surface-container">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-secondary text-[22px]" style="font-variation-settings: 'FILL' 1;">verified</span>
-            <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Evidence Dossier #TAT-8821</h3>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface font-bold">Evidence Dossier #PAR-8821</h3>
           </div>
           <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-variant" onclick="toggleDossier('dossier-main')" type="button">
             <span class="material-symbols-outlined text-[18px]">close</span>
@@ -544,7 +545,7 @@
           <div class="flex flex-col gap-2">
             <span class="font-label-md text-label-md text-on-surface font-bold uppercase tracking-wider">Fact-Checking Rigor Methodology</span>
             <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-              The Tatva Fact Audit Engine utilizes a dual-node evaluation protocol: automated document signature validation followed by independent cryptographic confirmation from minimum 2 accredited regional news desks.
+              The Parmanu Fact Audit Engine utilizes a dual-node evaluation protocol: automated document signature validation followed by independent cryptographic confirmation from minimum 2 accredited regional news desks.
             </p>
           </div>
           <div class="pt-2 pb-6">
@@ -616,6 +617,7 @@
   </div>
 
   <script>
+    // Interactive Dossier Drawer logic
     function toggleDossier(id) {
       const el = document.getElementById(id);
       const backdrop = document.getElementById('dossier-backdrop');
@@ -644,11 +646,12 @@
       }
     }
 
+    // Share Handler
     function handleShare(title) {
       if (navigator.share) {
         navigator.share({
           title: title,
-          text: 'Verified story from The Tatva / Parmanu News Intelligence',
+          text: 'Verified story from Parmanu News & Creator Intelligence',
           url: window.location.href,
         }).catch(() => {});
       } else {
@@ -657,6 +660,7 @@
       }
     }
 
+    // Dynamic Clock & Date Updater
     function updateLiveClock() {
       const now = new Date();
       const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false };
@@ -676,6 +680,7 @@
     updateLiveClock();
     setInterval(updateLiveClock, 30000);
 
+    // Category Pill Selection
     document.querySelectorAll('.category-pill').forEach(pill => {
       pill.addEventListener('click', () => {
         document.querySelectorAll('.category-pill').forEach(p => {
@@ -687,6 +692,7 @@
       });
     });
 
+    // Bottom Navigation Active State
     document.querySelectorAll('.nav-tab').forEach(tab => {
       tab.addEventListener('click', (e) => {
         e.preventDefault();
@@ -699,6 +705,7 @@
       });
     });
 
+    // Live Ingested Feed fetcher from Parmanu API
     async function loadLiveFeed() {
       try {
         const res = await fetch('/api/v1/feed?limit=5');
@@ -737,9 +744,11 @@
           container.appendChild(card);
         });
       } catch (e) {
+        // Silent fallback to pristine UI state
       }
     }
     loadLiveFeed();
   </script>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Parmanu / The Tatva Client Core Scripts
+// Parmanu Client Core Scripts
 console.log('Parmanu Web UI initialized');
 
 export interface StoryItem {
