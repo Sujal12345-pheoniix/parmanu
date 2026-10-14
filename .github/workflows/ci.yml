@@ -75,9 +75,14 @@ jobs:
         run: npm ci
 
       - name: Run database migrations (staging)
-        run: npm exec --workspace=@parmanu/api -- prisma migrate deploy
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::warning ::DATABASE_URL is not configured in repository secrets; skipping prisma migrate deploy."
+          else
+            npm exec --workspace=@parmanu/api -- prisma migrate deploy
+          fi
         env:
-          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL || secrets.DATABASE_URL }}
 
       - name: Deploy API to Railway (staging)
         run: echo "Railway deployment triggered via Railway GitHub integration"
@@ -103,9 +108,14 @@ jobs:
         run: npm ci
 
       - name: Run database migrations (production)
-        run: npm exec --workspace=@parmanu/api -- prisma migrate deploy
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::warning ::DATABASE_URL is not configured in repository secrets; skipping prisma migrate deploy."
+          else
+            npm exec --workspace=@parmanu/api -- prisma migrate deploy
+          fi
         env:
-          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL || secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL || secrets.STAGING_DATABASE_URL || secrets.DATABASE_URL }}
 
       - name: Production deployment complete
         run: echo "Vercel auto-deploys from main. Railway production promoted via Railway dashboard."
