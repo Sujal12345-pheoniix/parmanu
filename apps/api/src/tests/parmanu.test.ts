@@ -192,7 +192,7 @@ test('Database Integration: Verified Indian News Sources present in Neon DB', as
   const sources = await prisma.newsSource.findMany();
   assert.ok(sources.length >= 6);
 
-  const slugs = sources.map((s) => s.slug);
+  const slugs = sources.map((s: { slug: string }) => s.slug);
   assert.ok(slugs.includes('the-hindu'));
   assert.ok(slugs.includes('ndtv-news'));
   assert.ok(slugs.includes('economic-times'));
@@ -227,4 +227,3 @@ test('Rate Limiter: Correctly throttles requests when threshold is exceeded', ()
   assert.equal(isThrottled(), false); // 3
   assert.equal(isThrottled(), true);  // 4 -> Throttled
 });
-
