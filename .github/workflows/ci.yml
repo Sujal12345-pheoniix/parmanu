@@ -77,9 +77,9 @@ jobs:
       - name: Run database migrations (staging)
         run: |
           if [ -z "$DATABASE_URL" ]; then
-            echo "::warning ::DATABASE_URL is not configured in repository secrets; skipping prisma migrate deploy."
+            echo "::warning ::DATABASE_URL is not configured in repository secrets; skipping prisma db push."
           else
-            npm exec --workspace=@parmanu/api -- prisma migrate deploy
+            npm exec --workspace=@parmanu/api -- prisma db push --skip-generate
           fi
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL || secrets.DATABASE_URL }}
@@ -110,9 +110,9 @@ jobs:
       - name: Run database migrations (production)
         run: |
           if [ -z "$DATABASE_URL" ]; then
-            echo "::warning ::DATABASE_URL is not configured in repository secrets; skipping prisma migrate deploy."
+            echo "::warning ::DATABASE_URL is not configured in repository secrets; skipping prisma db push."
           else
-            npm exec --workspace=@parmanu/api -- prisma migrate deploy
+            npm exec --workspace=@parmanu/api -- prisma db push --skip-generate
           fi
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL || secrets.STAGING_DATABASE_URL || secrets.DATABASE_URL }}
