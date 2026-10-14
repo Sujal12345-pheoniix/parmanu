@@ -1,7 +1,8 @@
 import { prisma } from '../prisma/client';
 import { RssSourceConnector } from '../connectors/rss.connector';
 import { calculateDedupeHash, ConnectorError } from '../connectors/base.connector';
-import { NewsSource } from '@prisma/client';
+
+type NewsSourceRecord = Awaited<ReturnType<typeof prisma.newsSource.findFirst>>;
 
 export class IngestionService {
   private rssConnector = new RssSourceConnector();
@@ -9,7 +10,7 @@ export class IngestionService {
   /**
    * Runs ingestion for a single news source
    */
-  public async ingestSource(source: NewsSource): Promise<{
+  public async ingestSource(source: NonNullable<NewsSourceRecord>): Promise<{
     success: boolean;
     itemsFound: number;
     itemsNew: number;
