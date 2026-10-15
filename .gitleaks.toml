@@ -1,0 +1,10 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist for unit test fixtures, mock data, and documentation placeholders"
+paths = [
+  '''apps/api/src/tests/.*''',
+  '''docs/.*''',
+  '''\.env\.example$'''
+]

@@ -43,7 +43,7 @@ CORS_ORIGIN=http://localhost:3000
 
 # ─── SECURITY CREDENTIALS (MINIMUM 32 CHARS) ─────────────
 JWT_SECRET=your_jwt_secret_at_least_32_characters_long_placeholder
-ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+ENCRYPTION_KEY=your_32_byte_hex_encryption_key_placeholder
 ADMIN_REGISTRATION_KEY=parmanu_admin_setup_key_production_grade_placeholder
 
 # ─── LICENSED SOURCE PROVIDERS ───────────────────────────
