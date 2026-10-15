@@ -303,3 +303,152 @@ export interface SourceHealthMetrics {
   totalItemsCount: number;
   avgResponseTimeMs?: number;
 }
+
+// ─── PHASE 2.2 STORY INTELLIGENCE & CLUSTERING SCHEMAS ───────────────
+
+export const ClusterLifecycleSchema = z.enum([
+  'DETECTED',
+  'CLUSTERED',
+  'UNDER_REVIEW',
+  'VERIFIED_FOR_PUBLICATION',
+  'PUBLISHED',
+  'UPDATED',
+  'DISPUTED',
+  'CORRECTED',
+  'RETRACTED',
+  'ARCHIVED',
+]);
+export type ClusterLifecycle = z.infer<typeof ClusterLifecycleSchema>;
+
+export const ClusterItemRoleSchema = z.enum([
+  'PRIMARY',
+  'CORROBORATING',
+  'UPDATE',
+  'CONTRADICTING',
+  'BACKGROUND',
+]);
+export type ClusterItemRole = z.infer<typeof ClusterItemRoleSchema>;
+
+export const StoryClaimTypeSchema = z.enum([
+  'FACTUAL_EVENT',
+  'BRAND_COLLABORATION',
+  'STATUTORY_ACTION',
+  'NUMERICAL_FIGURE',
+  'OFFICIAL_STATEMENT',
+  'QUOTE',
+]);
+export type StoryClaimType = z.infer<typeof StoryClaimTypeSchema>;
+
+export const ClaimVerificationStatusSchema = z.enum([
+  'UNASSESSED',
+  'SINGLE_SOURCE',
+  'MULTIPLE_SOURCES',
+  'OFFICIALLY_CONFIRMED',
+  'DISPUTED',
+  'CORRECTED',
+  'RETRACTED',
+]);
+export type ClaimVerificationStatus = z.infer<typeof ClaimVerificationStatusSchema>;
+
+export const EvidenceStanceSchema = z.enum([
+  'SUPPORTS',
+  'CONTRADICTS',
+  'CONTEXTUALIZES',
+]);
+export type EvidenceStance = z.infer<typeof EvidenceStanceSchema>;
+
+export const SourceIndependenceSchema = z.enum([
+  'INDEPENDENT',
+  'SYNDICATED',
+  'REPOST',
+  'OFFICIAL_SPOKESPERSON',
+]);
+export type SourceIndependence = z.infer<typeof SourceIndependenceSchema>;
+
+export const RegisteredEntityTypeSchema = z.enum([
+  'CREATOR',
+  'BRAND',
+  'ORGANIZATION',
+  'GOVERNMENT_BODY',
+  'PUBLIC_FIGURE',
+]);
+export type RegisteredEntityType = z.infer<typeof RegisteredEntityTypeSchema>;
+
+export const EntityRelationshipTypeSchema = z.enum([
+  'ANNOUNCED_PARTNERSHIP',
+  'FEATURED_WITH',
+  'BRAND_CAMPAIGN',
+  'CO_AUTHORED_CONTENT',
+  'RUMORED_RELATIONSHIP',
+  'REGULATORY_OVERSIGHT',
+]);
+export type EntityRelationshipType = z.infer<typeof EntityRelationshipTypeSchema>;
+
+export const RelationshipStatusSchema = z.enum([
+  'UNVERIFIED',
+  'PROPOSED',
+  'CONFIRMED',
+  'DISPUTED',
+  'TERMINATED',
+]);
+export type RelationshipStatus = z.infer<typeof RelationshipStatusSchema>;
+
+// Story Cluster Query & Mutation Schemas
+export const StoryClusterQuerySchema = z.object({
+  status: ClusterLifecycleSchema.optional(),
+  category: z.string().optional(),
+  entityId: z.string().optional(),
+  search: z.string().optional(),
+  minConfidence: z.coerce.number().min(0).max(1).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export type StoryClusterQuery = z.infer<typeof StoryClusterQuerySchema>;
+
+export const MergeClustersSchema = z.object({
+  primaryClusterId: z.string().min(1),
+  secondaryClusterId: z.string().min(1),
+  reason: z.string().min(5),
+});
+export type MergeClustersInput = z.infer<typeof MergeClustersSchema>;
+
+export const SplitClusterSchema = z.object({
+  sourceClusterId: z.string().min(1),
+  sourceItemIdsToDetach: z.array(z.string().min(1)).min(1),
+  newClusterHeadline: z.string().min(5),
+  reason: z.string().min(5),
+});
+export type SplitClusterInput = z.infer<typeof SplitClusterSchema>;
+
+export const ReviewClaimSchema = z.object({
+  verificationStatus: ClaimVerificationStatusSchema,
+  notes: z.string().min(3),
+});
+export type ReviewClaimInput = z.infer<typeof ReviewClaimSchema>;
+
+export const CreateEntityRegistrySchema = z.object({
+  canonicalName: z.string().min(2),
+  slug: z.string().min(2).regex(/^[a-z0-9-]+$/),
+  entityType: RegisteredEntityTypeSchema,
+  aliases: z.array(z.string()).default([]),
+  verifiedUrls: z.record(z.any()).optional(),
+  isVerified: z.boolean().default(false),
+  creatorProfileId: z.string().optional(),
+  brandProfileId: z.string().optional(),
+});
+export type CreateEntityRegistryInput = z.infer<typeof CreateEntityRegistrySchema>;
+
+export const CreateEntityRelationshipSchema = z.object({
+  sourceEntityId: z.string().min(1),
+  targetEntityId: z.string().min(1),
+  relationshipType: EntityRelationshipTypeSchema,
+  status: RelationshipStatusSchema.default('UNVERIFIED'),
+  confidence: z.number().min(0).max(1).default(0.5),
+  storyClusterId: z.string().optional(),
+  evidenceSourceItemId: z.string().optional(),
+  notes: z.string().optional(),
+  validFrom: z.coerce.date().optional(),
+  validTo: z.coerce.date().optional(),
+});
+export type CreateEntityRelationshipInput = z.infer<typeof CreateEntityRelationshipSchema>;
+

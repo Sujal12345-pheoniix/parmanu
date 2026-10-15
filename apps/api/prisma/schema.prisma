@@ -184,6 +184,8 @@ model SourceItem {
   evidenceLinks       EvidenceLink[]
   collaborationClaims CollaborationClaim[]
   bookmarks           Bookmark[]
+  clusterItems        StoryClusterItem[]
+  claimEvidence       ClaimEvidence[]
 
   @@unique([sourceId, canonicalUrl])
   @@index([publishedAt(sort: Desc)])
@@ -469,3 +471,248 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([createdAt(sort: Desc)])
 }
+
+// ─── PHASE 2.2: STORY INTELLIGENCE & CLUSTERING ──────────────────
+
+model StoryCluster {
+  id               String                 @id @default(cuid())
+  clusterSlug      String                 @unique
+  primaryHeadline  String
+  summary          String?
+  category         String[]
+  status           ClusterLifecycle       @default(DETECTED)
+  confidenceScore  Float                  @default(0.5)
+  firstObservedAt  DateTime               @default(now())
+  lastObservedAt   DateTime               @default(now())
+  itemCount        Int                    @default(1)
+  isManuallyLocked Boolean                @default(false)
+  editorialStoryId String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  items            StoryClusterItem[]
+  claims           StoryClaim[]
+  entityLinks      EntityToStoryCluster[]
+  mergeSplitLogs   ClusterMergeSplitLog[]
+
+  @@index([status])
+  @@index([lastObservedAt(sort: Desc)])
+  @@index([confidenceScore])
+}
+
+enum ClusterLifecycle {
+  DETECTED
+  CLUSTERED
+  UNDER_REVIEW
+  VERIFIED_FOR_PUBLICATION
+  PUBLISHED
+  UPDATED
+  DISPUTED
+  CORRECTED
+  RETRACTED
+  ARCHIVED
+}
+
+model StoryClusterItem {
+  id             String          @id @default(cuid())
+  storyClusterId String
+  sourceItemId   String
+  role           ClusterItemRole @default(CORROBORATING)
+  confidence     Float           @default(0.8)
+  matchReason    String
+  attachedAt     DateTime        @default(now())
+
+  storyCluster   StoryCluster    @relation(fields: [storyClusterId], references: [id], onDelete: Cascade)
+  sourceItem     SourceItem      @relation(fields: [sourceItemId], references: [id], onDelete: Cascade)
+
+  @@unique([storyClusterId, sourceItemId])
+  @@index([storyClusterId])
+  @@index([sourceItemId])
+}
+
+enum ClusterItemRole {
+  PRIMARY
+  CORROBORATING
+  UPDATE
+  CONTRADICTING
+  BACKGROUND
+}
+
+model StoryClaim {
+  id                 String                  @id @default(cuid())
+  storyClusterId     String
+  claimText          String
+  claimType          StoryClaimType          @default(FACTUAL_EVENT)
+  verificationStatus ClaimVerificationStatus @default(UNASSESSED)
+  confidenceScore    Float                   @default(0.5)
+  assertedAt         DateTime                @default(now())
+  resolvedAt         DateTime?
+  reviewedBy         String?
+  reviewNotes        String?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  storyCluster       StoryCluster            @relation(fields: [storyClusterId], references: [id], onDelete: Cascade)
+  evidenceRecords    ClaimEvidence[]
+
+  @@index([storyClusterId])
+  @@index([verificationStatus])
+}
+
+enum StoryClaimType {
+  FACTUAL_EVENT
+  BRAND_COLLABORATION
+  STATUTORY_ACTION
+  NUMERICAL_FIGURE
+  OFFICIAL_STATEMENT
+  QUOTE
+}
+
+enum ClaimVerificationStatus {
+  UNASSESSED
+  SINGLE_SOURCE
+  MULTIPLE_SOURCES
+  OFFICIALLY_CONFIRMED
+  DISPUTED
+  CORRECTED
+  RETRACTED
+}
+
+model ClaimEvidence {
+  id                 String             @id @default(cuid())
+  claimId            String
+  sourceItemId       String
+  stance             EvidenceStance     @default(SUPPORTS)
+  quoteExcerpt       String?
+  sourceIndependence SourceIndependence @default(INDEPENDENT)
+  processingVersion  String             @default("v2.2.0-deterministic")
+  reviewedBy         String?
+  reviewedAt         DateTime?
+  notes              String?
+  createdAt          DateTime           @default(now())
+
+  claim              StoryClaim         @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  sourceItem         SourceItem         @relation(fields: [sourceItemId], references: [id], onDelete: Cascade)
+
+  @@index([claimId])
+  @@index([sourceItemId])
+  @@index([stance])
+}
+
+enum EvidenceStance {
+  SUPPORTS
+  CONTRADICTS
+  CONTEXTUALIZES
+}
+
+enum SourceIndependence {
+  INDEPENDENT
+  SYNDICATED
+  REPOST
+  OFFICIAL_SPOKESPERSON
+}
+
+model EntityRegistry {
+  id                String                 @id @default(cuid())
+  slug              String                 @unique
+  canonicalName     String
+  entityType        RegisteredEntityType
+  aliases           String[]
+  verifiedUrls      Json?
+  isVerified        Boolean                @default(false)
+  creatorProfileId  String?
+  brandProfileId    String?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  storyLinks        EntityToStoryCluster[]
+  outgoingRelations EntityRelationship[]   @relation("SourceEntityRelations")
+  incomingRelations EntityRelationship[]   @relation("TargetEntityRelations")
+
+  @@index([canonicalName])
+  @@index([entityType])
+}
+
+enum RegisteredEntityType {
+  CREATOR
+  BRAND
+  ORGANIZATION
+  GOVERNMENT_BODY
+  PUBLIC_FIGURE
+}
+
+model EntityRelationship {
+  id                   String                 @id @default(cuid())
+  sourceEntityId       String
+  targetEntityId       String
+  relationshipType     EntityRelationshipType
+  status               RelationshipStatus     @default(UNVERIFIED)
+  confidence           Float                  @default(0.5)
+  storyClusterId       String?
+  evidenceSourceItemId String?
+  notes                String?
+  validFrom            DateTime?
+  validTo              DateTime?
+  reviewedBy           String?
+  reviewedAt           DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  sourceEntity         EntityRegistry         @relation("SourceEntityRelations", fields: [sourceEntityId], references: [id], onDelete: Cascade)
+  targetEntity         EntityRegistry         @relation("TargetEntityRelations", fields: [targetEntityId], references: [id], onDelete: Cascade)
+
+  @@index([sourceEntityId])
+  @@index([targetEntityId])
+  @@index([relationshipType])
+}
+
+enum EntityRelationshipType {
+  ANNOUNCED_PARTNERSHIP
+  FEATURED_WITH
+  BRAND_CAMPAIGN
+  CO_AUTHORED_CONTENT
+  RUMORED_RELATIONSHIP
+  REGULATORY_OVERSIGHT
+}
+
+enum RelationshipStatus {
+  UNVERIFIED
+  PROPOSED
+  CONFIRMED
+  DISPUTED
+  TERMINATED
+}
+
+model EntityToStoryCluster {
+  id              String         @id @default(cuid())
+  entityId        String
+  storyClusterId  String
+  prominenceScore Float          @default(1.0)
+
+  entity          EntityRegistry @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  storyCluster    StoryCluster   @relation(fields: [storyClusterId], references: [id], onDelete: Cascade)
+
+  @@unique([entityId, storyClusterId])
+  @@index([entityId])
+  @@index([storyClusterId])
+}
+
+model ClusterMergeSplitLog {
+  id              String       @id @default(cuid())
+  action          String
+  targetClusterId String
+  sourceClusterId String?
+  sourceItemId    String?
+  reason          String
+  actorId         String?
+  actorRole       String?
+  metadata        Json?
+  createdAt       DateTime     @default(now())
+
+  targetCluster   StoryCluster @relation(fields: [targetClusterId], references: [id], onDelete: Cascade)
+
+  @@index([targetClusterId])
+  @@index([action])
+  @@index([createdAt(sort: Desc)])
+}
+

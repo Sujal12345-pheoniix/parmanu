@@ -14,6 +14,9 @@ import * as SourceItemsController from './controllers/source-items.controller';
 import * as IngestionController from './controllers/ingestion.controller';
 import * as EditorialController from './controllers/editorial.controller';
 import * as CollaborationController from './controllers/collaboration.controller';
+import * as StoryClustersController from './controllers/story-clusters.controller';
+import * as ClaimsController from './controllers/claims.controller';
+import * as EntitiesController from './controllers/entities.controller';
 import { securityHeadersMiddleware } from './security/headers';
 import { apiRateLimiter, authRateLimiter } from './security/rate-limiter';
 
@@ -89,6 +92,26 @@ router.post('/editorial/review/:id', authenticateToken, requireRole(['EDITOR', '
 // Collaboration Radar
 router.get('/collaboration/claims', optionalAuth, CollaborationController.listCollaborationClaims);
 router.post('/collaboration/claims', authenticateToken, requireRole(['EDITOR', 'ADMIN']), CollaborationController.createCollaborationClaim);
+
+// Phase 2.2: Story Intelligence & Clustering
+router.get('/clusters', optionalAuth, StoryClustersController.listStoryClusters);
+router.get('/clusters/:id', optionalAuth, StoryClustersController.getStoryClusterById);
+router.post('/clusters/merge', authenticateToken, requireRole(['EDITOR', 'ADMIN']), StoryClustersController.mergeClusters);
+router.post('/clusters/:id/split', authenticateToken, requireRole(['EDITOR', 'ADMIN']), StoryClustersController.splitCluster);
+router.patch('/clusters/:id/status', authenticateToken, requireRole(['EDITOR', 'ADMIN']), StoryClustersController.updateClusterStatus);
+router.post('/clusters/:id/draft', authenticateToken, requireRole(['EDITOR', 'ADMIN']), StoryClustersController.generateDraftSummary);
+
+// Claims & Evidence Verification
+router.get('/claims', optionalAuth, ClaimsController.listStoryClaims);
+router.post('/clusters/:id/claims', authenticateToken, requireRole(['EDITOR', 'ADMIN']), ClaimsController.createStoryClaim);
+router.post('/claims/:id/evidence', authenticateToken, requireRole(['EDITOR', 'ADMIN']), ClaimsController.attachEvidenceToClaim);
+router.post('/claims/:id/review', authenticateToken, requireRole(['EDITOR', 'ADMIN']), ClaimsController.reviewStoryClaim);
+
+// Entity Resolution & Graph
+router.get('/entities', optionalAuth, EntitiesController.listEntities);
+router.post('/entities', authenticateToken, requireRole(['ADMIN']), EntitiesController.createEntity);
+router.get('/entities/:id', optionalAuth, EntitiesController.getEntityById);
+router.post('/entities/relationships', authenticateToken, requireRole(['EDITOR', 'ADMIN']), EntitiesController.createRelationship);
 
 app.use('/api/v1', router);
 

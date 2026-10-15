@@ -11,6 +11,7 @@ import {
   ConnectorFailureType,
 } from '../connectors/base.connector';
 import { defaultAdapterRegistry, AdapterRegistry } from './adapter.registry';
+import { defaultStoryClusteringService } from '../intelligence/story-clustering.service';
 
 type NewsSourceRecord = Awaited<ReturnType<typeof prisma.newsSource.findFirst>>;
 
@@ -172,9 +173,8 @@ export class IngestionService {
               },
             });
             itemsUpdated++;
-          } else {
             // New item: create record
-            await prisma.sourceItem.create({
+            const createdItem = await prisma.sourceItem.create({
               data: {
                 sourceId: item.sourceId,
                 externalId: item.externalId,
@@ -196,6 +196,13 @@ export class IngestionService {
               },
             });
             itemsInserted++;
+
+            // Phase 2.2: Automated Story Clustering
+            try {
+              await defaultStoryClusteringService.clusterSourceItem(createdItem.id);
+            } catch (clusterErr: any) {
+              console.warn(`[STORY_CLUSTERING] Failed to cluster item ${createdItem.id}:`, clusterErr.message);
+            }
           }
         } catch (dbErr: any) {
           if (dbErr.code === 'P2002') {
