@@ -122,7 +122,7 @@ export class EvidenceVerificationService {
     });
 
     const newStatus = this.calculateClaimStatus(
-      allEvidence.map((e) => ({
+      allEvidence.map((e: any) => ({
         stance: e.stance as EvidenceStance,
         sourceIndependence: e.sourceIndependence as SourceIndependence,
         sourceItem: {

@@ -58,7 +58,7 @@ export class IngestionScheduler {
       });
 
       const now = Date.now();
-      const sourcesToPoll = activeSources.filter((source) => {
+      const sourcesToPoll = activeSources.filter((source: any) => {
         if (!source.lastPolledAt) return true;
         const elapsedMinutes = (now - new Date(source.lastPolledAt).getTime()) / (1000 * 60);
         return elapsedMinutes >= (source.pollingIntervalMinutes || 15);

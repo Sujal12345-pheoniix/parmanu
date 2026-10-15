@@ -240,7 +240,7 @@ export class StoryClusteringService {
     }
 
     // Transfer items
-    const existingItemIds = new Set(primary.items.map((i) => i.sourceItemId));
+    const existingItemIds = new Set(primary.items.map((i: any) => i.sourceItemId));
     let movedCount = 0;
 
     for (const item of secondary.items) {

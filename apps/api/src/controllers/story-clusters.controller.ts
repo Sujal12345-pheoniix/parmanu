@@ -260,7 +260,7 @@ export async function generateDraftSummary(req: AuthenticatedRequest, res: Respo
   }
 
   try {
-    const inputItems = cluster.items.map((i) => ({
+    const inputItems = cluster.items.map((i: any) => ({
       id: i.sourceItem.id,
       headline: i.sourceItem.headline,
       excerpt: i.sourceItem.excerpt,

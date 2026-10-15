@@ -242,7 +242,7 @@ export async function getSourceHealth(req: AuthenticatedRequest, res: Response):
   }
 
   const latestJob = source.ingestionJobs[0];
-  const lastErrorCategory = latestJob?.attempts?.find((a) => !a.success)?.errorCode || null;
+  const lastErrorCategory = latestJob?.attempts?.find((a: any) => !a.success)?.errorCode || null;
   const lastErrorMessage = latestJob?.errorSummary || null;
 
   // Connector adapter probe
