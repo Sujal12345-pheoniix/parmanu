@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "id": "18029384756192837",
+      "caption": "Excited to announce my new collaboration with @techgear for their creator podcast series! #ad #collab Check out the full setup.",
+      "media_type": "IMAGE",
+      "media_url": "https://scontent.cdninstagram.com/v/sample-media.jpg",
+      "permalink": "https://www.instagram.com/p/DB12345sample/",
+      "timestamp": "2026-10-15T02:00:00+0000",
+      "username": "techguru_raj"
+    }
+  ],
+  "paging": {
+    "cursors": {
+      "before": "QVFIUkV1",
+      "after": "QVFIUkVs"
+    }
+  }
+}

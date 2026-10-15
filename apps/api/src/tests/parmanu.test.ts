@@ -1,3 +1,6 @@
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://ci:ci@localhost:5432/parmanu_test';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'parmanu_ci_test_secret_min_length_32';
+
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {

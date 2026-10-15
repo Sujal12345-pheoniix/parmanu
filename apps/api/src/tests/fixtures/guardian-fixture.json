@@ -1,0 +1,34 @@
+{
+  "response": {
+    "status": "ok",
+    "userTier": "developer",
+    "total": 1,
+    "startIndex": 1,
+    "pageSize": 10,
+    "currentPage": 1,
+    "pages": 1,
+    "orderBy": "newest",
+    "results": [
+      {
+        "id": "world/2026/oct/15/india-green-energy-expansion",
+        "type": "article",
+        "sectionId": "world",
+        "sectionName": "World news",
+        "webPublicationDate": "2026-10-15T05:00:00Z",
+        "webTitle": "India expands solar and offshore wind capacity in record renewable surge",
+        "webUrl": "https://www.theguardian.com/world/2026/oct/15/india-green-energy-expansion",
+        "apiUrl": "https://content.guardianapis.com/world/2026/oct/15/india-green-energy-expansion",
+        "fields": {
+          "headline": "India expands solar and offshore wind capacity in record renewable surge",
+          "trailText": "New installations across Rajasthan and Gujarat mark a major milestone in transition targets.",
+          "byline": "Hannah Ellis-Petersen",
+          "thumbnail": "https://media.guim.co.uk/sample-thumb.jpg",
+          "shortUrl": "https://gu.com/p/abc12"
+        },
+        "isHosted": false,
+        "pillarId": "pillar/news",
+        "pillarName": "News"
+      }
+    ]
+  }
+}

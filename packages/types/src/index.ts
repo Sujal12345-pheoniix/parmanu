@@ -56,6 +56,23 @@ export const RightsStatusSchema = z.enum([
 ]);
 export type RightsStatus = z.infer<typeof RightsStatusSchema>;
 
+export const PermissionClassificationSchema = z.enum([
+  'PUBLIC_SYNDICATION',
+  'LICENSED_API',
+  'OFFICIAL_GOVERNMENT',
+  'CREATOR_VOLUNTARY_OAUTH',
+  'PR_WIRE',
+]);
+export type PermissionClassification = z.infer<typeof PermissionClassificationSchema>;
+
+export const SourceHealthStatusSchema = z.enum([
+  'HEALTHY',
+  'DEGRADED',
+  'FAILING',
+  'DISABLED',
+]);
+export type SourceHealthStatus = z.infer<typeof SourceHealthStatusSchema>;
+
 export const EvidenceRelationSchema = z.enum([
   'PRIMARY_SOURCE',
   'CORROBORATING',
@@ -147,6 +164,41 @@ export const CreateNewsSourceSchema = z.object({
 });
 export type CreateNewsSourceInput = z.infer<typeof CreateNewsSourceSchema>;
 
+export const UpdateNewsSourceSchema = z.object({
+  name: z.string().min(2).optional(),
+  feedUrl: z.string().url().optional().nullable(),
+  apiProvider: z.string().optional().nullable(),
+  apiConfig: z.record(z.any()).optional().nullable(),
+  category: z.array(z.string()).min(1).optional(),
+  language: z.string().optional(),
+  country: z.string().optional(),
+  pollingIntervalMinutes: z.number().int().min(5).max(1440).optional(),
+  attributionName: z.string().min(1).optional(),
+  attributionUrl: z.string().url().optional(),
+  isActive: z.boolean().optional(),
+});
+export type UpdateNewsSourceInput = z.infer<typeof UpdateNewsSourceSchema>;
+
+export const SourceAdapterConfigSchema = z.object({
+  id: z.string(),
+  name: z.string().optional(),
+  type: SourceTypeSchema,
+  feedUrl: z.string().url().optional().nullable(),
+  apiProvider: z.string().optional().nullable(),
+  apiConfig: z.record(z.any()).optional().nullable(),
+  category: z.array(z.string()).default([]),
+  language: z.string().default('en'),
+  country: z.string().default('IN'),
+  attributionName: z.string().default(''),
+  attributionUrl: z.string().default(''),
+  isActive: z.boolean().default(true),
+  pollingIntervalMinutes: z.number().int().default(15),
+  maxItemsPerPoll: z.number().int().default(50),
+  timeoutMs: z.number().int().default(12000),
+  permissionClassification: PermissionClassificationSchema.default('PUBLIC_SYNDICATION'),
+});
+export type SourceAdapterConfig = z.infer<typeof SourceAdapterConfigSchema>;
+
 // ─── CANONICAL SOURCE ITEM CONTRACT ────────────────────────────────
 
 export const CanonicalSourceItemSchema = z.object({
@@ -217,3 +269,37 @@ export const NewsFeedQuerySchema = z.object({
   search: z.string().optional(),
 });
 export type NewsFeedQuery = z.infer<typeof NewsFeedQuerySchema>;
+
+// ─── INGESTION RUN & HEALTH METRICS ─────────────────────────────────
+
+export interface IngestionRunSummary {
+  sourceId: string;
+  sourceName: string;
+  sourceType: SourceType;
+  jobId: string;
+  success: boolean;
+  itemsDiscovered: number;
+  itemsInserted: number;
+  itemsUpdated: number;
+  itemsSkipped: number;
+  itemsRejected: number;
+  durationMs: number;
+  errorCategory?: string;
+  errorMessage?: string;
+  retryAfterSeconds?: number;
+}
+
+export interface SourceHealthMetrics {
+  sourceId: string;
+  name: string;
+  type: SourceType;
+  healthStatus: SourceHealthStatus;
+  isActive: boolean;
+  consecutiveFailures: number;
+  lastPolledAt: Date | null;
+  lastSuccessAt: Date | null;
+  lastErrorCategory?: string | null;
+  lastErrorMessage?: string | null;
+  totalItemsCount: number;
+  avgResponseTimeMs?: number;
+}

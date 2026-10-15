@@ -1,0 +1,17 @@
+{
+  "totalArticles": 1,
+  "articles": [
+    {
+      "title": "UPI transactions hit new all-time monthly high across India",
+      "description": "Unified Payments Interface recorded over 18 billion transactions in the last calendar month.",
+      "content": "Unified Payments Interface recorded over 18 billion transactions in the last calendar month as digital payments continue rapid growth.",
+      "url": "https://www.financialexpress.com/economy/upi-transactions-new-high-record-2026/998877/",
+      "image": "https://www.financialexpress.com/images/upi-record.jpg",
+      "publishedAt": "2026-10-15T03:45:00Z",
+      "source": {
+        "name": "Financial Express",
+        "url": "https://www.financialexpress.com"
+      }
+    }
+  ]
+}

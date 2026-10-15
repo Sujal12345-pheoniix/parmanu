@@ -10,6 +10,8 @@ import {
   ConnectorError,
   ConnectorFailureType,
   ConnectorFetchResult,
+  ConnectorHealth,
+  SourceAdapter,
   SourceConnector,
   validateUrlForSsrf,
   withRetry,
@@ -18,7 +20,7 @@ import {
 /**
  * Strips HTML tags and unescapes common entities from text (headlines and excerpts)
  */
-function cleanText(rawText?: string, maxLength: number = 500): string | undefined {
+export function cleanText(rawText?: string, maxLength: number = 500): string | undefined {
   if (!rawText) return undefined;
   const noHtml = rawText.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   const unescaped = noHtml
@@ -35,16 +37,18 @@ function cleanText(rawText?: string, maxLength: number = 500): string | undefine
 /**
  * Parses publication date string into a valid Date, falling back to current date if missing or unparseable
  */
-function parsePubDate(dateStr?: string): Date {
+export function parsePubDate(dateStr?: string): Date {
   if (!dateStr) return new Date();
   const parsed = new Date(dateStr);
   return isNaN(parsed.getTime()) ? new Date() : parsed;
 }
 
-export class RssSourceConnector implements SourceConnector {
+export class RssSourceConnector implements SourceAdapter, SourceConnector {
   public readonly id = 'rss-standard-connector';
   public readonly name = 'Standard RSS 2.0 / Atom Connector';
   public readonly sourceType = 'RSS' as const;
+  public readonly supportedContentTypes: ContentType[] = ['NEWS_ARTICLE', 'SPORTS_UPDATE'];
+  public readonly attributionRequirement = 'Mandatory publisher name attribution and direct permalink';
 
   private xmlParser: XMLParser;
 
@@ -196,5 +200,44 @@ export class RssSourceConnector implements SourceConnector {
       newCount: canonicalItems.length,
       responseTimeMs,
     };
+  }
+
+  public async healthCheck(sourceConfig: { feedUrl?: string | null }): Promise<ConnectorHealth> {
+    if (!sourceConfig.feedUrl) {
+      return {
+        isHealthy: false,
+        consecutiveFailures: 1,
+        lastErrorMessage: 'feedUrl is missing',
+      };
+    }
+
+    const start = Date.now();
+    try {
+      validateUrlForSsrf(sourceConfig.feedUrl);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 6000);
+
+      const res = await fetch(sourceConfig.feedUrl, {
+        method: 'HEAD',
+        headers: { 'User-Agent': 'ParmanuBot/1.0-HealthCheck' },
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      return {
+        isHealthy: res.ok,
+        lastSuccessAt: res.ok ? new Date() : undefined,
+        lastFailureAt: !res.ok ? new Date() : undefined,
+        consecutiveFailures: res.ok ? 0 : 1,
+        lastErrorMessage: res.ok ? undefined : `HTTP ${res.status}`,
+      };
+    } catch (err: any) {
+      return {
+        isHealthy: false,
+        lastFailureAt: new Date(),
+        consecutiveFailures: 1,
+        lastErrorMessage: err.message,
+      };
+    }
   }
 }

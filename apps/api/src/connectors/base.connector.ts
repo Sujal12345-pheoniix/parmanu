@@ -1,5 +1,5 @@
 import * as crypto from 'crypto';
-import { CanonicalSourceItem, SourceType } from '@parmanu/types';
+import { CanonicalSourceItem, SourceType, ContentType, SourceAdapterConfig } from '@parmanu/types';
 
 export interface ConnectorFetchResult {
   items: CanonicalSourceItem[];
@@ -25,6 +25,9 @@ export enum ConnectorFailureType {
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   SSRF_BLOCKED = 'SSRF_BLOCKED',
   AUTH_ERROR = 'AUTH_ERROR',
+  SOURCE_DISABLED = 'SOURCE_DISABLED',
+  EXHAUSTED_RETRIES = 'EXHAUSTED_RETRIES',
+  MISSING_CONFIG = 'MISSING_CONFIG',
   UNKNOWN = 'UNKNOWN',
 }
 
@@ -33,7 +36,8 @@ export class ConnectorError extends Error {
     public readonly failureType: ConnectorFailureType,
     message: string,
     public readonly httpStatus?: number,
-    public readonly retryable: boolean = true
+    public readonly retryable: boolean = true,
+    public readonly retryAfterSeconds?: number
   ) {
     super(message);
     this.name = 'ConnectorError';
@@ -127,18 +131,38 @@ export async function withRetry<T>(
         throw err;
       }
 
-      // Add jitter (±20%)
-      const jitter = delay * (0.8 + Math.random() * 0.4);
-      await new Promise((res) => setTimeout(res, Math.min(jitter, maxDelayMs)));
+      // If server specified Retry-After, honor it up to maxDelayMs
+      let waitMs = delay;
+      if (err instanceof ConnectorError && err.retryAfterSeconds && err.retryAfterSeconds > 0) {
+        waitMs = Math.min(err.retryAfterSeconds * 1000, maxDelayMs);
+      } else {
+        // Add jitter (±20%)
+        waitMs = Math.min(delay * (0.8 + Math.random() * 0.4), maxDelayMs);
+      }
+
+      await new Promise((res) => setTimeout(res, waitMs));
       delay *= factor;
     }
   }
 
-  throw new Error('Unreachable retry loop exit');
+  throw new ConnectorError(ConnectorFailureType.EXHAUSTED_RETRIES, `Failed after ${maxAttempts} retry attempts`, undefined, false);
 }
 
 /**
- * Abstract Base Source Connector Interface
+ * Standard Source Adapter Contract for Phase 2
+ */
+export interface SourceAdapter {
+  readonly id: string;
+  readonly name: string;
+  readonly sourceType: SourceType;
+  readonly supportedContentTypes: ContentType[];
+  readonly attributionRequirement: string;
+  fetch(sourceConfig: SourceAdapterConfig): Promise<ConnectorFetchResult>;
+  healthCheck(sourceConfig: SourceAdapterConfig): Promise<ConnectorHealth>;
+}
+
+/**
+ * Backward-compatible Source Connector Interface
  */
 export interface SourceConnector {
   readonly id: string;

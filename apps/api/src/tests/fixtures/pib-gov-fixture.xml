@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Press Information Bureau - Government of India</title>
+    <link>https://pib.gov.in</link>
+    <description>Official Releases from Ministries and Departments</description>
+    <item>
+      <title>Cabinet approves Semiconductor Mission Phase 2 with ₹40,000 Crore Outlay</title>
+      <link>https://pib.gov.in/PressReleasePage.aspx?PRID=2099991</link>
+      <guid>https://pib.gov.in/PressReleasePage.aspx?PRID=2099991</guid>
+      <description>The Union Cabinet chaired by the Prime Minister has approved the expansion of the India Semiconductor Mission.</description>
+      <pubDate>Wed, 15 Oct 2026 06:00:00 GMT</pubDate>
+      <dc:creator>Cabinet Committee on Economic Affairs</dc:creator>
+    </item>
+  </channel>
+</rss>

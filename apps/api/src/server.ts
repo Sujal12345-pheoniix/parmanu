@@ -73,10 +73,14 @@ router.get('/source-items/:id', optionalAuth, SourceItemsController.getSourceIte
 // News Sources Management
 router.get('/sources', authenticateToken, SourcesController.listSources);
 router.post('/sources', authenticateToken, requireRole(['ADMIN']), SourcesController.createSource);
+router.patch('/sources/:id', authenticateToken, requireRole(['ADMIN']), SourcesController.updateSource);
+router.get('/sources/:id/health', authenticateToken, requireRole(['EDITOR', 'ADMIN']), SourcesController.getSourceHealth);
 
 // Ingestion Pipeline
 router.post('/ingestion/trigger', authenticateToken, requireRole(['EDITOR', 'ADMIN']), IngestionController.triggerIngestion);
 router.get('/ingestion/jobs', authenticateToken, requireRole(['EDITOR', 'ADMIN']), IngestionController.listIngestionJobs);
+router.get('/ingestion/jobs/:id', authenticateToken, requireRole(['EDITOR', 'ADMIN']), IngestionController.getJobById);
+router.post('/ingestion/jobs/:id/retry', authenticateToken, requireRole(['EDITOR', 'ADMIN']), IngestionController.retryJob);
 
 // Editorial Review Queue
 router.get('/editorial/pending', authenticateToken, requireRole(['EDITOR', 'ADMIN']), EditorialController.listPendingReviewItems);
