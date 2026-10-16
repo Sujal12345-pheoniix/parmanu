@@ -17,6 +17,7 @@ import * as CollaborationController from './controllers/collaboration.controller
 import * as StoryClustersController from './controllers/story-clusters.controller';
 import * as ClaimsController from './controllers/claims.controller';
 import * as EntitiesController from './controllers/entities.controller';
+import * as EditorialCmsController from './controllers/editorial-cms.controller';
 import { securityHeadersMiddleware } from './security/headers';
 import { apiRateLimiter, authRateLimiter } from './security/rate-limiter';
 
@@ -88,6 +89,15 @@ router.post('/ingestion/jobs/:id/retry', authenticateToken, requireRole(['EDITOR
 // Editorial Review Queue
 router.get('/editorial/pending', authenticateToken, requireRole(['EDITOR', 'ADMIN']), EditorialController.listPendingReviewItems);
 router.post('/editorial/review/:id', authenticateToken, requireRole(['EDITOR', 'ADMIN']), EditorialController.reviewSourceItem);
+
+// Phase 2.3: Editorial CMS & Newsroom Workflows
+router.get('/editorial/overview', authenticateToken, requireRole(['EDITOR', 'ADMIN']), EditorialCmsController.getEditorialOverview);
+router.get('/editorial/queue', authenticateToken, requireRole(['EDITOR', 'ADMIN']), EditorialCmsController.getEditorialQueue);
+router.post('/clusters/:id/claim', authenticateToken, requireRole(['EDITOR', 'ADMIN']), EditorialCmsController.assignCluster);
+router.post('/clusters/:id/review', authenticateToken, requireRole(['EDITOR', 'ADMIN']), EditorialCmsController.reviewCluster);
+router.post('/clusters/:id/publish', authenticateToken, requireRole(['ADMIN']), EditorialCmsController.publishCluster);
+router.post('/clusters/:id/retract', authenticateToken, requireRole(['ADMIN']), EditorialCmsController.retractCluster);
+router.post('/clusters/:id/correct', authenticateToken, requireRole(['EDITOR', 'ADMIN']), EditorialCmsController.correctCluster);
 
 // Collaboration Radar
 router.get('/collaboration/claims', optionalAuth, CollaborationController.listCollaborationClaims);

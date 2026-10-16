@@ -310,12 +310,14 @@ export const ClusterLifecycleSchema = z.enum([
   'DETECTED',
   'CLUSTERED',
   'UNDER_REVIEW',
+  'NEEDS_MORE_EVIDENCE',
   'VERIFIED_FOR_PUBLICATION',
   'PUBLISHED',
   'UPDATED',
   'DISPUTED',
   'CORRECTED',
   'RETRACTED',
+  'REJECTED',
   'ARCHIVED',
 ]);
 export type ClusterLifecycle = z.infer<typeof ClusterLifecycleSchema>;
@@ -451,4 +453,66 @@ export const CreateEntityRelationshipSchema = z.object({
   validTo: z.coerce.date().optional(),
 });
 export type CreateEntityRelationshipInput = z.infer<typeof CreateEntityRelationshipSchema>;
+
+// ─── PHASE 2.3: EDITORIAL CMS & PUBLISHING SCHEMAS ──────────────────
+
+export const EditorialQueueQuerySchema = z.object({
+  status: ClusterLifecycleSchema.optional(),
+  category: z.string().optional(),
+  sourceId: z.string().optional(),
+  entityId: z.string().optional(),
+  assignedTo: z.string().optional(),
+  priority: z.enum(['HIGH', 'NORMAL', 'ALL']).optional().default('ALL'),
+  search: z.string().optional(),
+  dateFrom: z.coerce.date().optional(),
+  dateTo: z.coerce.date().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export type EditorialQueueQuery = z.infer<typeof EditorialQueueQuerySchema>;
+
+export const AssignStoryClusterSchema = z.object({
+  assignedTo: z.string().min(1, 'Assignee ID or email is required'),
+  notes: z.string().optional(),
+});
+export type AssignStoryClusterInput = z.infer<typeof AssignStoryClusterSchema>;
+
+export const EditorialReviewDecisionSchema = z.enum([
+  'APPROVE',
+  'REJECT',
+  'NEEDS_MORE_EVIDENCE',
+  'DISPUTE',
+]);
+export type EditorialReviewDecision = z.infer<typeof EditorialReviewDecisionSchema>;
+
+export const EditorialReviewClusterSchema = z.object({
+  decision: EditorialReviewDecisionSchema,
+  notes: z.string().min(3, 'Review notes must provide rationale'),
+  expectedVersion: z.number().int().optional(),
+});
+export type EditorialReviewClusterInput = z.infer<typeof EditorialReviewClusterSchema>;
+
+export const PublishStoryClusterSchema = z.object({
+  headline: z.string().min(5).optional(),
+  summary: z.string().min(10).optional(),
+  editorialNotes: z.string().optional(),
+  expectedVersion: z.number().int().optional(),
+});
+export type PublishStoryClusterInput = z.infer<typeof PublishStoryClusterSchema>;
+
+export const RetractStoryClusterSchema = z.object({
+  reason: z.string().min(10, 'A detailed reason is required for story retraction'),
+  editorialNotes: z.string().optional(),
+  expectedVersion: z.number().int().optional(),
+});
+export type RetractStoryClusterInput = z.infer<typeof RetractStoryClusterSchema>;
+
+export const CorrectStoryClusterSchema = z.object({
+  correctionNotice: z.string().min(10, 'Public correction notice must clearly describe what was changed and why'),
+  revisedHeadline: z.string().min(5).optional(),
+  revisedSummary: z.string().min(10).optional(),
+  editorialNotes: z.string().optional(),
+  expectedVersion: z.number().int().optional(),
+});
+export type CorrectStoryClusterInput = z.infer<typeof CorrectStoryClusterSchema>;
 

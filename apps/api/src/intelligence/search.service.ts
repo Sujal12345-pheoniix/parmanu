@@ -5,6 +5,7 @@ export interface SearchStoriesFilter {
   query?: string;
   category?: string;
   status?: ClusterLifecycle;
+  allowedStatuses?: ClusterLifecycle[];
   entityId?: string;
   minConfidence?: number;
   fromDate?: Date;
@@ -29,7 +30,13 @@ export class SearchService {
 
     const where: any = {};
 
-    if (filter.status) {
+    if (filter.allowedStatuses && filter.allowedStatuses.length > 0) {
+      if (filter.status && filter.allowedStatuses.includes(filter.status)) {
+        where.status = filter.status;
+      } else {
+        where.status = { in: filter.allowedStatuses };
+      }
+    } else if (filter.status) {
       where.status = filter.status;
     } else {
       where.status = { not: 'ARCHIVED' };

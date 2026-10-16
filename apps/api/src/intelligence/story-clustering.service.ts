@@ -14,15 +14,17 @@ import {
  * Permitted forward and branch transitions in the Story Cluster lifecycle
  */
 const VALID_TRANSITIONS: Record<ClusterLifecycle, ClusterLifecycle[]> = {
-  DETECTED: ['CLUSTERED', 'UNDER_REVIEW', 'ARCHIVED'],
-  CLUSTERED: ['UNDER_REVIEW', 'VERIFIED_FOR_PUBLICATION', 'ARCHIVED'],
-  UNDER_REVIEW: ['VERIFIED_FOR_PUBLICATION', 'CLUSTERED', 'DISPUTED', 'ARCHIVED'],
-  VERIFIED_FOR_PUBLICATION: ['PUBLISHED', 'UNDER_REVIEW', 'ARCHIVED'],
+  DETECTED: ['CLUSTERED', 'UNDER_REVIEW', 'REJECTED', 'ARCHIVED'],
+  CLUSTERED: ['UNDER_REVIEW', 'VERIFIED_FOR_PUBLICATION', 'NEEDS_MORE_EVIDENCE', 'REJECTED', 'ARCHIVED'],
+  UNDER_REVIEW: ['VERIFIED_FOR_PUBLICATION', 'NEEDS_MORE_EVIDENCE', 'REJECTED', 'CLUSTERED', 'DISPUTED', 'ARCHIVED'],
+  NEEDS_MORE_EVIDENCE: ['UNDER_REVIEW', 'REJECTED', 'ARCHIVED'],
+  VERIFIED_FOR_PUBLICATION: ['PUBLISHED', 'UNDER_REVIEW', 'REJECTED', 'ARCHIVED'],
   PUBLISHED: ['UPDATED', 'DISPUTED', 'CORRECTED', 'RETRACTED', 'ARCHIVED'],
   UPDATED: ['DISPUTED', 'CORRECTED', 'RETRACTED', 'ARCHIVED'],
   DISPUTED: ['UNDER_REVIEW', 'CORRECTED', 'RETRACTED', 'ARCHIVED'],
-  CORRECTED: ['UPDATED', 'ARCHIVED'],
+  CORRECTED: ['UPDATED', 'DISPUTED', 'RETRACTED', 'ARCHIVED'],
   RETRACTED: ['ARCHIVED'],
+  REJECTED: ['UNDER_REVIEW', 'ARCHIVED'],
   ARCHIVED: [],
 };
 
@@ -393,16 +395,46 @@ export class StoryClusteringService {
   }
 
   /**
-   * Updates cluster lifecycle state after verifying valid transition
+   * Assigns review responsibility for a cluster to an editor
+   */
+  public async assignCluster(clusterId: string, assignedTo: string): Promise<any> {
+    const cluster = await prisma.storyCluster.findUnique({ where: { id: clusterId } });
+    if (!cluster) {
+      throw new Error(`Cluster ${clusterId} not found`);
+    }
+
+    return await prisma.storyCluster.update({
+      where: { id: clusterId },
+      data: {
+        assignedTo,
+        version: { increment: 1 },
+      },
+    });
+  }
+
+  /**
+   * Updates cluster lifecycle state after verifying valid transition and concurrency
    */
   public async transitionClusterStatus(
     clusterId: string,
     newStatus: ClusterLifecycle,
-    reason?: string
+    reason?: string,
+    options?: {
+      expectedVersion?: number;
+      revisedHeadline?: string;
+      revisedSummary?: string;
+      assignedTo?: string;
+      actorId?: string;
+    }
   ): Promise<any> {
     const cluster = await prisma.storyCluster.findUnique({ where: { id: clusterId } });
     if (!cluster) {
       throw new Error('Cluster not found');
+    }
+
+    // Optimistic concurrency control check
+    if (options?.expectedVersion !== undefined && cluster.version !== options.expectedVersion) {
+      throw new Error('Conflict: Cluster was updated by another editor (version mismatch). Please refresh.');
     }
 
     if (!this.isValidTransition(cluster.status as ClusterLifecycle, newStatus)) {
@@ -411,12 +443,47 @@ export class StoryClusteringService {
       );
     }
 
+    // Mandatory rule validations
+    if (newStatus === 'PUBLISHED') {
+      if (cluster.itemCount < 1) {
+        throw new Error('Cannot publish a story cluster with 0 associated source items');
+      }
+    }
+
+    if (newStatus === 'RETRACTED' && (!reason || reason.trim().length < 10)) {
+      throw new Error('A detailed reason (at least 10 characters) is mandatory to retract a story');
+    }
+
+    if (newStatus === 'CORRECTED' && (!reason || reason.trim().length < 10)) {
+      throw new Error('A public correction notice (at least 10 characters) is mandatory to record a correction');
+    }
+
+    if (newStatus === 'REJECTED' && (!reason || reason.trim().length < 3)) {
+      throw new Error('A rejection reason (at least 3 characters) is required');
+    }
+
+    const now = new Date();
+    const updateData: any = {
+      status: newStatus,
+      version: { increment: 1 },
+      ...(reason && { reviewNotes: reason }),
+      ...(options?.assignedTo !== undefined && { assignedTo: options.assignedTo }),
+      ...(options?.revisedHeadline && { primaryHeadline: options.revisedHeadline }),
+      ...(options?.revisedSummary && { summary: options.revisedSummary }),
+    };
+
+    if (newStatus === 'PUBLISHED') {
+      updateData.publishedAt = now;
+    } else if (newStatus === 'RETRACTED') {
+      updateData.retractedAt = now;
+      updateData.retractionReason = reason;
+    } else if (newStatus === 'CORRECTED') {
+      updateData.correctionNotes = reason;
+    }
+
     return await prisma.storyCluster.update({
       where: { id: clusterId },
-      data: {
-        status: newStatus,
-        ...(reason && { summary: `${cluster.summary || ''}\n[Status Note: ${reason}]`.trim() }),
-      },
+      data: updateData,
     });
   }
 }

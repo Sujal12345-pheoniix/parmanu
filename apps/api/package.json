@@ -9,7 +9,7 @@
     "lint": "echo 'Linting passed'",
     "start": "node dist/server.js",
     "dev": "node -r ts-node/register src/server.ts",
-    "test": "npm run --workspace=@parmanu/types build && npm run build && node --test dist/tests/parmanu.test.js dist/tests/phase2-ingestion.test.js dist/tests/phase2-story-intelligence.test.js",
+    "test": "npm run --workspace=@parmanu/types build && npm run build && node --test dist/tests/parmanu.test.js dist/tests/phase2-ingestion.test.js dist/tests/phase2-story-intelligence.test.js dist/tests/phase2-e2e.test.js",
     "test:ts": "node --test -r ts-node/register src/tests/parmanu.test.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",

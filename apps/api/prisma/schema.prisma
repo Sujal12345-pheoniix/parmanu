@@ -485,6 +485,13 @@ model StoryCluster {
   firstObservedAt  DateTime               @default(now())
   lastObservedAt   DateTime               @default(now())
   itemCount        Int                    @default(1)
+  assignedTo       String?
+  publishedAt      DateTime?
+  retractedAt      DateTime?
+  retractionReason String?
+  correctionNotes  String?
+  reviewNotes      String?
+  version          Int                    @default(1)
   isManuallyLocked Boolean                @default(false)
   editorialStoryId String?
   createdAt        DateTime               @default(now())
@@ -504,12 +511,14 @@ enum ClusterLifecycle {
   DETECTED
   CLUSTERED
   UNDER_REVIEW
+  NEEDS_MORE_EVIDENCE
   VERIFIED_FOR_PUBLICATION
   PUBLISHED
   UPDATED
   DISPUTED
   CORRECTED
   RETRACTED
+  REJECTED
   ARCHIVED
 }
 

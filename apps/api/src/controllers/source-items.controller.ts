@@ -18,8 +18,9 @@ export async function listSourceItems(req: AuthenticatedRequest, res: Response):
   const { category, state, provenance, page, limit, search } = queryResult.data;
   const skip = (page - 1) * limit;
 
+  const isPrivileged = req.user && (req.user.role === 'EDITOR' || req.user.role === 'ADMIN');
   const whereClause: any = {
-    processingState: state,
+    processingState: isPrivileged ? (state || 'APPROVED') : 'APPROVED',
   };
 
   if (category) {
@@ -103,7 +104,8 @@ export async function getSourceItemById(req: AuthenticatedRequest, res: Response
     },
   });
 
-  if (!item) {
+  const isPrivileged = req.user && (req.user.role === 'EDITOR' || req.user.role === 'ADMIN');
+  if (!item || (!isPrivileged && item.processingState !== 'APPROVED')) {
     res.status(404).json({
       success: false,
       error: 'Source item not found',
