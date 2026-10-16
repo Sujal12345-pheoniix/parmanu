@@ -8,8 +8,9 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run --workspace=@parmanu/types build && npm run --workspace=@parmanu/api build && npm run --workspace=@parmanu/web build",
-    "typecheck": "npm run --workspace=@parmanu/types build && npm run --workspace=@parmanu/api typecheck && npm run --workspace=@parmanu/web build",
+    "postinstall": "npm run db:generate",
+    "build": "npm run --workspace=@parmanu/types build && npm run db:generate && npm run --workspace=@parmanu/api build && npm run --workspace=@parmanu/web build",
+    "typecheck": "npm run --workspace=@parmanu/types build && npm run db:generate && npm run --workspace=@parmanu/api typecheck && npm run --workspace=@parmanu/web build",
     "lint": "echo Lint check passed",
     "format:check": "echo Format check passed",
     "dev": "npm run --workspace=@parmanu/api dev",
