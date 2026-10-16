@@ -8,8 +8,7 @@
     "apps/*"
   ],
   "scripts": {
-    "postinstall": "npm run db:generate || true",
-    "build": "npm run --workspace=@parmanu/types build && npm run db:generate && npm run --workspace=@parmanu/api build && npm run --workspace=@parmanu/web build",
+    "build": "npm run --workspace=@parmanu/types build && npm run --workspace=@parmanu/web build && node -e \"const fs=require('fs'); fs.mkdirSync('dist', {recursive: true}); fs.cpSync('apps/web/dist', 'dist', {recursive: true});\"",
     "typecheck": "npm run --workspace=@parmanu/types build && npm run db:generate && npm run --workspace=@parmanu/api typecheck && npm run --workspace=@parmanu/web build",
     "lint": "echo Lint check passed",
     "format:check": "echo Format check passed",
@@ -19,9 +18,6 @@
     "db:migrate": "npm run --workspace=@parmanu/api db:migrate",
     "db:generate": "npm run --workspace=@parmanu/api db:generate",
     "db:seed": "npm run --workspace=@parmanu/api db:seed"
-  },
-  "dependencies": {
-    "prisma": "^5.21.1"
   },
   "devDependencies": {
     "typescript": "^5.6.3"
