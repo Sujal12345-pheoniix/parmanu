@@ -37,6 +37,9 @@ export class InstagramApiConnector implements SourceAdapter {
     if (config.apiConfig?.accessToken) {
       return config.apiConfig.accessToken;
     }
+    if (process.env.INSTAGRAM_ACCESS_TOKEN) {
+      return process.env.INSTAGRAM_ACCESS_TOKEN;
+    }
     return null;
   }
 

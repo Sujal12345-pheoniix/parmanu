@@ -83,14 +83,35 @@ export class RobustAiIntelligenceService implements AiIntelligenceService {
     }
 
     const validSourceIdSet = new Set(items.map((i) => i.id));
+    const geminiApiKey = process.env.GEMINI_API_KEY;
 
+    // 1. Try Google Gemini API if key is present
+    if (geminiApiKey && !geminiApiKey.includes('placeholder')) {
+      try {
+        const geminiDraft = await this.callGeminiModel(items, geminiApiKey);
+        if (geminiDraft) {
+          const verifiedClaims = geminiDraft.suggestedClaims.filter((claim) => {
+            const exists = validSourceIdSet.has(claim.citedSourceItemId);
+            if (!exists) {
+              console.warn(`[AI_SAFETY] Dropped hallucinated sourceItemId reference: ${claim.citedSourceItemId}`);
+            }
+            return exists;
+          });
+
+          return {
+            ...geminiDraft,
+            suggestedClaims: verifiedClaims,
+          };
+        }
+      } catch (err: any) {
+        console.warn('[GEMINI_AI] Gemini API execution failed, using deterministic engine:', err.message);
+      }
+    }
+
+    // 2. Fall back to deterministic engine
     try {
-      // In this production environment, if no external LLM API key is configured,
-      // safely use the deterministic fallback service
       const draft = await this.fallbackService.generateClusterSummary(items);
 
-      // ANTI-HALLUCINATION AUDIT GATE:
-      // Filter out any claim whose citedSourceItemId does NOT exist in the original input set
       const verifiedClaims = draft.suggestedClaims.filter((claim) => {
         const exists = validSourceIdSet.has(claim.citedSourceItemId);
         if (!exists) {
@@ -104,8 +125,79 @@ export class RobustAiIntelligenceService implements AiIntelligenceService {
         suggestedClaims: verifiedClaims,
       };
     } catch (err: any) {
-      console.warn('[AI_SERVICE] AI invocation failed or unconfigured; falling back to deterministic engine:', err.message);
+      console.warn('[AI_SERVICE] Fallback engine failed:', err.message);
       return await this.fallbackService.generateClusterSummary(items);
+    }
+  }
+
+  private async callGeminiModel(
+    items: Array<{ id: string; headline: string; excerpt?: string | null; author?: string | null }>,
+    apiKey: string
+  ): Promise<AiClusterDraft | null> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    const sourcesPayload = items.map((i) => ({
+      sourceId: i.id,
+      headline: i.headline,
+      excerpt: i.excerpt || '',
+    }));
+
+    const systemInstruction = `You are the lead intelligence verification engine for The Tatva / Parmanu newsroom.
+Analyze the following multi-source reports about an event and output a single JSON object strictly matching this schema:
+{
+  "suggestedHeadline": "concise, neutral, objective news headline (max 300 chars)",
+  "suggestedSummary": "factual synthesis of what is corroborated across sources (max 1000 chars)",
+  "suggestedCategories": ["Category1", "Category2"],
+  "suggestedClaims": [
+    {
+      "claimText": "specific factual statement verified in the text",
+      "citedSourceItemId": "MUST match one of the exact input sourceId values provided",
+      "quoteExcerpt": "short direct quote supporting this claim"
+    }
+  ]
+}
+IMPORTANT: Do NOT invent source IDs. Only cite the sourceId strings present in the input.`;
+
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            { text: systemInstruction },
+            { text: `SOURCES:\n${JSON.stringify(sourcesPayload, null, 2)}` },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.2,
+        response_mime_type: 'application/json',
+      },
+    };
+
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Gemini API returned status ${response.status}`);
+      }
+
+      const json = (await response.json()) as any;
+      const rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) return null;
+
+      const parsed = JSON.parse(rawText);
+      const validation = AiClusterDraftSchema.safeParse(parsed);
+      return validation.success ? validation.data : null;
+    } finally {
+      clearTimeout(timeout);
     }
   }
 }

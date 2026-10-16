@@ -17,8 +17,13 @@ const EnvironmentSchema = z.object({
   ADMIN_REGISTRATION_KEY: z.string().min(8, 'ADMIN_REGISTRATION_KEY must be at least 8 characters').default('parmanu_admin_setup_key_2026'),
   GNEWS_API_KEY: z.string().optional(),
   GUARDIAN_API_KEY: z.string().optional(),
+  NEWSDATA_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
   INSTAGRAM_APP_ID: z.string().optional(),
   INSTAGRAM_APP_SECRET: z.string().optional(),
+  INSTAGRAM_CLIENT_ID: z.string().optional(),
+  INSTAGRAM_CLIENT_SECRET: z.string().optional(),
+  INSTAGRAM_ACCESS_TOKEN: z.string().optional(),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
 });
 
