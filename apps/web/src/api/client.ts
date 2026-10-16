@@ -239,6 +239,20 @@ export class ParmanuApiClient {
     }
   }
 
+  public static async fetchLiveDispatches(limit = 5): Promise<SourceItemSummary[]> {
+    try {
+      const res = await fetch(`/api/v1/news?limit=${limit}`, {
+        headers: this.getHeaders(),
+      });
+      if (!res.ok) return [];
+      const json = await res.json();
+      return json.data || [];
+    } catch (err) {
+      console.error('Failed to fetch live dispatches', err);
+      return [];
+    }
+  }
+
   public static async search(query: string, category?: string, page = 1): Promise<SearchResultData> {
     try {
       const qs = new URLSearchParams();

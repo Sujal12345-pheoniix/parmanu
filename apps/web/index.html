@@ -247,7 +247,7 @@
       <div class="flex items-center gap-2.5 flex-wrap">
         <div class="flex items-center gap-1.5 bg-surface-container px-3 py-1 rounded-full shadow-sm">
           <span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
-          <span class="text-xs font-bold text-primary">42 Verified Dossiers</span>
+          <span class="text-xs font-bold text-primary" id="live-dossier-count">42 Verified Dossiers</span>
         </div>
         <button onclick="openDownloadModal()" class="hidden sm:inline-flex items-center gap-1.5 bg-surface-container px-3 py-1 rounded-full text-xs font-semibold text-on-surface hover:bg-surface-variant transition-colors shadow-sm">
           <span class="material-symbols-outlined text-[16px] text-secondary">download</span>
@@ -313,11 +313,11 @@
             </span>
           </div>
           
-          <h4 class="text-base font-bold text-on-surface leading-snug">
+          <h4 id="live-briefing-headline" class="text-base font-bold text-on-surface leading-snug">
             Bilateral Tech Summit: Live 4-point briefing on AI ethics &amp; data localization pact
           </h4>
           
-          <div class="flex flex-col gap-3 pl-3 border-l-2 border-surface-container-high my-1">
+          <div id="live-briefing-timeline" class="flex flex-col gap-3 pl-3 border-l-2 border-surface-container-high my-1">
             <div class="flex items-start gap-2.5">
               <span class="font-code text-xs font-bold text-primary shrink-0 mt-0.5">14:20</span>
               <p class="text-xs text-on-surface leading-relaxed">Joint communique finalized; clause 8 specifies sandbox protocols for open-weights generative models.</p>
@@ -333,8 +333,8 @@
           </div>
           
           <div class="bg-surface-container-low px-3 py-2 rounded-xl flex items-center justify-between text-on-surface text-xs">
-            <span class="text-on-surface-variant">Update in ~8 mins</span>
-            <button class="text-primary font-bold hover:underline" type="button" onclick="alert('Stream refreshed: All 4 points ratified')">Refresh Stream</button>
+            <span class="text-on-surface-variant" id="live-briefing-status">Live Synchronized</span>
+            <button id="btn-refresh-stream" class="text-primary font-bold hover:underline" type="button">Refresh Stream</button>
           </div>
         </div>
 
@@ -367,7 +367,7 @@
         <!-- Hero Deep Dive Lead Article -->
         <article class="bg-surface-container-lowest rounded-2xl shadow-md overflow-hidden flex flex-col border border-surface-container hover:shadow-lg transition-shadow">
           <div class="relative w-full h-64 sm:h-80 overflow-hidden">
-            <img class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Editorial newsroom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEjcoK6tyI_90GTR7W26bqYasHdKUO0MlfHdZkh_aLD0UW-WUv8huFjACbIJkEShqrJIEZOnih8pF5uDS_-3n1LJSVGN0-SWJwo_DA0_ZGDTY5gSP6z_iMr0Q_L_DQ8iIYqm92VnVGNlt6Qvq_StX_9nxy_4Au4sEzSOfOjvg-qqTM83J-NhzxTFFoVyWAFq2ZeEzDnyan8_f8cfEca6G_7F9jWMzVep_X9apkbhhVKxp5b22XypoX"/>
+            <img id="hero-lead-image" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Editorial newsroom" src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1600&q=80"/>
             <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/85 via-inverse-surface/25 to-transparent"></div>
             
             <div class="absolute top-4 left-4 flex flex-wrap gap-2">

@@ -68,10 +68,36 @@ function formatRelativeTime(dateStr: string): string {
   return `${Math.floor(diffSec / 86400)}d ago`;
 }
 
+function updateLiveClockAndDate(): void {
+  const now = new Date();
+  const timeOptions: Intl.DateTimeFormatOptions = {
+    timeZone: 'Asia/Kolkata',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  };
+  const dateOptions: Intl.DateTimeFormatOptions = {
+    timeZone: 'Asia/Kolkata',
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+  };
+  const istTime = now.toLocaleTimeString('en-GB', timeOptions);
+  const istDate = now.toLocaleDateString('en-US', dateOptions);
+
+  const ticker = document.getElementById('live-time-ticker');
+  const dateHeading = document.getElementById('current-date-heading');
+  if (ticker) ticker.textContent = `Live ${istTime} IST`;
+  if (dateHeading) dateHeading.textContent = istDate;
+}
+
 // ─── INITIALIZATION & ROUTING ─────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('[Parmanu] Initializing Phase 3.1 Consumer Platform...');
+
+  updateLiveClockAndDate();
+  setInterval(updateLiveClockAndDate, 10000);
 
   setupModalsAndBackdrops();
   setupSearchModal();
@@ -88,8 +114,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadCategories(),
     loadFeaturedHero(),
     loadTrendingStories(),
+    loadLiveBriefing(),
     loadDispatchFeed(),
   ]);
+
+  // Real-time automatic polling every 30 seconds
+  setInterval(async () => {
+    await Promise.all([
+      loadTrendingStories(),
+      loadLiveBriefing(),
+      loadFeaturedHero(),
+    ]);
+  }, 30000);
 
   // Check URL query parameters for deep-linking
   const params = new URLSearchParams(window.location.search);
@@ -196,6 +232,12 @@ async function loadCategories(): Promise<void> {
 
   container.innerHTML = html;
 
+  const totalCount = categories.reduce((sum, c) => sum + c.count, 0);
+  const countBadge = document.getElementById('live-dossier-count');
+  if (countBadge && totalCount > 0) {
+    countBadge.textContent = `${totalCount} Verified Dossiers`;
+  }
+
   container.querySelectorAll('.category-pill').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const target = e.currentTarget as HTMLElement;
@@ -203,6 +245,57 @@ async function loadCategories(): Promise<void> {
       selectCategory(cat);
     });
   });
+}
+
+async function loadLiveBriefing(): Promise<void> {
+  const timeline = document.getElementById('live-briefing-timeline');
+  const headline = document.getElementById('live-briefing-headline');
+  const refreshBtn = document.getElementById('btn-refresh-stream');
+  if (!timeline) return;
+
+  const items = await ParmanuApiClient.fetchLiveDispatches(4);
+  if (items.length === 0) return;
+
+  if (headline && items[0]) {
+    headline.textContent = items[0].headline;
+  }
+
+  timeline.innerHTML = items
+    .map((item) => {
+      const pubDate = new Date(item.publishedAt);
+      const timeStr = isNaN(pubDate.getTime())
+        ? 'Live'
+        : pubDate.toLocaleTimeString('en-GB', {
+            timeZone: 'Asia/Kolkata',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          });
+      const sourceName = item.source?.name || 'Verified Wire';
+
+      return `
+        <div class="flex items-start gap-2.5">
+          <span class="font-code text-xs font-bold text-primary shrink-0 mt-0.5">${timeStr}</span>
+          <div class="flex flex-col gap-0.5 min-w-0">
+            <span class="text-[10px] font-bold text-secondary uppercase">${escapeHtml(sourceName)}</span>
+            <a href="${escapeHtml(item.canonicalUrl)}" target="_blank" rel="noopener noreferrer" class="text-xs text-on-surface hover:text-primary hover:underline leading-relaxed line-clamp-2">
+              ${escapeHtml(item.headline)}
+            </a>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+
+  if (refreshBtn && !refreshBtn.hasAttribute('data-bound')) {
+    refreshBtn.setAttribute('data-bound', 'true');
+    refreshBtn.addEventListener('click', async () => {
+      refreshBtn.textContent = 'Updating...';
+      await loadLiveBriefing();
+      refreshBtn.textContent = 'Refresh Stream';
+      showToast('Live briefing stream synchronized');
+    });
+  }
 }
 
 function selectCategory(categorySlug: string, updateHistory = true): void {
