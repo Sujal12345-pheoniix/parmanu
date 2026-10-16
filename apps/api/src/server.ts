@@ -20,6 +20,7 @@ import * as EntitiesController from './controllers/entities.controller';
 import * as EditorialCmsController from './controllers/editorial-cms.controller';
 import * as BookmarksController from './controllers/bookmarks.controller';
 import * as ConsumerController from './controllers/consumer.controller';
+import { defaultIngestionScheduler } from './ingestion/scheduler.service';
 import { securityHeadersMiddleware } from './security/headers';
 import { apiRateLimiter, authRateLimiter } from './security/rate-limiter';
 
@@ -96,6 +97,9 @@ router.get('/sources/:id/health', authenticateToken, requireRole(['EDITOR', 'ADM
 
 // Ingestion Pipeline
 router.post('/ingestion/trigger', authenticateToken, requireRole(['EDITOR', 'ADMIN']), IngestionController.triggerIngestion);
+router.get('/ingestion/scheduler/status', authenticateToken, requireRole(['EDITOR', 'ADMIN']), (req: Request, res: Response) => {
+  res.json({ success: true, data: defaultIngestionScheduler.getStatus() });
+});
 router.get('/ingestion/jobs', authenticateToken, requireRole(['EDITOR', 'ADMIN']), IngestionController.listIngestionJobs);
 router.get('/ingestion/jobs/:id', authenticateToken, requireRole(['EDITOR', 'ADMIN']), IngestionController.getJobById);
 router.post('/ingestion/jobs/:id/retry', authenticateToken, requireRole(['EDITOR', 'ADMIN']), IngestionController.retryJob);
@@ -178,12 +182,16 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`🔒 Database URL: ${maskSecret(env.DATABASE_URL)}`);
     console.log(`⚡ Health endpoint: http://localhost:${env.PORT}/api/v1/health`);
     console.log(`======================================================\n`);
+
+    // Start automated background ingestion scheduler
+    defaultIngestionScheduler.start();
   });
 }
 
 // Graceful Shutdown
 async function gracefulShutdown(signal: string) {
   console.log(`\nReceived ${signal}. Starting graceful shutdown...`);
+  defaultIngestionScheduler.stop();
   if (server) {
     server.close(async () => {
       console.log('HTTP server closed.');
