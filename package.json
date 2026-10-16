@@ -8,7 +8,7 @@
     "apps/*"
   ],
   "scripts": {
-    "postinstall": "npm run db:generate",
+    "postinstall": "npm run db:generate || true",
     "build": "npm run --workspace=@parmanu/types build && npm run db:generate && npm run --workspace=@parmanu/api build && npm run --workspace=@parmanu/web build",
     "typecheck": "npm run --workspace=@parmanu/types build && npm run db:generate && npm run --workspace=@parmanu/api typecheck && npm run --workspace=@parmanu/web build",
     "lint": "echo Lint check passed",
@@ -19,6 +19,9 @@
     "db:migrate": "npm run --workspace=@parmanu/api db:migrate",
     "db:generate": "npm run --workspace=@parmanu/api db:generate",
     "db:seed": "npm run --workspace=@parmanu/api db:seed"
+  },
+  "dependencies": {
+    "prisma": "^5.21.1"
   },
   "devDependencies": {
     "typescript": "^5.6.3"
