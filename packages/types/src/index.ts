@@ -516,3 +516,46 @@ export const CorrectStoryClusterSchema = z.object({
 });
 export type CorrectStoryClusterInput = z.infer<typeof CorrectStoryClusterSchema>;
 
+// ─── PHASE 3.1: CONSUMER DISCOVERY & BOOKMARKS SCHEMAS ────────────────
+
+export const CreateBookmarkSchema = z.object({
+  storyClusterId: z.string().optional(),
+  sourceItemId: z.string().optional(),
+  storyId: z.string().optional(),
+}).refine(data => Boolean(data.storyClusterId || data.sourceItemId || data.storyId), {
+  message: 'Must provide at least one target to bookmark: storyClusterId, sourceItemId, or storyId',
+});
+export type CreateBookmarkInput = z.infer<typeof CreateBookmarkSchema>;
+
+export const BookmarkQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
+export type BookmarkQuery = z.infer<typeof BookmarkQuerySchema>;
+
+export const TrendingStoriesQuerySchema = z.object({
+  category: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(50).default(10),
+});
+export type TrendingStoriesQuery = z.infer<typeof TrendingStoriesQuerySchema>;
+
+export const ConsumerFeedQuerySchema = z.object({
+  category: z.string().optional(),
+  topic: z.string().optional(),
+  dateFrom: z.coerce.date().optional(),
+  dateTo: z.coerce.date().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+  sort: z.enum(['latest', 'trending', 'confidence']).default('latest'),
+});
+export type ConsumerFeedQuery = z.infer<typeof ConsumerFeedQuerySchema>;
+
+export const ConsumerSearchQuerySchema = z.object({
+  q: z.string().min(1, 'Search query is required'),
+  category: z.string().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+});
+export type ConsumerSearchQuery = z.infer<typeof ConsumerSearchQuerySchema>;
+
+

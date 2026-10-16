@@ -18,6 +18,8 @@ import * as StoryClustersController from './controllers/story-clusters.controlle
 import * as ClaimsController from './controllers/claims.controller';
 import * as EntitiesController from './controllers/entities.controller';
 import * as EditorialCmsController from './controllers/editorial-cms.controller';
+import * as BookmarksController from './controllers/bookmarks.controller';
+import * as ConsumerController from './controllers/consumer.controller';
 import { securityHeadersMiddleware } from './security/headers';
 import { apiRateLimiter, authRateLimiter } from './security/rate-limiter';
 
@@ -73,6 +75,18 @@ router.get('/auth/me', authenticateToken, AuthController.getMe);
 router.get('/news', optionalAuth, SourceItemsController.listSourceItems);
 router.get('/source-items', optionalAuth, SourceItemsController.listSourceItems);
 router.get('/source-items/:id', optionalAuth, SourceItemsController.getSourceItemById);
+
+// Phase 3.1: Consumer Discovery, Feeds & Search (Public Read)
+router.get('/stories/featured', optionalAuth, ConsumerController.getFeaturedStory);
+router.get('/stories/trending', optionalAuth, ConsumerController.getTrendingStories);
+router.get('/categories', optionalAuth, ConsumerController.getCategories);
+router.get('/search', optionalAuth, ConsumerController.globalSearch);
+
+// Phase 3.1: Bookmarks & Saved Stories (Authenticated)
+router.get('/bookmarks', authenticateToken, BookmarksController.listBookmarks);
+router.post('/bookmarks', authenticateToken, BookmarksController.createBookmark);
+router.delete('/bookmarks/:id', authenticateToken, BookmarksController.deleteBookmark);
+router.get('/bookmarks/check/:storyClusterId', optionalAuth, BookmarksController.checkBookmark);
 
 // News Sources Management
 router.get('/sources', authenticateToken, SourcesController.listSources);

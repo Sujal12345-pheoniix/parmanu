@@ -380,18 +380,21 @@ model UserFollow {
 }
 
 model Bookmark {
-  id           String          @id @default(cuid())
-  userId       String
-  sourceItemId String?
-  storyId      String?
-  createdAt    DateTime        @default(now())
+  id             String          @id @default(cuid())
+  userId         String
+  sourceItemId   String?
+  storyId        String?
+  storyClusterId String?
+  createdAt      DateTime        @default(now())
 
-  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sourceItem   SourceItem?     @relation(fields: [sourceItemId], references: [id], onDelete: Cascade)
-  story        EditorialStory? @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceItem     SourceItem?     @relation(fields: [sourceItemId], references: [id], onDelete: Cascade)
+  story          EditorialStory? @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyCluster   StoryCluster?   @relation(fields: [storyClusterId], references: [id], onDelete: Cascade)
 
   @@unique([userId, sourceItemId])
   @@unique([userId, storyId])
+  @@unique([userId, storyClusterId])
   @@index([userId])
 }
 
@@ -501,6 +504,7 @@ model StoryCluster {
   claims           StoryClaim[]
   entityLinks      EntityToStoryCluster[]
   mergeSplitLogs   ClusterMergeSplitLog[]
+  bookmarks        Bookmark[]
 
   @@index([status])
   @@index([lastObservedAt(sort: Desc)])
