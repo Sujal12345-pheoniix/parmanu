@@ -125,6 +125,51 @@
       }
     };
   </script>
+
+  <!-- Immediate Inline Modal & Auth Handlers (Zero-latency before module load) -->
+  <script>
+    window.openAuthModal = function(defaultTab) {
+      if (window.parmanu && typeof window.parmanu.openAuthModal === 'function') {
+        window.parmanu.openAuthModal(defaultTab || 'signin');
+        return;
+      }
+      const modal = document.getElementById('auth-modal');
+      const backdrop = document.getElementById('global-backdrop');
+      if (modal && backdrop) {
+        modal.classList.remove('translate-y-full', 'pointer-events-none', 'md:opacity-0', 'md:scale-95');
+        modal.classList.add('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
+        backdrop.classList.remove('hidden');
+        if (defaultTab === 'register') {
+          document.getElementById('auth-tab-register')?.click();
+        } else {
+          document.getElementById('auth-tab-signin')?.click();
+        }
+      }
+    };
+    window.closeAllModals = function() {
+      if (window.parmanu && typeof window.parmanu.closeAllModals === 'function') {
+        window.parmanu.closeAllModals();
+        return;
+      }
+      const modalIds = ['dossier-main', 'dossier-breaking', 'download-app-modal', 'auth-modal', 'user-profile-modal'];
+      modalIds.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.add('translate-y-full', 'pointer-events-none', 'md:opacity-0', 'md:scale-95');
+          el.classList.remove('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
+        }
+      });
+      const backdrop = document.getElementById('global-backdrop');
+      if (backdrop) backdrop.classList.add('hidden');
+    };
+    window.openProfileModal = function() {
+      if (window.parmanu && typeof window.parmanu.openProfileModal === 'function') {
+        window.parmanu.openProfileModal();
+      } else {
+        window.openAuthModal('signin');
+      }
+    };
+  </script>
 </head>
 <body class="bg-surface text-on-surface flex flex-col min-h-screen antialiased selection:bg-primary/20">
 
@@ -132,9 +177,11 @@
   <header class="hidden md:block fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl border-b border-surface-container shadow-sm">
     <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
       
-      <!-- Brand Logo & Motto -->
-      <a href="#" class="flex items-center gap-3 shrink-0 group">
-        <img alt="The Parmanu Logo" class="h-10 w-10 rounded-xl object-cover shadow-sm ring-1 ring-primary/20 transition-transform group-hover:scale-105" src="/icon.png"/>
+      <!-- Brand Logo & Motto (Pure CSS / No Broken Images) -->
+      <a href="#" class="flex items-center gap-2.5 shrink-0 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white shadow-sm shrink-0 transition-transform group-hover:scale-105">
+          <span class="font-headline font-black text-lg leading-none">P</span>
+        </div>
         <div class="flex flex-col leading-none">
           <span class="font-headline text-xl font-bold tracking-tight text-on-surface">THE PARMANU</span>
           <span class="text-[11px] font-bold text-on-surface-variant tracking-widest uppercase mt-0.5">All Fields. One Platform.</span>
@@ -143,12 +190,12 @@
 
       <!-- Desktop Navigation Links -->
       <nav class="flex items-center gap-1 lg:gap-2" id="desktop-nav">
-        <a href="#about" data-section="about" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Story &amp; About</a>
-        <a href="#feed" data-section="feed" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-semibold text-primary bg-primary/10 transition-colors">Feed</a>
-        <a href="#pulse" data-section="pulse" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Pulse</a>
-        <a href="#explore" data-section="explore" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Explore</a>
-        <a href="#collabs" data-section="collabs" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Creator Collabs</a>
-        <a href="#workspace" data-section="workspace" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Dossier Workspace</a>
+        <a href="#about" data-section="about" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-semibold text-primary bg-primary/10 transition-colors">Story &amp; About</a>
+        <a href="#feed" data-section="feed" class="nav-link hidden px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Feed</a>
+        <a href="#pulse" data-section="pulse" class="nav-link hidden px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Pulse</a>
+        <a href="#explore" data-section="explore" class="nav-link hidden px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Explore</a>
+        <a href="#collabs" data-section="collabs" class="nav-link hidden px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Creator Collabs</a>
+        <a href="#workspace" data-section="workspace" class="nav-link hidden px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Dossier Workspace</a>
       </nav>
 
       <!-- Search, Download App CTA & Profile -->
@@ -168,15 +215,17 @@
 
         <!-- User Authentication & Profile Badge -->
         <div id="user-auth-badge" class="flex items-center gap-2">
-          <button id="btn-open-auth" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 transition-all shadow-sm">
+          <button id="btn-open-auth" onclick="window.openAuthModal('signin')" type="button" class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 transition-all shadow-sm cursor-pointer">
             <span class="material-symbols-outlined text-[16px]">account_circle</span>
             <span>Sign In</span>
           </button>
         </div>
 
         <!-- Profile Avatar Trigger -->
-        <button id="btn-auth-avatar" type="button" class="relative flex items-center justify-center pl-1 focus:outline-none cursor-pointer" title="User Profile">
-          <img id="header-avatar-img" alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-surface-container hover:ring-primary transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqJjHv_A-MTdNS3PlyRuvprpgeeOX2heY5nY2qUO8yQG39nIWBUhDGr5e7GWMn_wi_IatKvuVKRqDffWBloPRf3pgR0Fwhe5RgactXBdl_6FpTRbcuNyC379fYQ_fVqxMaRjxVXZPre0l61pWAE93gBU2LkoYeKsuofT0AGrJ9xqal3nR-DChDhXMrl1SvU09YMpb0pZ4HSlLQZoHG_eOgLXFU1Y7f46J7ncRRdFTKyMNPE5ooPh7q"/>
+        <button id="btn-auth-avatar" onclick="window.openProfileModal()" type="button" class="relative hidden items-center justify-center pl-1 focus:outline-none cursor-pointer" title="User Profile">
+          <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center ring-2 ring-surface-container hover:ring-primary transition-all">
+            <span class="material-symbols-outlined text-[18px]">person</span>
+          </div>
           <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-secondary rounded-full flex items-center justify-center ring-1 ring-surface">
             <span class="material-symbols-outlined text-[8px] text-on-secondary">check</span>
           </span>
@@ -189,27 +238,28 @@
   <!-- Mobile Top Header (< md) -->
   <header class="md:hidden fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-sm pt-safe border-b border-surface-container">
     <div class="h-16 px-4 flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2.5 min-w-0">
-        <img alt="The Parmanu Logo" class="h-8 w-8 rounded-lg object-cover shadow-sm ring-1 ring-primary/20 shrink-0" src="/icon.png"/>
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white shadow-sm shrink-0">
+          <span class="font-headline font-black text-base leading-none">P</span>
+        </div>
         <div class="flex flex-col min-w-0 leading-tight">
           <span class="font-headline text-lg font-bold tracking-tight text-on-surface truncate">THE PARMANU</span>
           <span class="text-[9px] font-bold text-on-surface-variant tracking-wider uppercase truncate">All Fields. One Platform.</span>
         </div>
       </div>
-      <div class="flex items-center gap-1 shrink-0">
+      <div class="flex items-center gap-1.5 shrink-0">
         <!-- Mobile Download App Button -->
         <button onclick="openDownloadModal()" aria-label="Download App" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-primary text-on-primary text-[11px] font-bold active:scale-95 transition-transform shadow-sm">
           <span class="material-symbols-outlined text-[15px]">download</span>
           <span>App</span>
         </button>
-        <button aria-label="Search" onclick="openSearchModal()" class="w-9 h-9 flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-95 transition-transform" type="button">
-          <span class="material-symbols-outlined text-[20px]">search</span>
+        <button id="btn-mobile-open-auth" onclick="window.openAuthModal('signin')" type="button" class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-secondary text-on-secondary text-[11px] font-bold active:scale-95 transition-transform shadow-sm cursor-pointer">
+          Sign In
         </button>
-        <button aria-label="Evidence Filter" onclick="toggleDossier('dossier-main')" class="w-9 h-9 flex items-center justify-center text-on-surface-variant hover:text-on-surface active:scale-95 transition-transform" type="button">
-          <span class="material-symbols-outlined text-[20px]">verified</span>
-        </button>
-        <button id="btn-mobile-auth-avatar" type="button" class="relative flex items-center justify-center pl-0.5 focus:outline-none cursor-pointer" title="User Profile">
-          <img alt="Profile" class="w-7 h-7 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqJjHv_A-MTdNS3PlyRuvprpgeeOX2heY5nY2qUO8yQG39nIWBUhDGr5e7GWMn_wi_IatKvuVKRqDffWBloPRf3pgR0Fwhe5RgactXBdl_6FpTRbcuNyC379fYQ_fVqxMaRjxVXZPre0l61pWAE93gBU2LkoYeKsuofT0AGrJ9xqal3nR-DChDhXMrl1SvU09YMpb0pZ4HSlLQZoHG_eOgLXFU1Y7f46J7ncRRdFTKyMNPE5ooPh7q"/>
+        <button id="btn-mobile-auth-avatar" onclick="window.openProfileModal()" type="button" class="relative hidden items-center justify-center pl-0.5 focus:outline-none cursor-pointer" title="User Profile">
+          <div class="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[16px]">person</span>
+          </div>
           <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-secondary rounded-full flex items-center justify-center ring-1 ring-surface">
             <span class="material-symbols-outlined text-[7px] text-on-secondary">check</span>
           </span>
@@ -342,12 +392,25 @@
         </div>
 
         <div class="lg:col-span-5 flex flex-col gap-4">
-          <div class="relative rounded-2xl overflow-hidden shadow-md border border-surface-container">
-            <img src="/logo-banner.png" alt="The Parmanu Brand Identity" class="w-full h-64 object-contain bg-[#08070d] p-6"/>
-            <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/90 via-inverse-surface/30 to-transparent p-5 flex flex-col justify-end text-white">
-              <span class="text-xs font-bold text-secondary-fixed uppercase tracking-wider">Immutable Verification</span>
-              <h4 class="font-headline text-lg font-bold">Every claim cryptographically fingerprinted.</h4>
-              <p class="text-xs text-white/80 mt-1">Syndicated PR copies are mathematically quarantined from genuine multi-source corroboration.</p>
+          <div class="relative rounded-2xl overflow-hidden shadow-md border border-primary/20 bg-gradient-to-br from-[#0c0828] via-[#160f4e] to-inverse-surface p-7 flex flex-col justify-between h-64 text-white">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-full bg-secondary text-on-secondary text-[10px] font-bold uppercase tracking-wider">
+                Cryptographic Veracity
+              </span>
+              <span class="material-symbols-outlined text-secondary-fixed text-2xl">verified_user</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-headline font-black text-base shadow">
+                  P
+                </div>
+                <span class="font-headline text-3xl font-black tracking-tight text-white">PARMANU</span>
+              </div>
+              <span class="text-xs font-bold text-secondary-fixed uppercase tracking-widest mt-1">ALL FIELDS. ONE PLATFORM.</span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-white/70 border-t border-white/10 pt-2 font-code">
+              <span>SHA-256 State Engine</span>
+              <span class="text-secondary-fixed font-bold">100% Grounded</span>
             </div>
           </div>
 
@@ -584,7 +647,7 @@
     <!-- ================================================== -->
     <!-- LIVE DASHBOARD VIEW (#feed, #pulse, #collabs, etc.)-->
     <!-- ================================================== -->
-    <div id="dashboard-view" class="w-full">
+    <div id="dashboard-view" class="hidden w-full">
 
       <!-- Dynamic Personalized User Banner (Shown when authenticated) -->
       <div id="user-personalized-header" class="hidden w-full bg-gradient-to-r from-primary/10 via-surface-container-low to-secondary/10 rounded-2xl p-4 sm:p-5 mb-6 border border-primary/20 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -666,27 +729,27 @@
       <aside class="lg:col-span-4 xl:col-span-3 flex flex-col gap-6 order-2 lg:order-1">
         
         <!-- Breaking Intelligence Alert Box -->
-        <div class="bg-primary/5 rounded-2xl p-4 sm:p-5 flex flex-col gap-3 shadow-sm border border-primary/15">
+        <div id="breaking-alert-box" class="bg-primary/5 rounded-2xl p-4 sm:p-5 flex flex-col gap-3 shadow-sm border border-primary/15">
           <div class="flex items-center justify-between">
             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-error text-on-error rounded text-[11px] font-bold uppercase tracking-wider">
               <span class="material-symbols-outlined text-[13px]">bolt</span>
-              Breaking
+              Breaking Wire
             </span>
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-[11px] font-semibold">
+            <span id="breaking-source-badge" class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-[11px] font-semibold">
               <span class="material-symbols-outlined text-[13px]">layers</span>
-              4 Sources
+              Live Buffer
             </span>
           </div>
-          <p class="text-sm font-semibold text-on-surface leading-snug">
-            Ministry clears landmark digital creator taxation framework; 4 independent agencies corroborate official gazette draft.
+          <p id="breaking-headline" class="text-sm font-semibold text-on-surface leading-snug">
+            Monitoring verified Indian newsrooms and gazettes for breaking corroborated dispatches...
           </p>
           <div class="flex items-center justify-between text-xs text-on-surface-variant pt-1 border-t border-primary/10">
             <span class="flex items-center gap-1 text-secondary font-medium">
               <span class="material-symbols-outlined text-[15px]">verified_user</span>
-              Audited by Desk
+              State Engine Active
             </span>
-            <button class="text-primary hover:underline font-bold flex items-center gap-0.5" onclick="toggleDossier('dossier-breaking')" type="button">
-              View Trace <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            <button id="btn-view-breaking-trace" class="text-primary hover:underline font-bold flex items-center gap-0.5" onclick="window.parmanu.switchSection('pulse')" type="button">
+              Live Wire <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
             </button>
           </div>
         </div>
@@ -700,32 +763,23 @@
             </div>
             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11px] font-bold">
               <span class="material-symbols-outlined text-[13px]">shield</span>
-              4-Pt Ratified
+              Verified Wire
             </span>
           </div>
           
           <h4 id="live-briefing-headline" class="text-base font-bold text-on-surface leading-snug">
-            Bilateral Tech Summit: Live 4-point briefing on AI ethics &amp; data localization pact
+            Ingesting Latest Wire Dispatches...
           </h4>
           
           <div id="live-briefing-timeline" class="flex flex-col gap-3 pl-3 border-l-2 border-surface-container-high my-1">
-            <div class="flex items-start gap-2.5">
-              <span class="font-code text-xs font-bold text-primary shrink-0 mt-0.5">14:20</span>
-              <p class="text-xs text-on-surface leading-relaxed">Joint communique finalized; clause 8 specifies sandbox protocols for open-weights generative models.</p>
-            </div>
-            <div class="flex items-start gap-2.5">
-              <span class="font-code text-xs font-bold text-primary shrink-0 mt-0.5">14:05</span>
-              <p class="text-xs text-on-surface leading-relaxed">Union Minister addresses press pool regarding sovereign compute subsidies.</p>
-            </div>
-            <div class="flex items-start gap-2.5">
-              <span class="font-code text-xs font-bold text-on-surface-variant shrink-0 mt-0.5">13:48</span>
-              <p class="text-xs text-on-surface-variant leading-relaxed">Closed-door delegate consensus reached on cross-border synthetic media disclosures.</p>
+            <div class="py-4 text-center text-xs text-on-surface-variant">
+              Connecting to real-time Indian news wires...
             </div>
           </div>
           
           <div class="bg-surface-container-low px-3 py-2 rounded-xl flex items-center justify-between text-on-surface text-xs">
-            <span class="text-on-surface-variant" id="live-briefing-status">Live Synchronized</span>
-            <button id="btn-refresh-stream" class="text-primary font-bold hover:underline" type="button">Refresh Stream</button>
+            <span class="text-on-surface-variant" id="live-briefing-status">Synchronizing...</span>
+            <button id="btn-refresh-stream" onclick="window.parmanu.switchSection('pulse')" class="text-primary font-bold hover:underline cursor-pointer" type="button">Refresh Stream</button>
           </div>
         </div>
 
@@ -736,10 +790,10 @@
               <span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
               <span class="text-xs font-bold uppercase tracking-wider text-secondary">Parmanu Core Synopsis</span>
             </div>
-            <span class="font-code text-[11px] text-on-surface-variant">Grounded-V4</span>
+            <span class="font-code text-[11px] text-on-surface-variant">Live Engine</span>
           </div>
-          <p class="text-sm font-medium text-on-surface leading-relaxed italic">
-            “Synthesized across 8 corroborated dispatches. Zero algorithmic hallucinations flagged. Primary fiscal disclosure shows +182% YoY creator fund inflow across South Asian vernacular networks.”
+          <p id="parmanu-synopsis-text" class="text-sm font-medium text-on-surface leading-relaxed italic">
+            “Every incoming dispatch is cryptographically fingerprinted via SHA-256 and matched across independent wire sources before entering verified status. Zero unsourced claims permitted.”
           </p>
           <div class="flex items-center justify-between pt-1 border-t border-surface-variant/40 text-xs">
             <div class="flex items-center gap-1 text-secondary font-semibold">
@@ -757,47 +811,53 @@
 
         <!-- Hero Deep Dive Lead Article -->
         <article id="hero-lead-article" class="bg-surface-container-lowest rounded-2xl shadow-md overflow-hidden flex flex-col border border-surface-container hover:shadow-lg transition-shadow">
-          <div class="relative w-full h-64 sm:h-80 overflow-hidden">
-            <img id="hero-lead-image" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Editorial newsroom" src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1600&q=80"/>
-            <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/85 via-inverse-surface/25 to-transparent"></div>
+          <div class="relative w-full h-64 sm:h-80 overflow-hidden bg-gradient-to-br from-[#0c0828] via-[#1a124c] to-surface-container">
+            <div id="hero-lead-image" class="w-full h-full flex flex-col items-center justify-center p-6 text-center select-none relative">
+              <div class="w-14 h-14 rounded-2xl bg-secondary/15 border border-secondary/30 flex items-center justify-center text-secondary mb-2 shadow-lg">
+                <span class="material-symbols-outlined text-3xl">verified</span>
+              </div>
+              <span class="font-headline font-black text-white text-lg tracking-tight">PARMANU INVESTIGATIVE DOSSIER</span>
+              <span class="text-[11px] text-secondary-fixed font-code tracking-wider uppercase mt-1">Multi-Source Cryptographic Verification Active</span>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/85 via-inverse-surface/25 to-transparent pointer-events-none"></div>
             
             <div class="absolute top-4 left-4 flex flex-wrap gap-2">
-              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-lowest/95 backdrop-blur-md text-secondary text-xs font-bold shadow-sm">
+              <span id="hero-status-pill" class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-lowest/95 backdrop-blur-md text-secondary text-xs font-bold shadow-sm">
                 <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                Officially Confirmed
+                Corroborated
               </span>
-              <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-inverse-surface/80 text-inverse-on-surface font-code text-xs">
-                6 Docs Verified
+              <span id="hero-source-count-badge" class="inline-flex items-center px-2.5 py-1 rounded-full bg-inverse-surface/80 text-inverse-on-surface font-code text-xs">
+                Multi-Wire
               </span>
             </div>
             
             <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-inverse-on-surface text-xs">
-              <span class="font-code bg-inverse-surface/70 backdrop-blur-sm px-2.5 py-1 rounded">Deep Dive Lead</span>
-              <span class="font-code flex items-center gap-1">
-                <span class="material-symbols-outlined text-[15px]">schedule</span> 18m ago
+              <span class="font-code bg-inverse-surface/70 backdrop-blur-sm px-2.5 py-1 rounded">Lead Investigation</span>
+              <span class="font-code flex items-center gap-1" id="hero-time-ago">
+                <span class="material-symbols-outlined text-[15px]">schedule</span> Live
               </span>
             </div>
           </div>
 
           <div class="p-5 sm:p-6 flex flex-col gap-4">
             <div class="flex items-center gap-2">
-              <span class="px-2.5 py-0.5 bg-secondary-fixed text-on-secondary-fixed rounded text-xs uppercase font-bold tracking-wider">Independent Media</span>
-              <span class="text-xs text-on-surface-variant font-medium">• 6 min read</span>
+              <span id="hero-category-tag" class="px-2.5 py-0.5 bg-secondary-fixed text-on-secondary-fixed rounded text-xs uppercase font-bold tracking-wider">Verified News</span>
+              <span class="text-xs text-on-surface-variant font-medium">• Live Corroboration</span>
             </div>
 
             <h1 class="font-headline text-2xl sm:text-3xl font-bold text-on-surface leading-tight">
-              The Quiet Consolidation of South Asia's Creator Economy: How 12 Indie Media Collectives Are Reshaping News Trust
+              Synchronizing Verified Intelligence Stream...
             </h1>
 
             <p class="text-sm sm:text-base text-on-surface-variant leading-relaxed">
-              Through distributed fact-checking clusters and co-owned digital studios, independent investigative networks in Delhi, Dhaka, and Colombo are outperforming legacy newsrooms in cross-border public accountability.
+              Polling verified sources across national agencies, financial gazettes, and independent creator disclosures.
             </p>
 
             <div class="bg-surface-container-low p-4 rounded-xl flex items-start gap-3 border border-surface-container">
               <span class="material-symbols-outlined text-primary text-[22px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
               <div class="flex flex-col gap-0.5">
-                <span class="text-xs font-bold text-on-surface">Parmanu Veracity Summary</span>
-                <span class="text-xs text-on-surface-variant">Grounded in 3 ministry releases, 2 corporate filings, and 14 recorded primary interviews. Zero unsourced conjectures detected.</span>
+                <span class="text-xs font-bold text-on-surface">Parmanu Veracity Engine</span>
+                <span class="text-xs text-on-surface-variant" id="hero-veracity-desc">SHA-256 fingerprinted and verified across independent source records. Zero unsourced conjectures.</span>
               </div>
             </div>
 
@@ -805,25 +865,27 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-surface-container">
               <div class="flex items-center gap-3 min-w-0">
                 <div class="relative">
-                  <img class="w-10 h-10 rounded-full object-cover ring-2 ring-surface-container" data-alt="Author portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2Ae5xIn4z-PcUdEaClN9dA6fTsBcXFYQmTWexq9bfSJnxouu5dMVvreULAgtWWq84491wzfytstER55xs8111-rV7Q1gpuobRePLpoDvTg942zps2G2_XeSlsQE63sPK0HtlIyJTbUM5GObQEGpAc77UT1oozLiHZ_OooEJI-Bl_yoHKb4kdGihF6kspCe6rNYaECrUx1T6awG9IOEHQcKxAtzYiXnNeT_UXzOLF-mYTwElr5bTFN"/>
+                  <div class="w-10 h-10 rounded-full bg-primary/15 text-primary font-bold flex items-center justify-center text-xs ring-2 ring-surface-container" id="hero-author-avatar">
+                    PN
+                  </div>
                   <span class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-primary rounded-full flex items-center justify-center ring-1 ring-surface">
                     <span class="material-symbols-outlined text-[10px] text-on-primary">verified</span>
                   </span>
                 </div>
                 <div class="flex flex-col min-w-0">
-                  <span class="text-sm font-bold text-on-surface truncate">Ananya Roy</span>
-                  <span class="text-xs text-on-surface-variant truncate">Lead Investigative Reporter</span>
+                  <span class="text-sm font-bold text-on-surface truncate" id="hero-author-name">Parmanu Newsroom</span>
+                  <span class="text-xs text-on-surface-variant truncate" id="hero-author-role">Verified Intelligence Bureau</span>
                 </div>
               </div>
 
               <div class="flex items-center gap-2 self-end sm:self-auto">
-                <button aria-label="Bookmark story" class="w-9 h-9 rounded-full flex items-center justify-center bg-surface-container text-primary hover:bg-surface-variant active:scale-90 transition-transform" type="button" onclick="this.classList.toggle('text-secondary')">
+                <button aria-label="Bookmark story" class="w-9 h-9 rounded-full flex items-center justify-center bg-surface-container text-primary hover:bg-surface-variant active:scale-90 transition-transform cursor-pointer" type="button" onclick="this.classList.toggle('text-secondary')">
                   <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">bookmark</span>
                 </button>
-                <button aria-label="Share story" class="w-9 h-9 rounded-full flex items-center justify-center bg-surface-container text-on-surface hover:bg-surface-variant active:scale-90 transition-transform" type="button" onclick="handleShare('The Quiet Consolidation of South Asia Creator Economy')">
+                <button aria-label="Share story" class="w-9 h-9 rounded-full flex items-center justify-center bg-surface-container text-on-surface hover:bg-surface-variant active:scale-90 transition-transform cursor-pointer" type="button" onclick="window.parmanu.handleShare()">
                   <span class="material-symbols-outlined text-[20px]">share</span>
                 </button>
-                <button class="h-9 px-4 rounded-full flex items-center gap-1.5 bg-primary text-on-primary text-xs font-bold active:scale-95 transition-transform shadow-sm hover:bg-primary/90" onclick="toggleDossier('dossier-main')" type="button">
+                <button class="h-9 px-4 rounded-full flex items-center gap-1.5 bg-primary text-on-primary text-xs font-bold active:scale-95 transition-transform shadow-sm hover:bg-primary/90 cursor-pointer" onclick="window.parmanu.openDossierModal('featured')" type="button">
                   <span class="material-symbols-outlined text-[16px]">menu_book</span>
                   <span>Dossier</span>
                 </button>
@@ -872,7 +934,9 @@
 
           <!-- QR Code Preview for Desktop -->
           <div class="bg-white p-3 rounded-xl flex items-center gap-3 shadow-inner">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://github.com/Sujal12345-pheoniix/parmanu" alt="Scan QR to install Parmanu App" class="w-16 h-16 shrink-0 rounded object-contain"/>
+            <div class="w-16 h-16 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+              <span class="material-symbols-outlined text-3xl">qr_code_2</span>
+            </div>
             <div class="flex flex-col text-on-surface">
               <span class="text-xs font-bold">Scan with Camera</span>
               <span class="text-[11px] text-on-surface-variant">Instant mobile web install for Android &amp; iOS</span>
@@ -893,48 +957,45 @@
         </div>
 
         <!-- Creator Spotlight Card -->
-        <div class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-surface-container flex flex-col gap-3.5">
+        <div id="creator-spotlight-card" class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-surface-container flex flex-col gap-3.5">
           <div class="flex items-center justify-between">
             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold">
               <span class="material-symbols-outlined text-[14px]">psychology</span>
               Creator Spotlight
             </span>
-            <span class="text-xs text-secondary font-bold flex items-center gap-0.5">
-              <span class="material-symbols-outlined text-[14px]">verified</span> 99.2%
+            <span id="spotlight-badge" class="text-xs text-secondary font-bold flex items-center gap-0.5">
+              <span class="material-symbols-outlined text-[14px]">verified</span> Verified
             </span>
           </div>
 
-          <div class="flex items-center gap-3">
-            <img class="w-12 h-12 rounded-full object-cover shrink-0 ring-2 ring-surface-container" data-alt="Kabir Sharma profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-79njNeaBM7KdBM_q-stA1ZS0mK5aVf48bWCxg-vmT4YPHh6JanWZg77X6VZjt5sSSyyTZKFrhvounBhVI2eDDy3CxMFjoOjb1d0JNoYQKtJtpO53j99XqbG6oPPlu0M-_HvoftCpMJ6-c_gFt7ExTVsA2FnvNxAJTrR60pyCdxvopvRnIPv_0o2FYA1JfLX5wZpk4JE9XUirjeVbeLMu_0CtSv7TaQhAw12W8CCbLkGYRGWCsZ9N"/>
+          <div class="flex items-center gap-3" id="spotlight-creator-info">
+            <div id="spotlight-avatar" class="w-12 h-12 rounded-full bg-secondary/15 text-secondary flex items-center justify-center font-bold text-sm shrink-0 ring-2 ring-surface-container">
+              CR
+            </div>
             <div class="flex flex-col min-w-0">
               <div class="flex items-center gap-1.5">
-                <span class="text-sm font-bold text-on-surface">Kabir Sharma</span>
-                <span class="font-code text-xs text-on-surface-variant">@kabir</span>
+                <span id="spotlight-name" class="text-sm font-bold text-on-surface">Creator Intelligence</span>
+                <span id="spotlight-handle" class="font-code text-xs text-on-surface-variant">@radar</span>
               </div>
-              <span class="text-xs text-on-surface-variant truncate">Sovereign Semiconductor Research</span>
+              <span id="spotlight-bio" class="text-xs text-on-surface-variant truncate">Top Indian Creator Registry</span>
             </div>
           </div>
 
-          <div class="bg-surface-container-low p-3.5 rounded-xl flex flex-col gap-2">
-            <p class="text-xs sm:text-sm text-on-surface leading-snug italic">
-              “New GPU export guidelines don't just restrict floating-point ceiling; they mandate embedded telemetry for wafer fabrication lines above 28nm.”
+          <div id="spotlight-quote-box" class="bg-surface-container-low p-3.5 rounded-xl flex flex-col gap-2">
+            <p id="spotlight-statement" class="text-xs sm:text-sm text-on-surface leading-snug">
+              Follow top Indian creators to monitor verified brand collaborations, ASCI #ad disclosure compliance, and recent activity.
             </p>
-            <div class="flex items-center gap-1.5 flex-wrap pt-1">
+            <div id="spotlight-tags" class="flex items-center gap-1.5 flex-wrap pt-1">
               <span class="px-2 py-0.5 bg-surface-container-highest text-on-surface rounded font-code text-[11px] flex items-center gap-1">
-                <span class="material-symbols-outlined text-[13px]">attach_file</span> IEEE_Paper_984.pdf
-              </span>
-              <span class="px-2 py-0.5 bg-surface-container-highest text-on-surface rounded font-code text-[11px] flex items-center gap-1">
-                <span class="material-symbols-outlined text-[13px]">link</span> Commerce Dept Notice
+                <span class="material-symbols-outlined text-[13px]">hub</span> Verified Collabs
               </span>
             </div>
           </div>
 
-          <div class="flex items-center justify-between pt-1">
-            <span class="text-[11px] text-on-surface-variant">Peer-reviewed by 3 fellows</span>
-            <button class="px-3 py-1 rounded-lg bg-secondary text-on-secondary text-xs font-semibold active:scale-95 transition-transform" type="button" onclick="alert('Citation code copied: [Sharma2026-GPU-01]')">
-              Cite &amp; Link
-            </button>
-          </div>
+          <button id="spotlight-follow-btn" onclick="window.parmanu.switchSection('collabs')" class="w-full py-2 bg-surface-container hover:bg-surface-variant text-on-surface rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer" type="button">
+            <span class="material-symbols-outlined text-[16px]">groups</span>
+            <span>Explore Creator Market</span>
+          </button>
         </div>
 
       </aside>
@@ -944,8 +1005,8 @@
 
   </main>
 
-  <!-- Mobile Bottom Navigation Bar (Hidden on Desktop) -->
-  <nav class="md:hidden fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-lg border-t border-surface-container">
+  <!-- Mobile Bottom Navigation Bar (Hidden when unauthenticated; revealed when authenticated) -->
+  <nav id="mobile-nav-bar" class="hidden md:hidden fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-lg border-t border-surface-container">
     <div class="flex justify-around items-center h-16 px-2" id="nav-tabs">
       <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="about" href="#about">
         <span class="material-symbols-outlined text-[24px]">auto_stories</span>
@@ -987,46 +1048,9 @@
       </button>
     </div>
     <div class="p-5 overflow-y-auto flex flex-col gap-4">
-      <div class="p-3.5 bg-surface-container-low rounded-xl flex items-center justify-between">
-        <div>
-          <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block">Integrity Verdict</span>
-          <span class="text-sm text-secondary font-bold">Officially Confirmed &amp; Triangulated</span>
-        </div>
-        <span class="font-code text-xs bg-surface-container px-2 py-1 rounded text-on-surface">Hash: 8f4a..b129</span>
-      </div>
-      <div class="flex flex-col gap-2">
-        <span class="text-xs font-bold text-on-surface uppercase tracking-wider">Primary Ground Truth Documents</span>
-        <div class="p-3 bg-surface-container rounded-xl flex items-start justify-between gap-2">
-          <div class="flex items-start gap-2 min-w-0">
-            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">description</span>
-            <div class="flex flex-col min-w-0">
-              <span class="text-xs font-bold text-on-surface truncate">Press Information Bureau Gazette #409</span>
-              <span class="font-code text-[11px] text-on-surface-variant">Official PDF • 11:24 AM IST</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-        </div>
-        <div class="p-3 bg-surface-container rounded-xl flex items-start justify-between gap-2">
-          <div class="flex items-start gap-2 min-w-0">
-            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">description</span>
-            <div class="flex flex-col min-w-0">
-              <span class="text-xs font-bold text-on-surface truncate">Registrar of Companies Q3 Filings</span>
-              <span class="font-code text-[11px] text-on-surface-variant">Corporate Audit Registry • Verified Seal</span>
-            </div>
-          </div>
-          <span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-        </div>
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <span class="text-xs font-bold text-on-surface uppercase tracking-wider">Verification Rigor Methodology</span>
-        <p class="text-xs text-on-surface-variant leading-relaxed">
-          The Parmanu Fact Audit Engine utilizes a dual-node evaluation protocol: automated document signature validation followed by independent cryptographic confirmation from minimum 2 accredited regional news desks.
-        </p>
-      </div>
-      <div class="pt-2">
-        <button class="w-full py-2.5 bg-primary text-on-primary rounded-xl text-xs font-bold tracking-wide active:scale-98 transition-transform shadow-md" type="button" onclick="alert('Audit Packet PDF generated: Cryptographic signatures intact.')">
-          Download Complete Audit Packet (PDF)
-        </button>
+      <div class="py-12 text-center flex flex-col items-center justify-center gap-3 text-on-surface-variant">
+        <div class="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-xs font-semibold">Compiling provenance chain and factual corroborations...</span>
       </div>
     </div>
   </div>
@@ -1037,7 +1061,7 @@
     <div class="px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-surface-container">
       <div class="flex items-center gap-2">
         <span class="material-symbols-outlined text-primary text-[22px]">policy</span>
-        <h3 class="font-headline text-lg font-bold text-on-surface">Gazette Trace #TAX-2024</h3>
+        <h3 class="font-headline text-lg font-bold text-on-surface">Verified Gazette Trace</h3>
       </div>
       <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-variant" onclick="closeAllModals()" type="button">
         <span class="material-symbols-outlined text-[18px]">close</span>
@@ -1046,10 +1070,10 @@
     <div class="p-5 overflow-y-auto flex flex-col gap-3">
       <div class="p-3 bg-secondary/10 rounded-xl flex items-center gap-2">
         <span class="material-symbols-outlined text-secondary">verified_user</span>
-        <span class="text-xs text-on-surface font-semibold">4 corroborating national news agency wires match ministerial draft note.</span>
+        <span class="text-xs text-on-surface font-semibold" id="dossier-breaking-title">Multi-source corroboration active.</span>
       </div>
-      <div class="text-xs text-on-surface-variant leading-relaxed">
-        Section 194S updates include a revised standard deduction matrix for tech reviewers and content researchers earning international affiliate payouts.
+      <div class="text-xs text-on-surface-variant leading-relaxed" id="dossier-breaking-body">
+        Real-time telemetry and official notices verified against primary documents.
       </div>
       <div class="pt-2">
         <button class="w-full py-2.5 bg-surface-container text-on-surface rounded-xl text-xs font-bold hover:bg-surface-variant transition-colors" onclick="closeAllModals()" type="button">
@@ -1122,11 +1146,12 @@
           <span class="text-on-surface-variant leading-relaxed">
             Open in Safari $\rightarrow$ Tap the <strong>Share</strong> button <span class="material-symbols-outlined text-[13px] align-middle">ios_share</span> $\rightarrow$ Select <strong>"Add to Home Screen"</strong>.
           </span>
-        </div>
       </div>
+    </div>
+  </div>
 
   <!-- Authentication Modal (Sign In / Register & Personalized Interests) -->
-  <div id="auth-modal" class="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:max-w-lg bg-surface-container-lowest rounded-t-3xl md:rounded-3xl shadow-2xl z-50 p-6 md:p-8 border border-surface-container transition-all transform translate-y-full md:translate-y-[-45%] md:opacity-0 md:scale-95 pointer-events-none max-h-[90vh] overflow-y-auto">
+  <div id="auth-modal" class="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:max-w-lg bg-surface-container-lowest rounded-t-3xl md:rounded-3xl shadow-2xl z-50 p-6 md:p-8 border border-surface-container transition-all duration-300 transform translate-y-full md:opacity-0 md:scale-95 pointer-events-none max-h-[90vh] overflow-y-auto">
     <!-- Header -->
     <div class="flex items-start justify-between pb-4 border-b border-surface-container">
       <div class="flex items-center gap-2.5">
@@ -1232,7 +1257,7 @@
   </div>
 
   <!-- User Profile & Interests Modal -->
-  <div id="user-profile-modal" class="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:max-w-md bg-surface-container-lowest rounded-t-3xl md:rounded-3xl shadow-2xl z-50 p-6 border border-surface-container transition-all transform translate-y-full md:translate-y-[-45%] md:opacity-0 md:scale-95 pointer-events-none">
+  <div id="user-profile-modal" class="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:max-w-md bg-surface-container-lowest rounded-t-3xl md:rounded-3xl shadow-2xl z-50 p-6 border border-surface-container transition-all duration-300 transform translate-y-full md:opacity-0 md:scale-95 pointer-events-none">
     <div class="flex items-center justify-between pb-3 border-b border-surface-container">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center font-bold text-base" id="profile-modal-avatar">

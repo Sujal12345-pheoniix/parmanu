@@ -130,19 +130,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadFeaturedHero(),
     loadTrendingStories(),
     loadLiveBriefing(),
+    loadCreatorSpotlight(),
   ]);
 
   // Initial Section from URL Hash
   const hash = window.location.hash.replace('#', '').toLowerCase();
-  if (['about', 'feed', 'pulse', 'explore', 'collabs', 'workspace'].includes(hash)) {
-    await switchSection(hash, false);
-  } else {
-    // If user is already authenticated, go directly to Feed; otherwise show Landing & Story
-    if (currentUser) {
-      await switchSection('feed', false);
+  if (currentUser) {
+    if (['about', 'feed', 'pulse', 'explore', 'collabs', 'workspace'].includes(hash)) {
+      await switchSection(hash, false);
     } else {
-      await switchSection('about', false);
+      await switchSection('feed', false);
     }
+  } else {
+    // Strictly Story & About landing page for unauthenticated visitors
+    await switchSection('about', false);
   }
 
   // Real-time automatic polling every 30 seconds
@@ -151,6 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadTrendingStories(),
       loadLiveBriefing(),
       loadFeaturedHero(),
+      loadCreatorSpotlight(),
     ]);
 
     // If on Pulse view, also auto-refresh the wire
@@ -215,7 +217,15 @@ function setupNavigation(): void {
 
 async function switchSection(section: string, updateHash = true): Promise<void> {
   const validSections = ['about', 'feed', 'pulse', 'explore', 'collabs', 'workspace'];
-  const target = validSections.includes(section) ? section : (currentUser ? 'feed' : 'about');
+  let target = validSections.includes(section) ? section : (currentUser ? 'feed' : 'about');
+
+  // Gate check: Unauthenticated users are strictly limited to Story & About
+  if (!currentUser && target !== 'about') {
+    target = 'about';
+    openAuthModal('signin');
+    showToast('Please sign in or create an account to access the dashboard.');
+  }
+
   currentSection = target;
 
   if (updateHash) {
@@ -365,6 +375,11 @@ function updateAuthUI(): void {
   const greetingEl = document.getElementById('dash-user-greeting');
   const avatarEl = document.getElementById('dash-user-avatar');
   const tagsContainer = document.getElementById('dash-user-interest-tags');
+  const desktopNav = document.getElementById('desktop-nav');
+  const mobileNav = document.getElementById('mobile-nav-bar');
+  const avatarBtn = document.getElementById('btn-auth-avatar');
+  const mobileAvatarBtn = document.getElementById('btn-mobile-auth-avatar');
+  const mobileAuthBtn = document.getElementById('btn-mobile-open-auth');
 
   if (currentUser) {
     const displayName = currentUser.name || currentUser.fullName || currentUser.email.split('@')[0];
@@ -384,6 +399,28 @@ function updateAuthUI(): void {
       });
     }
 
+    if (avatarBtn) {
+      avatarBtn.classList.remove('hidden');
+      avatarBtn.classList.add('flex');
+    }
+    if (mobileAvatarBtn) {
+      mobileAvatarBtn.classList.remove('hidden');
+      mobileAvatarBtn.classList.add('flex');
+    }
+    if (mobileAuthBtn) {
+      mobileAuthBtn.classList.add('hidden');
+    }
+
+    // Reveal internal dashboard tabs in desktop nav
+    if (desktopNav) {
+      desktopNav.querySelectorAll('[data-section]').forEach((link) => {
+        (link as HTMLElement).classList.remove('hidden');
+      });
+    }
+    if (mobileNav) {
+      mobileNav.classList.remove('hidden');
+    }
+
     if (greetingEl) greetingEl.textContent = `Welcome back, ${displayName}!`;
     if (avatarEl) avatarEl.textContent = displayName.charAt(0).toUpperCase();
 
@@ -401,16 +438,42 @@ function updateAuthUI(): void {
       userPersonalizedHeader.classList.remove('hidden');
     }
   } else {
+    // Unauthenticated: Only Landing Page (Story & About)
     if (authContainer) {
       authContainer.innerHTML = `
-        <button id="btn-open-auth" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 transition-all shadow-sm cursor-pointer">
+        <button id="btn-open-auth" onclick="window.openAuthModal('signin')" type="button" class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 transition-all shadow-sm cursor-pointer">
           <span class="material-symbols-outlined text-[16px]">account_circle</span>
           <span>Sign In</span>
         </button>
       `;
-      document.getElementById('btn-open-auth')?.addEventListener('click', () => {
-        openAuthModal('signin');
+    }
+
+    if (avatarBtn) {
+      avatarBtn.classList.add('hidden');
+      avatarBtn.classList.remove('flex');
+    }
+    if (mobileAvatarBtn) {
+      mobileAvatarBtn.classList.add('hidden');
+      mobileAvatarBtn.classList.remove('flex');
+    }
+    if (mobileAuthBtn) {
+      mobileAuthBtn.classList.remove('hidden');
+    }
+
+    // Hide internal dashboard navigation links from unauthenticated visitors
+    if (desktopNav) {
+      desktopNav.querySelectorAll('[data-section]').forEach((link) => {
+        const sec = link.getAttribute('data-section');
+        if (sec && sec !== 'about') {
+          (link as HTMLElement).classList.add('hidden');
+        } else {
+          (link as HTMLElement).classList.remove('hidden');
+        }
       });
+    }
+
+    if (mobileNav) {
+      mobileNav.classList.add('hidden');
     }
 
     if (userPersonalizedHeader) {
@@ -420,7 +483,7 @@ function updateAuthUI(): void {
 }
 
 function openAuthModal(defaultTab: 'signin' | 'register' = 'signin'): void {
-  (window as any).closeAllModals?.();
+  closeAllModals(false);
   const modal = document.getElementById('auth-modal');
   const backdrop = document.getElementById('global-backdrop');
   if (!modal || !backdrop) return;
@@ -432,7 +495,7 @@ function openAuthModal(defaultTab: 'signin' | 'register' = 'signin'): void {
 
   switchAuthTab(defaultTab);
 
-  modal.classList.remove('translate-y-full', 'pointer-events-none');
+  modal.classList.remove('translate-y-full', 'pointer-events-none', 'md:opacity-0', 'md:scale-95');
   modal.classList.add('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
   backdrop.classList.remove('hidden');
 }
@@ -442,7 +505,7 @@ function openProfileModal(): void {
     openAuthModal('signin');
     return;
   }
-  (window as any).closeAllModals?.();
+  closeAllModals(false);
   const modal = document.getElementById('user-profile-modal');
   const backdrop = document.getElementById('global-backdrop');
   if (!modal || !backdrop) return;
@@ -740,90 +803,217 @@ function selectCategory(categorySlug: string, updateHistory = true): void {
 // ─── HERO ARTICLE ─────────────────────────────────────────────────────
 
 async function loadFeaturedHero(): Promise<void> {
-  const featured = await ParmanuApiClient.fetchFeaturedStory();
-  if (!featured) return;
-
-  const heroSection = document.querySelector('article.bg-surface-container-lowest');
+  const heroSection = document.getElementById('hero-lead-article') || document.querySelector('article.bg-surface-container-lowest');
   if (!heroSection) return;
 
   const headlineEl = heroSection.querySelector('h1.font-headline');
-  const summaryEl = heroSection.querySelector('p.text-sm');
-  const veracityEl = heroSection.querySelector('.bg-surface-container-low .text-xs.text-on-surface-variant');
-  const badgeEl = heroSection.querySelector('.absolute.top-4.left-4');
+  const summaryEl = heroSection.querySelector('p.text-sm, p.text-base');
+  const veracityEl = document.getElementById('hero-veracity-desc') || heroSection.querySelector('.bg-surface-container-low .text-xs.text-on-surface-variant');
+  const statusPill = document.getElementById('hero-status-pill');
+  const sourceCountBadge = document.getElementById('hero-source-count-badge');
+  const timeAgoEl = document.getElementById('hero-time-ago');
+  const categoryTag = document.getElementById('hero-category-tag');
+  const authorName = document.getElementById('hero-author-name');
+  const authorRole = document.getElementById('hero-author-role');
   const bookmarkBtn = heroSection.querySelector('button[aria-label="Bookmark story"]');
   const shareBtn = heroSection.querySelector('button[aria-label="Share story"]');
   const dossierBtn = heroSection.querySelector('button.bg-primary');
 
-  if (headlineEl) headlineEl.textContent = featured.primaryHeadline;
-  if (summaryEl) summaryEl.textContent = featured.summary || 'Corroborated intelligence report.';
-
-  if (veracityEl) {
-    const sourceCount = featured.items?.length || 1;
-    veracityEl.textContent = `Grounded in ${sourceCount} verified source record(s). Triangulated confidence score: ${Math.round(
-      featured.confidenceScore * 100
-    )}%.`;
-  }
-
-  if (badgeEl) {
-    badgeEl.innerHTML = `
-      <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-lowest/95 backdrop-blur-md text-secondary text-xs font-bold shadow-sm">
+  const featured = await ParmanuApiClient.fetchFeaturedStory();
+  if (featured) {
+    if (headlineEl) headlineEl.textContent = featured.primaryHeadline;
+    if (summaryEl) summaryEl.textContent = featured.summary || 'Corroborated intelligence report.';
+    if (categoryTag) {
+      const cats = Array.isArray(featured.category) ? featured.category.join(' • ') : featured.category || 'Verified News';
+      categoryTag.textContent = cats.toUpperCase();
+    }
+    if (veracityEl) {
+      const sourceCount = featured.items?.length || 1;
+      veracityEl.textContent = `Grounded in ${sourceCount} verified source record(s). Triangulated confidence score: ${Math.round(
+        featured.confidenceScore * 100
+      )}%.`;
+    }
+    if (statusPill) {
+      statusPill.innerHTML = `
         <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
         ${escapeHtml(featured.status)}
-      </span>
-      <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-inverse-surface/80 text-inverse-on-surface font-code text-xs">
-        ${featured.itemCount} Sources Verified
-      </span>
-    `;
+      `;
+    }
+    if (sourceCountBadge) {
+      sourceCountBadge.textContent = `${featured.itemCount} Sources Verified`;
+    }
+    if (timeAgoEl) {
+      timeAgoEl.innerHTML = `<span class="material-symbols-outlined text-[15px]">schedule</span> ${formatRelativeTime(featured.publishedAt || featured.lastObservedAt)}`;
+    }
+    if (authorName) authorName.textContent = 'Parmanu Editorial Desk';
+    if (authorRole) authorRole.textContent = 'Multi-Source Triangulation';
+
+    if (bookmarkBtn) {
+      (bookmarkBtn as HTMLElement).onclick = async (e: MouseEvent) => {
+        e.stopPropagation();
+        await toggleBookmarkAction(featured.id, bookmarkBtn as HTMLElement);
+      };
+    }
+    if (shareBtn) {
+      (shareBtn as HTMLElement).onclick = (e: MouseEvent) => {
+        e.stopPropagation();
+        handleShare(featured.primaryHeadline);
+      };
+    }
+    if (dossierBtn) {
+      (dossierBtn as HTMLElement).onclick = (e: MouseEvent) => {
+        e.stopPropagation();
+        openDossierModal(featured.id);
+      };
+    }
+    return;
   }
 
-  if (bookmarkBtn) {
-    bookmarkBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      await toggleBookmarkAction(featured.id, bookmarkBtn as HTMLElement);
-    });
-  }
+  // Fallback: Use freshest live dispatch directly from verified Indian newsroom wire
+  const liveDispatches = await ParmanuApiClient.fetchLiveDispatches(1);
+  if (liveDispatches.length > 0) {
+    const topItem = liveDispatches[0];
+    if (headlineEl) headlineEl.textContent = topItem.headline;
+    if (summaryEl) summaryEl.textContent = topItem.excerpt || 'Real-time wire dispatch verified and fingerprinted by Parmanu ingestion engine.';
+    if (categoryTag) {
+      categoryTag.textContent = (topItem.source?.name || 'National Wire').toUpperCase();
+    }
+    if (veracityEl) {
+      veracityEl.textContent = `Grounded in verified wire report from ${topItem.source?.name || 'Verified Bureau'}. Fingerprinted status: ${topItem.provenanceState}.`;
+    }
+    if (statusPill) {
+      statusPill.innerHTML = `
+        <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">sensors</span>
+        Live Wire
+      `;
+    }
+    if (sourceCountBadge) {
+      sourceCountBadge.textContent = topItem.source?.name || 'Wire Dispatch';
+    }
+    if (timeAgoEl) {
+      timeAgoEl.innerHTML = `<span class="material-symbols-outlined text-[15px]">schedule</span> ${formatRelativeTime(topItem.publishedAt)}`;
+    }
+    if (authorName) authorName.textContent = `${topItem.source?.name || 'National'} Bureau`;
+    if (authorRole) authorRole.textContent = 'Verified Ingestion Feed';
 
-  if (shareBtn) {
-    shareBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      handleShare(featured.primaryHeadline);
-    });
-  }
-
-  if (dossierBtn) {
-    dossierBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openDossierModal(featured.id);
-    });
+    if (shareBtn) {
+      (shareBtn as HTMLElement).onclick = (e: MouseEvent) => {
+        e.stopPropagation();
+        handleShare(topItem.headline);
+      };
+    }
+    if (dossierBtn) {
+      (dossierBtn as HTMLElement).onclick = (e: MouseEvent) => {
+        e.stopPropagation();
+        window.open(topItem.canonicalUrl, '_blank', 'noopener,noreferrer');
+      };
+    }
   }
 }
 
 // ─── TRENDING STORIES & SIDEBAR ───────────────────────────────────────
 
 async function loadTrendingStories(): Promise<void> {
+  const headlineEl = document.getElementById('breaking-headline');
+  const sourceBadgeEl = document.getElementById('breaking-source-badge');
+  const viewTraceBtn = document.getElementById('btn-view-breaking-trace');
+
   const trending = await ParmanuApiClient.fetchTrendingStories(undefined, 4);
-  if (trending.length === 0) return;
-
-  const breakingAlert = document.querySelector('.bg-primary\\/5');
-  if (breakingAlert && trending[0]) {
+  if (trending.length > 0) {
     const top = trending[0];
-    const p = breakingAlert.querySelector('p');
-    const sourceBadge = breakingAlert.querySelector('.bg-primary\\/10');
-    const viewTraceBtn = breakingAlert.querySelector('button');
-
-    if (p) p.textContent = top.primaryHeadline;
-    if (sourceBadge) {
-      sourceBadge.innerHTML = `
+    if (headlineEl) headlineEl.textContent = top.primaryHeadline;
+    if (sourceBadgeEl) {
+      sourceBadgeEl.innerHTML = `
         <span class="material-symbols-outlined text-[13px]">layers</span>
         ${top.itemCount} Sources
       `;
     }
     if (viewTraceBtn) {
-      viewTraceBtn.onclick = (e) => {
+      viewTraceBtn.onclick = (e: MouseEvent) => {
         e.stopPropagation();
         openDossierModal(top.id);
       };
     }
+    return;
+  }
+
+  // Fallback: Populate breaking alert with latest live dispatch
+  const dispatches = await ParmanuApiClient.fetchLiveDispatches(1);
+  if (dispatches.length > 0) {
+    const top = dispatches[0];
+    if (headlineEl) headlineEl.textContent = top.headline;
+    if (sourceBadgeEl) {
+      sourceBadgeEl.innerHTML = `
+        <span class="material-symbols-outlined text-[13px]">sensors</span>
+        ${escapeHtml(top.source?.name || 'Wire')}
+      `;
+    }
+    if (viewTraceBtn) {
+      viewTraceBtn.onclick = (e: MouseEvent) => {
+        e.stopPropagation();
+        window.open(top.canonicalUrl, '_blank', 'noopener,noreferrer');
+      };
+    }
+  }
+}
+
+// ─── CREATOR SPOTLIGHT CARD ──────────────────────────────────────────
+
+async function loadCreatorSpotlight(): Promise<void> {
+  const card = document.getElementById('creator-spotlight-card');
+  if (!card) return;
+
+  const creators = await ParmanuApiClient.fetchCreators();
+  if (!creators || creators.length === 0) return;
+
+  const spotlight = creators[0];
+  const nameEl = document.getElementById('spotlight-name');
+  const handleEl = document.getElementById('spotlight-handle');
+  const bioEl = document.getElementById('spotlight-bio');
+  const avatarEl = document.getElementById('spotlight-avatar');
+  const statementEl = document.getElementById('spotlight-statement');
+  const tagsEl = document.getElementById('spotlight-tags');
+  const followBtn = document.getElementById('spotlight-follow-btn');
+
+  if (nameEl) nameEl.textContent = spotlight.displayName;
+  if (handleEl) handleEl.textContent = spotlight.instagramHandle ? `@${spotlight.instagramHandle}` : '@creator';
+  if (bioEl) bioEl.textContent = spotlight.bio || `${(spotlight.followersCount || 0).toLocaleString()} Verified Audience`;
+  if (avatarEl) {
+    if (spotlight.avatarUrl) {
+      avatarEl.innerHTML = `<img src="${escapeHtml(spotlight.avatarUrl)}" alt="${escapeHtml(spotlight.displayName)}" class="w-full h-full rounded-full object-cover">`;
+    } else {
+      avatarEl.textContent = spotlight.displayName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+    }
+  }
+  if (statementEl) {
+    statementEl.textContent = spotlight.bio || `Tracking brand deals, commercial disclosures, and editorial activity for ${spotlight.displayName}.`;
+  }
+  if (tagsEl) {
+    const categoryName = Array.isArray(spotlight.category) ? spotlight.category[0] || 'Creator Economy' : spotlight.category || 'Creator Economy';
+    tagsEl.innerHTML = `
+      <span class="px-2 py-0.5 bg-primary/10 text-primary rounded font-code text-[11px] flex items-center gap-1">
+        <span class="material-symbols-outlined text-[13px]">verified</span> ${(spotlight.followersCount || 0).toLocaleString()} Followers
+      </span>
+      <span class="px-2 py-0.5 bg-surface-container-highest text-on-surface rounded font-code text-[11px] flex items-center gap-1">
+        <span class="material-symbols-outlined text-[13px]">hub</span> ${escapeHtml(categoryName)}
+      </span>
+    `;
+  }
+  if (followBtn) {
+    followBtn.innerHTML = `
+      <span class="material-symbols-outlined text-[16px]">${spotlight.isFollowedByMe ? 'check' : 'person_add'}</span>
+      <span>${spotlight.isFollowedByMe ? 'Following on Parmanu' : 'Follow & Track Collabs'}</span>
+    `;
+    followBtn.onclick = async () => {
+      if (!currentUser) {
+        openAuthModal('signin');
+        return;
+      }
+      const res = await ParmanuApiClient.toggleFollowCreator(spotlight.id);
+      spotlight.isFollowedByMe = res.isFollowed;
+      showToast(res.isFollowed ? `Following ${spotlight.displayName}! Added to your personalized feed.` : `Unfollowed ${spotlight.displayName}`);
+      loadCreatorSpotlight();
+    };
   }
 }
 
@@ -1296,10 +1486,16 @@ async function loadCollabsFeed(): Promise<void> {
         : 'bg-primary text-on-primary hover:bg-primary/90 shadow-sm';
       const followBtnText = c.isFollowedByMe ? 'Following ✓' : '+ Follow';
 
+      const initials = escapeHtml(
+        ((c.displayName || 'CR').trim().split(/\s+/).map((w: string) => w[0]).join('')).slice(0, 2).toUpperCase()
+      );
+
       card.innerHTML = `
         <div class="flex items-start justify-between gap-3">
           <div class="flex items-center gap-3 min-w-0">
-            <img src="${escapeHtml(avatar)}" alt="${escapeHtml(c.displayName)}" class="w-12 h-12 rounded-full object-cover ring-2 ring-surface-container shrink-0" />
+            <div class="w-12 h-12 rounded-full bg-secondary/15 text-secondary flex items-center justify-center font-bold text-sm ring-2 ring-surface-container shrink-0">
+              ${initials}
+            </div>
             <div class="flex flex-col min-w-0">
               <span class="font-bold text-sm text-on-surface flex items-center gap-1">
                 ${escapeHtml(c.displayName)}
@@ -1409,10 +1605,13 @@ async function loadCollabsFeed(): Promise<void> {
       const pill = document.createElement('div');
       pill.className =
         'flex items-center gap-2 px-3 py-2 rounded-2xl bg-surface-container-lowest border border-surface-container shrink-0 shadow-sm';
+      const fcInitials = escapeHtml(
+        ((fc.displayName || 'CR').trim().split(/\s+/).map((w: string) => w[0]).join('')).slice(0, 2).toUpperCase()
+      );
       pill.innerHTML = `
-        <img src="${escapeHtml(
-          fc.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&auto=format&fit=crop&q=80'
-        )}" class="w-8 h-8 rounded-full object-cover" />
+        <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0 ring-1 ring-surface-container">
+          ${fcInitials}
+        </div>
         <div class="flex flex-col text-xs">
           <span class="font-bold text-on-surface">${escapeHtml(fc.displayName)}</span>
           <span class="text-[10px] text-secondary font-code">@${escapeHtml(fc.instagramHandle || '')}</span>
@@ -2166,12 +2365,15 @@ function setupModalsAndBackdrops(): void {
 }
 
 function closeAllModals(updateHistory = true): void {
-  const modalIds = ['dossier-main', 'dossier-breaking', 'download-app-modal'];
+  const modalIds = ['dossier-main', 'dossier-breaking', 'download-app-modal', 'auth-modal', 'user-profile-modal'];
   modalIds.forEach((id) => {
     const el = document.getElementById(id);
     if (el) {
       el.classList.add('translate-y-full', 'pointer-events-none');
       el.classList.remove('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
+      if (id === 'auth-modal' || id === 'user-profile-modal') {
+        el.classList.add('md:opacity-0', 'md:scale-95');
+      }
     }
   });
 
@@ -2190,7 +2392,18 @@ function closeAllModals(updateHistory = true): void {
 }
 
 function setupGlobalActions(): void {
-  // Expose on global window object for inline HTML event handlers
+  // Expose directly on global window object for inline HTML event handlers
+  (window as any).openAuthModal = openAuthModal;
+  (window as any).openProfileModal = openProfileModal;
+  (window as any).switchAuthTab = switchAuthTab;
+  (window as any).closeAllModals = closeAllModals;
+  (window as any).switchSection = switchSection;
+  (window as any).selectCategory = selectCategory;
+  (window as any).openDossierModal = openDossierModal;
+  (window as any).openBookmarksDrawer = openBookmarksDrawer;
+  (window as any).openSearchModal = openSearchModal;
+  (window as any).handleShare = handleShare;
+
   (window as any).parmanu = {
     openDossierModal,
     closeAllModals,
@@ -2198,7 +2411,11 @@ function setupGlobalActions(): void {
     openBookmarksDrawer,
     selectCategory,
     switchSection,
+    openAuthModal,
+    openProfileModal,
+    switchAuthTab,
     handleShare,
+    loadCollabsFeed,
     removeBookmarkItem: async (id: string) => {
       await ParmanuApiClient.removeBookmark(id);
       showToast('Removed bookmark');
@@ -2206,17 +2423,12 @@ function setupGlobalActions(): void {
     },
   };
 
-  (window as any).switchSection = switchSection;
-
   (window as any).toggleDossier = (id: string) => {
     if (id === 'dossier-main') {
       if (activeDossierData) {
         openDossierModal(activeDossierData.id);
       } else {
-        const topLead = document.querySelector('article.bg-surface-container-lowest');
-        if (topLead) {
-          openDossierModal('featured');
-        }
+        openDossierModal('featured');
       }
     } else {
       const el = document.getElementById(id);
@@ -2228,9 +2440,6 @@ function setupGlobalActions(): void {
       }
     }
   };
-
-  (window as any).closeAllModals = closeAllModals;
-  (window as any).handleShare = handleShare;
 }
 
 function handleShare(title?: string): void {

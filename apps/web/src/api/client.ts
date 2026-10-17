@@ -314,21 +314,14 @@ export class ParmanuApiClient {
       });
       if (res.ok) {
         const json: ApiResponse<CategorySummary[]> = await res.json();
-        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        if (json.success && Array.isArray(json.data)) {
           return json.data;
         }
       }
     } catch (err) {
       console.error('Failed to fetch categories', err);
     }
-    // High-fidelity fallback categories
-    return [
-      { name: 'Creator Economy', slug: 'creator', count: 14 },
-      { name: 'Policy & Tech', slug: 'policy', count: 24 },
-      { name: 'Culture & Cinema', slug: 'culture', count: 18 },
-      { name: 'Investigative', slug: 'investigative', count: 9 },
-      { name: 'Climate', slug: 'climate', count: 7 },
-    ];
+    return [];
   }
 
   public static async fetchLiveDispatches(limit = 10, category?: string): Promise<SourceItemSummary[]> {
