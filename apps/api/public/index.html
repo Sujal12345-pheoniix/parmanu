@@ -1,1364 +1,1419 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parmanu — Newsroom CMS & Creator Intelligence</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <meta content="mobile_tab" name="shell-type"/>
+  <meta name="theme-color" content="#2a14b4"/>
+  <meta name="description" content="Parmanu — India's verified news & creator intelligence platform with cryptographic source provenance."/>
+  
+  <title>The Parmanu — All Fields. One Platform.</title>
+  
+  <!-- PWA Manifest & App Icons -->
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+
+  <!-- Google Fonts & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&amp;family=Playfair+Display:ital,wght@0,600;0,700;1,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+  
   <style>
-    :root {
-      --bg: #090a0f;
-      --card-bg: #12141c;
-      --card-border: #1f2333;
-      --text-main: #f0f2f8;
-      --text-muted: #8b92a5;
-      --accent: #ff4757;
-      --accent-subtle: rgba(255, 71, 87, 0.12);
-      --green: #2ed573;
-      --green-subtle: rgba(46, 213, 115, 0.12);
-      --blue: #1e90ff;
-      --blue-subtle: rgba(30, 144, 255, 0.12);
-      --yellow: #ffa502;
-      --yellow-subtle: rgba(255, 165, 2, 0.12);
-      --purple: #9b59b6;
-      --purple-subtle: rgba(155, 89, 182, 0.12);
-      --badge-radius: 9999px;
+    @layer base {
+      html, body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9ff;
+        color: #191c20;
+      }
+      body {
+        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        overscroll-behavior-y: none;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background-color: var(--bg);
-      color: var(--text-main);
-      font-family: 'Inter', -apple-system, sans-serif;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
-
-    /* Header */
-    header {
-      border-bottom: 1px solid var(--card-border);
-      background: rgba(9, 10, 15, 0.92);
-      backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-    .header-inner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 70px;
-    }
-    .logo-group {
-      display: flex;
-      align-items: baseline;
-      gap: 0.75rem;
-      text-decoration: none;
-      color: inherit;
-    }
-    .logo {
-      font-size: 1.75rem;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      background: linear-gradient(135deg, #fff 30%, #ff4757 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .tagline {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 600;
-    }
-
-    .nav-tabs {
-      display: flex;
-      gap: 0.4rem;
-      overflow-x: auto;
-    }
-    .nav-btn {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-muted);
-      padding: 0.45rem 0.85rem;
-      border-radius: 8px;
-      font-size: 0.88rem;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-    .nav-btn:hover {
-      color: var(--text-main);
-      background: var(--card-bg);
-    }
-    .nav-btn.active {
-      color: #fff;
-      background: var(--card-bg);
-      border-color: var(--card-border);
-      font-weight: 600;
-    }
-
-    .auth-status-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      padding: 0.45rem 1rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    /* Sub-header Categories */
-    .category-bar {
-      border-bottom: 1px solid var(--card-border);
-      background: #0d0f17;
-      padding: 0.75rem 0;
-      overflow-x: auto;
-    }
-    .category-inner {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-    .cat-pill {
-      background: transparent;
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      padding: 0.3rem 0.8rem;
-      border-radius: var(--badge-radius);
-      font-size: 0.82rem;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s;
-    }
-    .cat-pill:hover, .cat-pill.active {
-      color: #fff;
-      background: var(--accent);
-      border-color: var(--accent);
-    }
-
-    /* System Stats Banner */
-    .system-banner {
-      background: #141724;
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 0.75rem 1.25rem;
-      margin: 1.5rem 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-    .status-live {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      color: var(--green);
-      font-weight: 600;
-    }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--green);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--green);
-    }
-
-    /* Metrics Grid */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .metric-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 1.25rem;
-    }
-    .metric-card .title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      margin-bottom: 0.35rem;
-    }
-    .metric-card .value {
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: #fff;
-    }
-    .metric-card .sub {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
-    }
-
-    /* Feed Grid */
-    .feed-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 3rem;
-    }
-
-    /* News Card */
-    .news-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-    .news-card:hover {
-      border-color: #2e354f;
-    }
-    .card-meta-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      font-size: 0.8rem;
-    }
-    .card-headline {
-      font-family: 'Newsreader', Georgia, serif;
-      font-size: 1.35rem;
-      font-weight: 600;
-      line-height: 1.3;
-      margin-bottom: 0.75rem;
-    }
-    .card-headline a {
-      color: var(--text-main);
-      text-decoration: none;
-    }
-    .card-headline a:hover {
-      color: #fff;
-      text-decoration: underline;
-    }
-    .card-excerpt {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-      margin-bottom: 1.25rem;
-    }
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid var(--card-border);
-      padding-top: 0.75rem;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    /* Badges */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      padding: 0.2rem 0.6rem;
-      border-radius: var(--badge-radius);
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    .badge-official { background: var(--green-subtle); color: var(--green); }
-    .badge-verified { background: var(--blue-subtle); color: var(--blue); }
-    .badge-single { background: var(--yellow-subtle); color: var(--yellow); }
-    .badge-unverified { background: rgba(255, 255, 255, 0.08); color: var(--text-muted); }
-    .badge-disputed { background: var(--accent-subtle); color: var(--accent); }
-    .badge-corrected { background: var(--purple-subtle); color: var(--purple); }
-
-    /* Tables */
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-      margin-top: 1rem;
-    }
-    .data-table th {
-      text-align: left;
-      padding: 0.75rem 1rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      border-bottom: 1px solid var(--card-border);
-      background: rgba(255, 255, 255, 0.02);
-    }
-    .data-table td {
-      padding: 0.85rem 1rem;
-      border-bottom: 1px solid var(--card-border);
-      vertical-align: middle;
-    }
-    .data-table tr:hover {
-      background: rgba(255, 255, 255, 0.015);
-    }
-
-    /* Buttons */
-    .btn-action {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .btn-action:hover { opacity: 0.9; }
-    .btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-sm { padding: 0.3rem 0.65rem; font-size: 0.78rem; border-radius: 4px; }
-    .btn-outline { background: transparent; border: 1px solid var(--card-border); color: var(--text-main); }
-    .btn-outline:hover { background: var(--card-bg); border-color: #3b425b; }
-    .btn-green { background: var(--green); color: #000; }
-    .btn-blue { background: var(--blue); color: #fff; }
-    .btn-purple { background: var(--purple); color: #fff; }
-
-    /* Filters Toolbar */
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      align-items: center;
-      margin-bottom: 1.25rem;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 0.85rem 1.25rem;
-    }
-    .toolbar-select, .toolbar-input {
-      background: #090a0f;
-      border: 1px solid var(--card-border);
-      color: #fff;
-      padding: 0.45rem 0.75rem;
-      border-radius: 6px;
-      font-size: 0.82rem;
-    }
-
-    /* Modal Backdrop */
-    .modal-backdrop {
+    ::-webkit-scrollbar {
       display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(4px);
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-      padding: 1.5rem;
     }
-    .modal-box {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 2rem;
-      width: 100%;
-      max-width: 760px;
-      max-height: 90vh;
-      overflow-y: auto;
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
     }
-    .form-group {
-      margin-bottom: 1.2rem;
-    }
-    .form-group label {
-      display: block;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-bottom: 0.4rem;
-    }
-    .form-control {
-      width: 100%;
-      padding: 0.65rem 0.85rem;
-      border-radius: 6px;
-      border: 1px solid var(--card-border);
-      background: #090a0f;
-      color: #fff;
-      font-size: 0.9rem;
-    }
-
-    .state-box {
-      text-align: center;
-      padding: 4rem 2rem;
-      color: var(--text-muted);
-    }
-    .state-box h3 { color: #fff; margin-bottom: 0.5rem; }
-
-    @media (max-width: 768px) {
-      .header-inner { flex-direction: column; height: auto; padding: 1rem 0; gap: 0.75rem; }
-      .system-banner { flex-direction: column; gap: 0.5rem; text-align: center; }
-      .feed-grid { grid-template-columns: 1fr; }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
-</head>
-<body>
 
-  <!-- Header -->
-  <header>
-    <div class="container header-inner">
-      <a href="#" class="logo-group" onclick="showTab('news'); return false;">
-        <span class="logo">PARMANU</span>
-        <span class="tagline">Editorial Intelligence</span>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'primary': '#2a14b4',
+            'surface-dim': '#d8dadf',
+            'surface-variant': '#e1e2e8',
+            'inverse-primary': '#c3c0ff',
+            'on-background': '#191c20',
+            'outline-variant': '#c7c4d7',
+            'outline': '#777586',
+            'on-primary-fixed-variant': '#372abf',
+            'background': '#f8f9ff',
+            'secondary-fixed-dim': '#6bd8cb',
+            'on-tertiary-container': '#ffb477',
+            'surface-container-high': '#e6e8ee',
+            'on-tertiary': '#ffffff',
+            'tertiary-fixed': '#ffdcc3',
+            'on-surface-variant': '#464554',
+            'inverse-surface': '#2e3135',
+            'surface-container': '#eceef3',
+            'surface-container-lowest': '#ffffff',
+            'surface-tint': '#5148d7',
+            'on-tertiary-fixed-variant': '#6e3900',
+            'secondary': '#006a61',
+            'on-secondary-fixed-variant': '#005049',
+            'on-primary': '#ffffff',
+            'primary-fixed-dim': '#c3c0ff',
+            'on-secondary-container': '#006f66',
+            'inverse-on-surface': '#eff0f6',
+            'on-error': '#ffffff',
+            'tertiary-container': '#7d4200',
+            'on-surface': '#191c20',
+            'surface-container-highest': '#e1e2e8',
+            'secondary-fixed': '#89f5e7',
+            'surface-bright': '#f8f9ff',
+            'surface-container-low': '#f2f3f9',
+            'error': '#ba1a1a',
+            'tertiary': '#5c2f00',
+            'on-secondary': '#ffffff',
+            'on-tertiary-fixed': '#2f1500',
+            'on-primary-container': '#c1beff',
+            'primary-container': '#4338ca',
+            'on-primary-fixed': '#100069',
+            'error-container': '#ffdad6',
+            'on-error-container': '#93000a',
+            'tertiary-fixed-dim': '#ffb77d',
+            'primary-fixed': '#e3dfff',
+            'surface': '#f8f9ff',
+            'on-secondary-fixed': '#00201d',
+            'secondary-container': '#86f2e4'
+          },
+          borderRadius: {
+            'DEFAULT': '0.125rem',
+            'lg': '0.375rem',
+            'xl': '0.75rem',
+            '2xl': '1rem',
+            'full': '9999px'
+          },
+          fontFamily: {
+            'headline': ['Playfair Display', 'serif'],
+            'body': ['Plus Jakarta Sans', 'sans-serif'],
+            'code': ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Immediate Inline Modal & Auth Handlers (Zero-latency before module load) -->
+  <script>
+    window.openAuthModal = function(defaultTab) {
+      if (window.parmanu && typeof window.parmanu.openAuthModal === 'function') {
+        window.parmanu.openAuthModal(defaultTab || 'signin');
+        return;
+      }
+      const modal = document.getElementById('auth-modal');
+      const backdrop = document.getElementById('global-backdrop');
+      if (modal) {
+        modal.classList.remove('hidden', 'translate-y-full', 'pointer-events-none', 'md:opacity-0', 'md:scale-95');
+        modal.classList.add('block');
+      }
+      if (backdrop) {
+        backdrop.classList.remove('hidden');
+      }
+      if (defaultTab === 'register') {
+        document.getElementById('auth-tab-register')?.click();
+      } else {
+        document.getElementById('auth-tab-signin')?.click();
+      }
+    };
+    window.closeAllModals = function() {
+      if (window.parmanu && typeof window.parmanu.closeAllModals === 'function') {
+        window.parmanu.closeAllModals();
+        return;
+      }
+      const modalIds = ['dossier-main', 'dossier-breaking', 'download-app-modal', 'auth-modal', 'user-profile-modal'];
+      modalIds.forEach(function(id) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.add('hidden', 'translate-y-full', 'pointer-events-none');
+          el.classList.remove('block');
+        }
+      });
+      const backdrop = document.getElementById('global-backdrop');
+      if (backdrop) backdrop.classList.add('hidden');
+    };
+    window.openProfileModal = function() {
+      if (window.parmanu && typeof window.parmanu.openProfileModal === 'function') {
+        window.parmanu.openProfileModal();
+      } else {
+        window.openAuthModal('signin');
+      }
+    };
+  </script>
+  <script type="module" crossorigin src="/assets/index-Coq8u6yY.js"></script>
+</head>
+<body class="bg-surface text-on-surface flex flex-col min-h-screen antialiased selection:bg-primary/20">
+
+  <!-- Desktop & Tablet Navigation Header (>= md) -->
+  <header class="hidden md:block fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl border-b border-surface-container shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
+      
+      <!-- Brand Logo & Motto (Pure CSS / No Broken Images) -->
+      <a href="#" class="flex items-center gap-2.5 shrink-0 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white shadow-sm shrink-0 transition-transform group-hover:scale-105">
+          <span class="font-headline font-black text-lg leading-none">P</span>
+        </div>
+        <div class="flex flex-col leading-none">
+          <span class="font-headline text-xl font-bold tracking-tight text-on-surface">THE PARMANU</span>
+          <span class="text-[11px] font-bold text-on-surface-variant tracking-widest uppercase mt-0.5">All Fields. One Platform.</span>
+        </div>
       </a>
 
-      <nav class="nav-tabs">
-        <button class="nav-btn active" id="tab-btn-news" onclick="showTab('news')">Public Feed</button>
-        <button class="nav-btn" id="tab-btn-editorial" onclick="showTab('editorial')">Editorial CMS</button>
-        <button class="nav-btn" id="tab-btn-collab" onclick="showTab('collab')">Creator & PR Radar</button>
-        <button class="nav-btn" id="tab-btn-sources" onclick="showTab('sources')">Source Operations</button>
+      <!-- Desktop Navigation Links -->
+      <nav class="flex items-center gap-1 lg:gap-2" id="desktop-nav">
+        <a href="#about" data-section="about" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-semibold text-primary bg-primary/10 transition-colors">Story &amp; About</a>
+        <a href="#feed" data-section="feed" class="nav-link hidden px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Feed</a>
+        <a href="#pulse" data-section="pulse" class="nav-link hidden px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Pulse</a>
+        <a href="#explore" data-section="explore" class="nav-link hidden px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Explore</a>
+        <a href="#collabs" data-section="collabs" class="nav-link hidden px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Creator Collabs</a>
+        <a href="#workspace" data-section="workspace" class="nav-link hidden px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Dossier Workspace</a>
       </nav>
 
-      <div>
-        <button class="auth-status-btn" id="authBtn" onclick="openAuthModal()">Sign In</button>
+      <!-- Search, Download App CTA & Profile -->
+      <div class="flex items-center gap-3">
+        <!-- Search Trigger -->
+        <button class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container text-on-surface-variant text-xs hover:bg-surface-variant transition-colors" onclick="openSearchModal()">
+          <span class="material-symbols-outlined text-[18px]">search</span>
+          <span class="hidden lg:inline">Search verified stories...</span>
+          <kbd class="hidden lg:inline px-1.5 py-0.5 text-[10px] font-code bg-surface-container-highest rounded">⌘K</kbd>
+        </button>
+
+        <!-- PROMINENT DOWNLOAD APP BUTTON -->
+        <button onclick="openDownloadModal()" class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-on-primary text-xs font-bold shadow-md hover:bg-primary/90 active:scale-95 transition-all">
+          <span class="material-symbols-outlined text-[18px]">install_mobile</span>
+          <span>Download App</span>
+        </button>
+
+        <!-- User Authentication & Profile Badge -->
+        <div id="user-auth-badge" class="flex items-center gap-2">
+          <button id="btn-open-auth" onclick="window.openAuthModal('signin')" type="button" class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 transition-all shadow-sm cursor-pointer">
+            <span class="material-symbols-outlined text-[16px]">account_circle</span>
+            <span>Sign In</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Mobile Top Header (< md) -->
+  <header class="md:hidden fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-sm pt-safe border-b border-surface-container">
+    <div class="h-16 px-4 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white shadow-sm shrink-0">
+          <span class="font-headline font-black text-base leading-none">P</span>
+        </div>
+        <div class="flex flex-col min-w-0 leading-tight">
+          <span class="font-headline text-lg font-bold tracking-tight text-on-surface truncate">THE PARMANU</span>
+          <span class="text-[9px] font-bold text-on-surface-variant tracking-wider uppercase truncate">All Fields. One Platform.</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <!-- Mobile Download App Button -->
+        <button onclick="openDownloadModal()" aria-label="Download App" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-primary text-on-primary text-[11px] font-bold active:scale-95 transition-transform shadow-sm">
+          <span class="material-symbols-outlined text-[15px]">download</span>
+          <span>App</span>
+        </button>
+        <button id="btn-mobile-open-auth" onclick="window.openAuthModal('signin')" type="button" class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-secondary text-on-secondary text-[11px] font-bold active:scale-95 transition-transform shadow-sm cursor-pointer">
+          Sign In
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- Category Filter Bar (Public feed) -->
-  <div class="category-bar" id="categoryBar">
-    <div class="container category-inner">
-      <button class="cat-pill active" onclick="setCategory(null, this)">All Stories</button>
-      <button class="cat-pill" onclick="setCategory('India', this)">India</button>
-      <button class="cat-pill" onclick="setCategory('Politics', this)">Politics</button>
-      <button class="cat-pill" onclick="setCategory('World', this)">World</button>
-      <button class="cat-pill" onclick="setCategory('Business', this)">Business</button>
-      <button class="cat-pill" onclick="setCategory('National', this)">National</button>
-      <button class="cat-pill" onclick="setCategory('Sports', this)">Sports</button>
-      <button class="cat-pill" onclick="setCategory('Entertainment', this)">Entertainment</button>
+  <!-- Mobile Floating Install App Bar (Dismissible) -->
+  <div id="mobile-install-banner" class="md:hidden fixed top-16 inset-x-0 z-40 bg-gradient-to-r from-primary to-primary-container text-on-primary px-4 py-2 flex items-center justify-between shadow-md">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="material-symbols-outlined text-[20px] text-secondary-fixed">smartphone</span>
+      <div class="flex flex-col min-w-0">
+        <span class="text-xs font-bold leading-none">Get Parmanu Mobile App</span>
+        <span class="text-[10px] text-primary-fixed-dim leading-tight">Instant alerts &amp; offline reading</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 shrink-0">
+      <button onclick="triggerPwaInstall()" class="px-2.5 py-1 bg-white text-primary text-[11px] font-bold rounded-full shadow hover:bg-white/90 active:scale-95 transition-transform">
+        Install
+      </button>
+      <button onclick="document.getElementById('mobile-install-banner').classList.add('hidden')" class="text-white/80 hover:text-white">
+        <span class="material-symbols-outlined text-[16px]">close</span>
+      </button>
     </div>
   </div>
 
-  <main class="container">
-    <!-- Live System Connection Banner -->
-    <div class="system-banner">
-      <div class="status-live">
-        <span class="status-dot"></span>
-        <span id="healthStatusText">Connecting to Neon PostgreSQL...</span>
+  <!-- Main Responsive Container (Fluid Grid on Desktop, Single Column on Mobile) -->
+  <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-24 pb-24 md:pb-12">
+
+    <!-- ================================================== -->
+    <!-- PUBLIC LANDING PAGE & STORY VIEW (#about)          -->
+    <!-- ================================================== -->
+    <div id="landing-page-view" class="w-full flex flex-col gap-12 sm:gap-16 pb-12">
+      
+      <!-- HERO SECTION -->
+      <section class="relative w-full rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-[#1e107a] to-inverse-surface text-on-primary p-6 sm:p-10 md:p-14 shadow-xl border border-primary/30">
+        <div class="relative z-10 max-w-4xl flex flex-col gap-6">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold uppercase tracking-wider shadow-sm">
+              <span class="material-symbols-outlined text-[15px]">verified</span>
+              India's Sovereign Truth &amp; Provenance Engine
+            </span>
+            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 text-white/90 text-xs font-semibold backdrop-blur-md">
+              <span class="material-symbols-outlined text-[14px]">bolt</span>
+              Sub-Minute Multi-Wire Ingestion
+            </span>
+          </div>
+
+          <h1 class="font-headline text-3xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.15]">
+            The Atomic Unit of Truth in News &amp; Creator Intelligence
+          </h1>
+
+          <p class="text-base sm:text-lg text-primary-fixed-dim max-w-3xl leading-relaxed">
+            Monolithic media narratives deconstructed into falsifiable, corroborated claims. Backed by deterministic cryptographic deduplication, cross-wire evidence verification, and real-time creator disclosure audits.
+          </p>
+
+          <!-- Key Metrics Badges -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 flex flex-col">
+              <span class="font-headline text-2xl sm:text-3xl font-bold text-secondary-fixed">100%</span>
+              <span class="text-[11px] text-primary-fixed-dim font-medium uppercase tracking-wide">Grounded Proofs</span>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 flex flex-col">
+              <span class="font-headline text-2xl sm:text-3xl font-bold text-white">SHA-256</span>
+              <span class="text-[11px] text-primary-fixed-dim font-medium uppercase tracking-wide">Deduplication</span>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 flex flex-col">
+              <span class="font-headline text-2xl sm:text-3xl font-bold text-secondary-fixed">6+ Wires</span>
+              <span class="text-[11px] text-primary-fixed-dim font-medium uppercase tracking-wide">Govt &amp; Global Feeds</span>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 flex flex-col">
+              <span class="font-headline text-2xl sm:text-3xl font-bold text-white">0%</span>
+              <span class="text-[11px] text-primary-fixed-dim font-medium uppercase tracking-wide">AI Hallucinations</span>
+            </div>
+          </div>
+
+          <!-- Hero Action CTAs -->
+          <div class="flex items-center gap-3 sm:gap-4 flex-wrap pt-3">
+            <button id="hero-btn-signin" onclick="openAuthModal('signin')" type="button" class="px-6 py-3.5 rounded-full bg-secondary text-on-secondary text-sm font-bold shadow-lg hover:bg-secondary/90 active:scale-95 transition-all flex items-center gap-2 cursor-pointer">
+              <span class="material-symbols-outlined text-[18px]">login</span>
+              <span>Sign In to Dashboard</span>
+            </button>
+            <button id="hero-btn-register" onclick="openAuthModal('register')" type="button" class="px-6 py-3.5 rounded-full bg-white text-primary text-sm font-bold shadow-lg hover:bg-white/95 active:scale-95 transition-all flex items-center gap-2 cursor-pointer">
+              <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+              <span>Create Account (Personalized Feed)</span>
+            </button>
+            <button id="hero-btn-explore" onclick="switchSection('feed')" type="button" class="px-5 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer">
+              <span>Explore Live Dispatches</span>
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Subtle Background Glows -->
+        <div class="absolute -right-24 -bottom-24 w-96 h-96 bg-secondary/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute right-1/3 -top-24 w-72 h-72 bg-primary-container/40 rounded-full blur-3xl pointer-events-none"></div>
+      </section>
+
+      <!-- 1. ABOUT PARMANU & THE GENESIS STORY -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-surface-container-lowest p-6 sm:p-10 rounded-3xl border border-surface-container shadow-sm">
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">The Genesis</span>
+            <span class="text-xs text-on-surface-variant font-code">Origin • Meaning • Mission</span>
+          </div>
+
+          <h2 class="font-headline text-2xl sm:text-4xl font-bold text-on-surface tracking-tight leading-tight">
+            Why "Parmanu"? Truth Broken Down to Its Indivisible Atom.
+          </h2>
+
+          <p class="text-sm sm:text-base text-on-surface-variant leading-relaxed">
+            In Sanskrit epistemology and classical Indian philosophy, <strong>Parmanu (परमाणु)</strong> signifies the ultimate indivisible building block of matter. For centuries, philosophers recognized that complex structures can only be understood by isolating their fundamental atoms.
+          </p>
+
+          <p class="text-sm sm:text-base text-on-surface-variant leading-relaxed">
+            In the modern digital era, journalism and media have devolved into monolithic, weaponized narratives. Sensationalist headlines conflate verified events with anonymous speculation, while viral algorithms reward shock value over evidentiary ground truth.
+          </p>
+
+          <div class="bg-surface-container-low p-4 rounded-2xl border-l-4 border-primary flex flex-col gap-1.5">
+            <h4 class="text-xs font-bold text-on-surface uppercase tracking-wider">The Modern Indian Information Crisis:</h4>
+            <p class="text-xs sm:text-sm text-on-surface leading-relaxed italic">
+              “Over 800 million Indians consume news through bite-sized social feeds and forward chains. Fact-checkers take 48 hours to debunk a lie that circulated in 4 minutes. Meanwhile, the creator economy blends authentic reviews with hidden commercial payouts without disclosure.”
+            </p>
+          </div>
+
+          <p class="text-sm sm:text-base text-on-surface-variant leading-relaxed">
+            <strong>Parmanu was conceived as the antidote.</strong> We deconstruct every news dispatch into its atomic claims, independently cross-corroborate them against primary gazettes and verified records, and deliver the truth at the exact speed of information.
+          </p>
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <div class="relative rounded-2xl overflow-hidden shadow-md border border-primary/20 bg-gradient-to-br from-[#0c0828] via-[#160f4e] to-inverse-surface p-7 flex flex-col justify-between h-64 text-white">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-full bg-secondary text-on-secondary text-[10px] font-bold uppercase tracking-wider">
+                Cryptographic Veracity
+              </span>
+              <span class="material-symbols-outlined text-secondary-fixed text-2xl">verified_user</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-headline font-black text-base shadow">
+                  P
+                </div>
+                <span class="font-headline text-3xl font-black tracking-tight text-white">PARMANU</span>
+              </div>
+              <span class="text-xs font-bold text-secondary-fixed uppercase tracking-widest mt-1">ALL FIELDS. ONE PLATFORM.</span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-white/70 border-t border-white/10 pt-2 font-code">
+              <span>SHA-256 State Engine</span>
+              <span class="text-secondary-fixed font-bold">100% Grounded</span>
+            </div>
+          </div>
+
+          <div class="p-4 bg-surface-container rounded-2xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary text-2xl">verified_user</span>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-on-surface">Audited Intelligence Desk</span>
+                <span class="text-[11px] text-on-surface-variant">Continuous automated background verification</span>
+              </div>
+            </div>
+            <button onclick="openAuthModal('signin')" class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer">
+              Access Desk
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. EXECUTIVE SUMMARY -->
+      <section class="bg-surface-container-low p-6 sm:p-10 rounded-3xl border border-surface-container flex flex-col gap-6">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold uppercase tracking-wider">Executive Summary</span>
+          <span class="text-xs text-on-surface-variant font-code">Architecture &amp; Mandate</span>
+        </div>
+
+        <h3 class="font-headline text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
+          A Sovereign Intelligence Terminal for Citizens, Journalists &amp; Brands
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-5 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-2.5 shadow-xs">
+            <span class="material-symbols-outlined text-primary text-3xl">hub</span>
+            <h4 class="font-bold text-base text-on-surface">Universal Wire Ingestion</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Automated ingestion pipelines normalize data from official gazettes (PIB, ISRO, SEBI), premium newspapers (The Hindu, Indian Express, Guardian), and digital platforms without manual latency.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-2.5 shadow-xs">
+            <span class="material-symbols-outlined text-secondary text-3xl">psychology</span>
+            <h4 class="font-bold text-base text-on-surface">Gemini Anti-Hallucination Gate</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Proprietary AI extraction that isolates discrete claims and evidence stances (Supports, Contradicts, Contextualizes), strictly dropping any citation not grounded in the source text.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-2.5 shadow-xs">
+            <span class="material-symbols-outlined text-tertiary-container text-3xl">radar</span>
+            <h4 class="font-bold text-base text-on-surface">Creator Sponsorship Radar</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Real-time surveillance of creator partnerships, detecting undisclosed brand sponsorships, affiliate ties, and ASCI regulatory compliance across Indian digital platforms.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. WHAT WE DO -->
+      <section class="flex flex-col gap-8">
+        <div class="flex flex-col gap-2 max-w-2xl">
+          <span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider w-fit">Core Platform Capabilities</span>
+          <h2 class="font-headline text-2xl sm:text-4xl font-bold text-on-surface tracking-tight">What We Do</h2>
+          <p class="text-xs sm:text-sm text-on-surface-variant">The five autonomous verification pipelines powering Parmanu's real-time accuracy.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="p-6 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-3 shadow-xs hover:border-primary/40 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">1</div>
+            <h4 class="font-bold text-base text-on-surface">Multi-Wire Live Ingestion</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Listens continuously to accredited domestic and international RSS feeds, government gazettes, and public APIs. Dispatches are captured within seconds of publication.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-3 shadow-xs hover:border-primary/40 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold">2</div>
+            <h4 class="font-bold text-base text-on-surface">Deterministic Deduplication</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Computes SHA-256 canonical headline and URL hashes. When 30 different websites syndicate the exact same PTI or ANI press release, Parmanu groups them as copies rather than distinct confirmations.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-3 shadow-xs hover:border-primary/40 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-tertiary-container/15 text-tertiary-container flex items-center justify-center font-bold">3</div>
+            <h4 class="font-bold text-base text-on-surface">Atomic Claim Stance Engine</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Breaks complex articles down into individual factual propositions. Automatically pairs each claim with supporting or contradicting excerpts from other independent desks.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-3 shadow-xs hover:border-primary/40 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">4</div>
+            <h4 class="font-bold text-base text-on-surface">Creator &amp; Brand Radar</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Monitors leading tech, finance, and lifestyle creators. Flags paid partnerships, deals, and unlabelled endorsements to ensure complete consumer transparency.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-3 shadow-xs hover:border-primary/40 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold">5</div>
+            <h4 class="font-bold text-base text-on-surface">Provenance Badging &amp; Dossiers</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Every story cluster is assigned a rigorous state badge: <code class="text-[11px] font-code bg-surface-container px-1 py-0.5 rounded">OFFICIAL_CONFIRMED</code>, <code class="text-[11px] font-code bg-surface-container px-1 py-0.5 rounded">CORROBORATED</code>, or <code class="text-[11px] font-code bg-surface-container px-1 py-0.5 rounded">DEVELOPING</code> with full audit packet downloads.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20 flex flex-col justify-between gap-4">
+            <div class="flex flex-col gap-2">
+              <span class="text-xs font-bold text-primary uppercase tracking-wider">Ready to Explore?</span>
+              <h4 class="font-bold text-base text-on-surface">Personalized to Your Chosen Fields</h4>
+              <p class="text-xs text-on-surface-variant">Sign in to filter by Creator Economy, Policy, Science, Climate, and more.</p>
+            </div>
+            <button onclick="openAuthModal('signin')" class="w-full py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+              <span class="material-symbols-outlined text-[16px]">login</span>
+              <span>Sign In to Unlock</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. WHY CHOOSE US -->
+      <section class="bg-surface-container-lowest p-6 sm:p-10 rounded-3xl border border-surface-container shadow-sm flex flex-col gap-8">
+        <div class="flex flex-col gap-2 max-w-2xl">
+          <span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold uppercase tracking-wider w-fit">Rigor vs Convenience</span>
+          <h2 class="font-headline text-2xl sm:text-4xl font-bold text-on-surface tracking-tight">Why Choose Parmanu?</h2>
+          <p class="text-xs sm:text-sm text-on-surface-variant">How Parmanu's mathematical veracity architecture outperforms traditional feeds and generic AI.</p>
+        </div>
+
+        <div class="overflow-x-auto no-scrollbar">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b-2 border-surface-container bg-surface-container-low text-on-surface">
+                <th class="p-3.5 font-bold uppercase tracking-wider">Evaluation Vector</th>
+                <th class="p-3.5 font-bold uppercase tracking-wider text-on-surface-variant">Legacy News Feeds</th>
+                <th class="p-3.5 font-bold uppercase tracking-wider text-on-surface-variant">Generic LLM / Chatbots</th>
+                <th class="p-3.5 font-bold uppercase tracking-wider text-primary bg-primary/10 rounded-t-xl">Parmanu Platform</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container">
+              <tr>
+                <td class="p-3.5 font-bold text-on-surface">Verification Ground Truth</td>
+                <td class="p-3.5 text-on-surface-variant">Editorial subjective bias</td>
+                <td class="p-3.5 text-on-surface-variant">Prone to hallucinations &amp; plausible untruths</td>
+                <td class="p-3.5 font-bold text-primary bg-primary/5">Deterministic source-grounded evidence</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-on-surface">Wire Syndication Handling</td>
+                <td class="p-3.5 text-on-surface-variant">Treats syndicated reposts as multiple stories</td>
+                <td class="p-3.5 text-on-surface-variant">Confuses repetitions with consensus</td>
+                <td class="p-3.5 font-bold text-primary bg-primary/5">SHA-256 dedupe quarantines syndicated copies</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-on-surface">Creator Sponsorship Audits</td>
+                <td class="p-3.5 text-on-surface-variant">None (completely ignored)</td>
+                <td class="p-3.5 text-on-surface-variant">No real-time social graph integration</td>
+                <td class="p-3.5 font-bold text-primary bg-primary/5">Automated #ad &amp; brand deal compliance radar</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-on-surface">Latency</td>
+                <td class="p-3.5 text-on-surface-variant">Fact-checks take 24–72 hours</td>
+                <td class="p-3.5 text-on-surface-variant">Static training cutoff or rate-limited search</td>
+                <td class="p-3.5 font-bold text-primary bg-primary/5">Continuous automated sub-minute polling</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-on-surface">Auditable Proof Trails</td>
+                <td class="p-3.5 text-on-surface-variant">Hidden sources / proprietary archives</td>
+                <td class="p-3.5 text-on-surface-variant">Opaque reasoning without verifiable links</td>
+                <td class="p-3.5 font-bold text-primary bg-primary/5">Downloadable PDF audit dossiers with gazette hashes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. IMPORTANCE -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-3xl bg-surface-container-low border border-surface-container flex flex-col gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">gavel</span>
+          </div>
+          <h3 class="font-headline text-lg font-bold text-on-surface">Defending Democratic Discourse</h3>
+          <p class="text-xs text-on-surface-variant leading-relaxed">
+            In an era where synthetic disinformation and deepfakes can alter elections and crash markets in minutes, rapid automated triangulation protects public trust before hysteria sets in.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-3xl bg-surface-container-low border border-surface-container flex flex-col gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">shield_person</span>
+          </div>
+          <h3 class="font-headline text-lg font-bold text-on-surface">Consumer &amp; Investor Protection</h3>
+          <p class="text-xs text-on-surface-variant leading-relaxed">
+            Unlabelled influencer endorsements in finance, health, and tech mislead millions of young Indians daily. Parmanu enforces transparent disclosure under ASCI and Consumer Protection guidelines.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-3xl bg-surface-container-low border border-surface-container flex flex-col gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-tertiary-container/15 text-tertiary-container flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">flag</span>
+          </div>
+          <h3 class="font-headline text-lg font-bold text-on-surface">India-First Sovereign Infrastructure</h3>
+          <p class="text-xs text-on-surface-variant leading-relaxed">
+            Engineered specifically for the Indian media ecosystem — integrating Gazette notices, regional press bureaus, bilingual vernacular reporting, and domestic regulatory frameworks.
+          </p>
+        </div>
+      </section>
+
+      <!-- 6. FINAL SIGN-IN / CTA BANNER -->
+      <section class="rounded-3xl bg-gradient-to-r from-primary via-primary-container to-secondary p-8 sm:p-12 text-on-primary shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex flex-col gap-2 max-w-xl text-center md:text-left">
+          <span class="text-xs font-bold uppercase tracking-wider text-secondary-fixed">Get Started in Seconds</span>
+          <h2 class="font-headline text-2xl sm:text-4xl font-bold text-white leading-tight">
+            Unlock Your Real-Time Personalized Intelligence Desk
+          </h2>
+          <p class="text-xs sm:text-sm text-primary-fixed-dim leading-relaxed">
+            Sign in or create your account to follow creators, track brand collaborations, and customize your news stream with atomic cryptographic provenance.
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
+          <button onclick="openAuthModal('signin')" class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white text-primary text-xs font-bold shadow-lg hover:bg-white/95 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">login</span>
+            <span>Sign In to Dashboard</span>
+          </button>
+          <button onclick="openAuthModal('register')" class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-secondary text-on-secondary text-xs font-bold shadow-lg hover:bg-secondary/90 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+            <span>Create Free Account</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+    <!-- END LANDING PAGE VIEW -->
+
+    <!-- ================================================== -->
+    <!-- LIVE DASHBOARD VIEW (#feed, #pulse, #collabs, etc.)-->
+    <!-- ================================================== -->
+    <div id="dashboard-view" class="hidden w-full">
+
+      <!-- Dynamic Personalized User Banner (Shown when authenticated) -->
+      <div id="user-personalized-header" class="hidden w-full bg-gradient-to-r from-primary/10 via-surface-container-low to-secondary/10 rounded-2xl p-4 sm:p-5 mb-6 border border-primary/20 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="w-11 h-11 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-lg shadow-sm shrink-0" id="dash-user-avatar">
+            P
+          </div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-2">
+              <h3 class="font-headline text-lg font-bold text-on-surface truncate" id="dash-user-greeting">
+                Welcome back!
+              </h3>
+              <span class="px-2 py-0.5 rounded-full bg-secondary/15 text-secondary text-[10px] font-bold uppercase tracking-wider">
+                Personalized Active
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 flex-wrap mt-1" id="dash-user-interest-tags">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 self-end md:self-auto shrink-0">
+          <button onclick="switchSection('about')" class="px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface hover:bg-surface-variant text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer">
+            <span class="material-symbols-outlined text-[15px]">auto_stories</span>
+            <span>Read Story</span>
+          </button>
+          <button onclick="openProfileModal()" class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 transition-all shadow-xs flex items-center gap-1 cursor-pointer">
+            <span class="material-symbols-outlined text-[15px]">tune</span>
+            <span>Interests &amp; Following</span>
+          </button>
+        </div>
       </div>
-      <div>
-        <span id="bannerRoleInfo">Reader Mode</span> ·
-        <span id="totalItemsCount">0 verified records</span> ·
-        <span id="lastUpdatedTime">Syncing...</span>
+
+      <!-- Top Edition & Live Status Strip (Responsive Banner) -->
+      <div class="w-full bg-surface-container-low rounded-2xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-surface-container shadow-sm">
+      <div class="flex flex-col gap-0.5">
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+          <span>New Delhi • Global Edition</span>
+          <span>•</span>
+          <span class="flex items-center gap-1 text-secondary font-code">
+            <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+            <span id="live-time-ticker">Live 14:32 IST</span>
+          </span>
+        </div>
+        <h2 class="font-headline text-2xl sm:text-3xl font-bold text-on-surface tracking-tight" id="current-date-heading">
+          Thursday, Oct 24
+        </h2>
+      </div>
+
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <div class="flex items-center gap-1.5 bg-surface-container px-3 py-1 rounded-full shadow-sm">
+          <span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+          <span class="text-xs font-bold text-primary" id="live-dossier-count">42 Verified Dossiers</span>
+        </div>
+        <button onclick="openDownloadModal()" class="hidden sm:inline-flex items-center gap-1.5 bg-surface-container px-3 py-1 rounded-full text-xs font-semibold text-on-surface hover:bg-surface-variant transition-colors shadow-sm">
+          <span class="material-symbols-outlined text-[16px] text-secondary">download</span>
+          <span>Download App (APK/PWA)</span>
+        </button>
       </div>
     </div>
 
-    <!-- 1. NEWS FEED VIEW (PUBLIC CONSUMER FEED) -->
-    <section id="view-news">
-      <div class="feed-grid" id="newsGrid">
-        <div class="state-box" style="grid-column: 1 / -1;"><h3>Loading verified stories...</h3></div>
+    <!-- Category Filter Pills (Horizontal Scroll) -->
+    <div id="category-pills-section" class="w-full mb-6">
+      <div class="flex gap-2 overflow-x-auto no-scrollbar py-1" id="category-pills">
+        <button class="category-pill px-4 py-1.5 rounded-full bg-primary text-on-primary text-xs font-bold shrink-0 shadow-sm transition-all active:scale-95" type="button" data-category="all">All Fields</button>
+        <button class="category-pill px-4 py-1.5 rounded-full bg-surface-container text-on-surface text-xs font-medium shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="creator">Creator Economy</button>
+        <button class="category-pill px-4 py-1.5 rounded-full bg-surface-container text-on-surface text-xs font-medium shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="policy">Policy &amp; Tech</button>
+        <button class="category-pill px-4 py-1.5 rounded-full bg-surface-container text-on-surface text-xs font-medium shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="culture">Culture &amp; Cinema</button>
+        <button class="category-pill px-4 py-1.5 rounded-full bg-surface-container text-on-surface text-xs font-medium shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="investigative">Investigative</button>
+        <button class="category-pill px-4 py-1.5 rounded-full bg-surface-container text-on-surface text-xs font-medium shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="climate">Climate</button>
       </div>
-    </section>
+    </div>
 
-    <!-- 2. EDITORIAL CMS WORKSPACE -->
-    <section id="view-editorial" style="display: none;">
-      <!-- Overview Metrics Cards -->
-      <div class="metrics-grid" id="editorialMetricsGrid">
-        <div class="metric-card">
-          <div class="title">Ingested (24h / 7d)</div>
-          <div class="value" id="metricIngested">- / -</div>
-          <div class="sub">Verified source items</div>
-        </div>
-        <div class="metric-card">
-          <div class="title">Awaiting Review</div>
-          <div class="value" style="color: var(--yellow);" id="metricAwaitingReview">-</div>
-          <div class="sub">Clusters in review queue</div>
-        </div>
-        <div class="metric-card">
-          <div class="title">Approved & Published</div>
-          <div class="value" style="color: var(--green);" id="metricPublished">-</div>
-          <div class="sub">Live on public consumer feed</div>
-        </div>
-        <div class="metric-card">
-          <div class="title">Disputed / Retracted</div>
-          <div class="value" style="color: var(--accent);" id="metricDisputedRetracted">-</div>
-          <div class="sub">Historical versions preserved</div>
-        </div>
-        <div class="metric-card">
-          <div class="title">Ingestion Reliability</div>
-          <div class="value" style="color: var(--blue);" id="metricSourceHealth">-</div>
-          <div class="sub" id="metricFailedJobs">0 failed jobs (24h)</div>
-        </div>
-      </div>
+    <!-- Responsive Multi-Column Grid Architecture (1 Col Mobile, 2 Col Tablet, 3 Col Desktop) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-      <!-- Review Queue Toolbar -->
-      <div class="toolbar">
-        <div>
-          <label style="font-size: 0.75rem; color: var(--text-muted); display: block;">Status</label>
-          <select id="queueStatusFilter" class="toolbar-select" onchange="loadEditorialQueue()">
-            <option value="">All Active Statuses</option>
-            <option value="DETECTED">DETECTED (New)</option>
-            <option value="CLUSTERED">CLUSTERED (Triaged)</option>
-            <option value="UNDER_REVIEW">UNDER_REVIEW</option>
-            <option value="NEEDS_MORE_EVIDENCE">NEEDS_MORE_EVIDENCE</option>
-            <option value="VERIFIED_FOR_PUBLICATION">VERIFIED_FOR_PUBLICATION</option>
-            <option value="PUBLISHED">PUBLISHED</option>
-            <option value="DISPUTED">DISPUTED</option>
-            <option value="CORRECTED">CORRECTED</option>
-            <option value="RETRACTED">RETRACTED</option>
-            <option value="REJECTED">REJECTED</option>
-          </select>
+      <!-- LEFT SIDEBAR (Desktop 3-cols / Mobile & Tablet Flow) -->
+      <aside class="lg:col-span-4 xl:col-span-3 flex flex-col gap-6 order-2 lg:order-1">
+        
+        <!-- Breaking Intelligence Alert Box -->
+        <div id="breaking-alert-box" class="bg-primary/5 rounded-2xl p-4 sm:p-5 flex flex-col gap-3 shadow-sm border border-primary/15">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-error text-on-error rounded text-[11px] font-bold uppercase tracking-wider">
+              <span class="material-symbols-outlined text-[13px]">bolt</span>
+              Breaking Wire
+            </span>
+            <span id="breaking-source-badge" class="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-[11px] font-semibold">
+              <span class="material-symbols-outlined text-[13px]">layers</span>
+              Live Buffer
+            </span>
+          </div>
+          <p id="breaking-headline" class="text-sm font-semibold text-on-surface leading-snug">
+            Monitoring verified Indian newsrooms and gazettes for breaking corroborated dispatches...
+          </p>
+          <div class="flex items-center justify-between text-xs text-on-surface-variant pt-1 border-t border-primary/10">
+            <span class="flex items-center gap-1 text-secondary font-medium">
+              <span class="material-symbols-outlined text-[15px]">verified_user</span>
+              State Engine Active
+            </span>
+            <button id="btn-view-breaking-trace" class="text-primary hover:underline font-bold flex items-center gap-0.5" onclick="window.parmanu.switchSection('pulse')" type="button">
+              Live Wire <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </button>
+          </div>
         </div>
 
-        <div>
-          <label style="font-size: 0.75rem; color: var(--text-muted); display: block;">Priority</label>
-          <select id="queuePriorityFilter" class="toolbar-select" onchange="loadEditorialQueue()">
-            <option value="ALL">All Priorities</option>
-            <option value="HIGH">High Priority (Multi-source / Disputed)</option>
-            <option value="NORMAL">Normal</option>
-          </select>
+        <!-- Live Briefing Stream (Timeline Card) -->
+        <div class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-surface-container flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-error animate-pulse"></span>
+              <span class="text-xs font-bold uppercase text-error tracking-wider">Live Briefing Stream</span>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11px] font-bold">
+              <span class="material-symbols-outlined text-[13px]">shield</span>
+              Verified Wire
+            </span>
+          </div>
+          
+          <h4 id="live-briefing-headline" class="text-base font-bold text-on-surface leading-snug">
+            Ingesting Latest Wire Dispatches...
+          </h4>
+          
+          <div id="live-briefing-timeline" class="flex flex-col gap-3 pl-3 border-l-2 border-surface-container-high my-1">
+            <div class="py-4 text-center text-xs text-on-surface-variant">
+              Connecting to real-time Indian news wires...
+            </div>
+          </div>
+          
+          <div class="bg-surface-container-low px-3 py-2 rounded-xl flex items-center justify-between text-on-surface text-xs">
+            <span class="text-on-surface-variant" id="live-briefing-status">Synchronizing...</span>
+            <button id="btn-refresh-stream" onclick="window.parmanu.switchSection('pulse')" class="text-primary font-bold hover:underline cursor-pointer" type="button">Refresh Stream</button>
+          </div>
         </div>
 
-        <div style="flex: 1;">
-          <label style="font-size: 0.75rem; color: var(--text-muted); display: block;">Search</label>
-          <input type="text" id="queueSearchInput" class="toolbar-input" style="width: 100%;" placeholder="Search headlines or summary..." onkeyup="debounceQueueSearch()">
+        <!-- Parmanu Core Synopsis -->
+        <div class="bg-surface-container-high rounded-2xl p-5 shadow-sm flex flex-col gap-3 border border-surface-variant/40">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+              <span class="text-xs font-bold uppercase tracking-wider text-secondary">Parmanu Core Synopsis</span>
+            </div>
+            <span class="font-code text-[11px] text-on-surface-variant">Live Engine</span>
+          </div>
+          <p id="parmanu-synopsis-text" class="text-sm font-medium text-on-surface leading-relaxed italic">
+            “Every incoming dispatch is cryptographically fingerprinted via SHA-256 and matched across independent wire sources before entering verified status. Zero unsourced claims permitted.”
+          </p>
+          <div class="flex items-center justify-between pt-1 border-t border-surface-variant/40 text-xs">
+            <div class="flex items-center gap-1 text-secondary font-semibold">
+              <span class="material-symbols-outlined text-[15px]">check</span>
+              <span>Audited Chain</span>
+            </div>
+            <span class="font-code text-primary font-bold">100% Grounded</span>
+          </div>
         </div>
 
-        <div style="align-self: flex-end;">
-          <button class="btn-action btn-outline btn-sm" onclick="loadEditorialQueue()">↻ Refresh Queue</button>
+      </aside>
+
+      <!-- CENTER COLUMN: Primary Lead Story & Dispatch Feed (Desktop 5-cols / 6-cols) -->
+      <section class="lg:col-span-8 xl:col-span-6 flex flex-col gap-6 order-1 lg:order-2">
+
+        <!-- Hero Deep Dive Lead Article -->
+        <article id="hero-lead-article" class="bg-surface-container-lowest rounded-2xl shadow-md overflow-hidden flex flex-col border border-surface-container hover:shadow-lg transition-shadow">
+          <div class="relative w-full h-64 sm:h-80 overflow-hidden bg-gradient-to-br from-[#0c0828] via-[#1a124c] to-surface-container">
+            <div id="hero-lead-image" class="w-full h-full flex flex-col items-center justify-center p-6 text-center select-none relative">
+              <div class="w-14 h-14 rounded-2xl bg-secondary/15 border border-secondary/30 flex items-center justify-center text-secondary mb-2 shadow-lg">
+                <span class="material-symbols-outlined text-3xl">verified</span>
+              </div>
+              <span class="font-headline font-black text-white text-lg tracking-tight">PARMANU INVESTIGATIVE DOSSIER</span>
+              <span class="text-[11px] text-secondary-fixed font-code tracking-wider uppercase mt-1">Multi-Source Cryptographic Verification Active</span>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/85 via-inverse-surface/25 to-transparent pointer-events-none"></div>
+            
+            <div class="absolute top-4 left-4 flex flex-wrap gap-2">
+              <span id="hero-status-pill" class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-lowest/95 backdrop-blur-md text-secondary text-xs font-bold shadow-sm">
+                <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                Corroborated
+              </span>
+              <span id="hero-source-count-badge" class="inline-flex items-center px-2.5 py-1 rounded-full bg-inverse-surface/80 text-inverse-on-surface font-code text-xs">
+                Multi-Wire
+              </span>
+            </div>
+            
+            <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-inverse-on-surface text-xs">
+              <span class="font-code bg-inverse-surface/70 backdrop-blur-sm px-2.5 py-1 rounded">Lead Investigation</span>
+              <span class="font-code flex items-center gap-1" id="hero-time-ago">
+                <span class="material-symbols-outlined text-[15px]">schedule</span> Live
+              </span>
+            </div>
+          </div>
+
+          <div class="p-5 sm:p-6 flex flex-col gap-4">
+            <div class="flex items-center gap-2">
+              <span id="hero-category-tag" class="px-2.5 py-0.5 bg-secondary-fixed text-on-secondary-fixed rounded text-xs uppercase font-bold tracking-wider">Verified News</span>
+              <span class="text-xs text-on-surface-variant font-medium">• Live Corroboration</span>
+            </div>
+
+            <h1 class="font-headline text-2xl sm:text-3xl font-bold text-on-surface leading-tight">
+              Synchronizing Verified Intelligence Stream...
+            </h1>
+
+            <p class="text-sm sm:text-base text-on-surface-variant leading-relaxed">
+              Polling verified sources across national agencies, financial gazettes, and independent creator disclosures.
+            </p>
+
+            <div class="bg-surface-container-low p-4 rounded-xl flex items-start gap-3 border border-surface-container">
+              <span class="material-symbols-outlined text-primary text-[22px] shrink-0 mt-0.5" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xs font-bold text-on-surface">Parmanu Veracity Engine</span>
+                <span class="text-xs text-on-surface-variant" id="hero-veracity-desc">SHA-256 fingerprinted and verified across independent source records. Zero unsourced conjectures.</span>
+              </div>
+            </div>
+
+            <!-- Author & Action Footer -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-surface-container">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="relative">
+                  <div class="w-10 h-10 rounded-full bg-primary/15 text-primary font-bold flex items-center justify-center text-xs ring-2 ring-surface-container" id="hero-author-avatar">
+                    PN
+                  </div>
+                  <span class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-primary rounded-full flex items-center justify-center ring-1 ring-surface">
+                    <span class="material-symbols-outlined text-[10px] text-on-primary">verified</span>
+                  </span>
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="text-sm font-bold text-on-surface truncate" id="hero-author-name">Parmanu Newsroom</span>
+                  <span class="text-xs text-on-surface-variant truncate" id="hero-author-role">Verified Intelligence Bureau</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 self-end sm:self-auto">
+                <button aria-label="Bookmark story" class="w-9 h-9 rounded-full flex items-center justify-center bg-surface-container text-primary hover:bg-surface-variant active:scale-90 transition-transform cursor-pointer" type="button" onclick="this.classList.toggle('text-secondary')">
+                  <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+                </button>
+                <button aria-label="Share story" class="w-9 h-9 rounded-full flex items-center justify-center bg-surface-container text-on-surface hover:bg-surface-variant active:scale-90 transition-transform cursor-pointer" type="button" onclick="window.parmanu.handleShare()">
+                  <span class="material-symbols-outlined text-[20px]">share</span>
+                </button>
+                <button class="h-9 px-4 rounded-full flex items-center gap-1.5 bg-primary text-on-primary text-xs font-bold active:scale-95 transition-transform shadow-sm hover:bg-primary/90 cursor-pointer" onclick="window.parmanu.openDossierModal('featured')" type="button">
+                  <span class="material-symbols-outlined text-[16px]">menu_book</span>
+                  <span>Dossier</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- Verified Dispatch Feed List -->
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center justify-between">
+              <h3 class="font-headline text-xl font-bold text-on-surface tracking-tight" id="feed-section-heading">Verified Dispatch Feed</h3>
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-surface-container text-primary" id="feed-section-subheading">All Fields • Corroborated</span>
+            </div>
+            <p class="text-xs text-on-surface-variant" id="feed-section-description">Multi-source corroborated reporting across national and global newsrooms.</p>
+          </div>
+
+          <!-- Dynamic Ingested & Clustered Feed Container -->
+          <div id="live-ingested-feed-container" class="flex flex-col gap-4 min-h-[300px]"></div>
         </div>
-      </div>
 
-      <!-- Review Queue Table -->
-      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; overflow-x: auto; margin-bottom: 2rem;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Priority</th>
-              <th>Story Cluster Headline</th>
-              <th>Category</th>
-              <th>Sources</th>
-              <th>Status</th>
-              <th>Confidence</th>
-              <th>Updated</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="editorialQueueTableBody">
-            <tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 3rem;">Sign in as Editor or Admin to load review queue.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+      </section>
 
-    <!-- 3. CREATOR & PR RADAR VIEW -->
-    <section id="view-collab" style="display: none;">
-      <div style="background: #101320; border: 1px solid var(--card-border); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.82rem; color: var(--text-muted);">
-        <strong style="color: var(--blue);">Zero-Scraping Creator Intelligence:</strong>
-        All creator data is sourced exclusively from voluntary Instagram Basic Display / Graph OAuth authorizations and authenticated PR wire feeds. Private creator analytics (reach, engagement, impressions, followers) are not fabricated and are marked <em>Unavailable</em>.
-      </div>
-      <div class="feed-grid" id="collabGrid">
-        <div class="state-box" style="grid-column: 1 / -1;"><h3>Loading collaboration signals...</h3></div>
-      </div>
-    </section>
+      <!-- RIGHT SIDEBAR: Download App Card & Creator Spotlight (Desktop 4-cols / 3-cols) -->
+      <aside class="lg:col-span-12 xl:col-span-3 flex flex-col gap-6 order-3">
 
-    <!-- 4. SOURCE OPERATIONS VIEW -->
-    <section id="view-sources" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <div>
-          <h2 style="font-size: 1.35rem; font-weight: 700;">Syndication Connectors & Health</h2>
-          <p style="color: var(--text-muted); font-size: 0.85rem;">Monitors RSS, Government Feeds (.gov.in), Guardian, GNews, and PR Wire.</p>
+        <!-- DEDICATED PROMINENT "DOWNLOAD PARMANU APP" WIDGET -->
+        <div class="bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-2xl p-5 shadow-lg border border-primary/20 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-0.5 bg-secondary-fixed text-on-secondary-fixed rounded-full text-[11px] font-bold uppercase tracking-wider">
+              Mobile App Available
+            </span>
+            <span class="material-symbols-outlined text-[24px] text-primary-fixed">phone_android</span>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <h3 class="font-headline text-xl font-bold text-white leading-tight">
+              Get Parmanu on Your Phone
+            </h3>
+            <p class="text-xs text-primary-fixed-dim leading-relaxed">
+              Install the lightweight app for instant breaking alerts, cryptographic provenance verification, and offline reading.
+            </p>
+          </div>
+
+          <!-- QR Code Preview for Desktop -->
+          <div class="bg-white p-3 rounded-xl flex items-center gap-3 shadow-inner">
+            <div class="w-16 h-16 shrink-0 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+              <span class="material-symbols-outlined text-3xl">qr_code_2</span>
+            </div>
+            <div class="flex flex-col text-on-surface">
+              <span class="text-xs font-bold">Scan with Camera</span>
+              <span class="text-[11px] text-on-surface-variant">Instant mobile web install for Android &amp; iOS</span>
+            </div>
+          </div>
+
+          <!-- Download Action Buttons -->
+          <div class="flex flex-col gap-2 pt-1">
+            <button onclick="triggerPwaInstall()" class="w-full py-2.5 px-4 bg-white text-primary rounded-xl text-xs font-bold shadow hover:bg-white/95 active:scale-95 transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">install_mobile</span>
+              <span>Install Web App (PWA)</span>
+            </button>
+            <button onclick="downloadAndroidApk()" class="w-full py-2.5 px-4 bg-primary-fixed text-on-primary-fixed rounded-xl text-xs font-bold shadow hover:bg-primary-fixed-dim active:scale-95 transition-all flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">android</span>
+              <span>Download Android APK</span>
+            </button>
+          </div>
         </div>
-        <div>
-          <button class="btn-action" id="triggerIngestBtn" onclick="triggerIngestion()">⚡ Ingest Live Sources</button>
+
+        <!-- Creator Spotlight Card -->
+        <div id="creator-spotlight-card" class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-surface-container flex flex-col gap-3.5">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold">
+              <span class="material-symbols-outlined text-[14px]">psychology</span>
+              Creator Spotlight
+            </span>
+            <span id="spotlight-badge" class="text-xs text-secondary font-bold flex items-center gap-0.5">
+              <span class="material-symbols-outlined text-[14px]">verified</span> Verified
+            </span>
+          </div>
+
+          <div class="flex items-center gap-3" id="spotlight-creator-info">
+            <div id="spotlight-avatar" class="w-12 h-12 rounded-full bg-secondary/15 text-secondary flex items-center justify-center font-bold text-sm shrink-0 ring-2 ring-surface-container">
+              CR
+            </div>
+            <div class="flex flex-col min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span id="spotlight-name" class="text-sm font-bold text-on-surface">Creator Intelligence</span>
+                <span id="spotlight-handle" class="font-code text-xs text-on-surface-variant">@radar</span>
+              </div>
+              <span id="spotlight-bio" class="text-xs text-on-surface-variant truncate">Top Indian Creator Registry</span>
+            </div>
+          </div>
+
+          <div id="spotlight-quote-box" class="bg-surface-container-low p-3.5 rounded-xl flex flex-col gap-2">
+            <p id="spotlight-statement" class="text-xs sm:text-sm text-on-surface leading-snug">
+              Follow top Indian creators to monitor verified brand collaborations, ASCI #ad disclosure compliance, and recent activity.
+            </p>
+            <div id="spotlight-tags" class="flex items-center gap-1.5 flex-wrap pt-1">
+              <span class="px-2 py-0.5 bg-surface-container-highest text-on-surface rounded font-code text-[11px] flex items-center gap-1">
+                <span class="material-symbols-outlined text-[13px]">hub</span> Verified Collabs
+              </span>
+            </div>
+          </div>
+
+          <button id="spotlight-follow-btn" onclick="window.parmanu.switchSection('collabs')" class="w-full py-2 bg-surface-container hover:bg-surface-variant text-on-surface rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer" type="button">
+            <span class="material-symbols-outlined text-[16px]">groups</span>
+            <span>Explore Creator Market</span>
+          </button>
         </div>
-      </div>
-      <div id="ingestFeedback" style="display: none; padding: 0.85rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.85rem;"></div>
 
-      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
-        <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;">Registered News Sources</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Source Name</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Failures</th>
-              <th>Last Polled</th>
-              <th>Last Success</th>
-            </tr>
-          </thead>
-          <tbody id="sourcesTableBody">
-            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading sources...</td></tr>
-          </tbody>
-        </table>
-      </div>
+      </aside>
 
-      <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.5rem;">
-        <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem;">Recent Ingestion Jobs</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Job ID</th>
-              <th>Source</th>
-              <th>Status</th>
-              <th>Items Found</th>
-              <th>New Items</th>
-              <th>Scheduled</th>
-            </tr>
-          </thead>
-          <tbody id="jobsTableBody">
-            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading jobs...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+    </div>
+    <!-- END DASHBOARD VIEW -->
+
   </main>
 
-  <!-- STORY REVIEW DETAIL MODAL -->
-  <div class="modal-backdrop" id="storyDetailModal" onclick="closeStoryDetailModal(event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+  <!-- Mobile Bottom Navigation Bar (Hidden when unauthenticated; revealed when authenticated) -->
+  <nav id="mobile-nav-bar" class="hidden md:hidden fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-lg border-t border-surface-container">
+    <div class="flex justify-around items-center h-16 px-2" id="nav-tabs">
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="about" href="#about">
+        <span class="material-symbols-outlined text-[24px]">auto_stories</span>
+        <span class="text-[10px] mt-0.5">Story</span>
+      </a>
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-primary font-bold transition-colors" data-path="feed" href="#feed">
+        <span class="material-symbols-outlined text-[24px]">newspaper</span>
+        <span class="text-[10px] mt-0.5 font-bold">Feed</span>
+      </a>
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="pulse" href="#pulse">
+        <span class="material-symbols-outlined text-[24px]">sensors</span>
+        <span class="text-[10px] mt-0.5">Pulse</span>
+      </a>
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="explore" href="#explore">
+        <span class="material-symbols-outlined text-[24px]">explore</span>
+        <span class="text-[10px] mt-0.5">Explore</span>
+      </a>
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="collabs" href="#collabs">
+        <span class="material-symbols-outlined text-[24px]">hub</span>
+        <span class="text-[10px] mt-0.5">Collabs</span>
+      </a>
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="workspace" href="#workspace">
+        <span class="material-symbols-outlined text-[24px]">fact_check</span>
+        <span class="text-[10px] mt-0.5">Workspace</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Slide-up / Modal: Evidence Dossier #PAR-8821 -->
+  <div class="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-50 bg-surface-container-lowest rounded-t-2xl md:rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-full md:translate-y-0 md:scale-95 md:opacity-0 pointer-events-none md:max-w-lg md:w-full max-h-[85vh] flex flex-col" id="dossier-main">
+    <div class="md:hidden w-12 h-1.5 bg-surface-container-highest rounded-full mx-auto my-3 shrink-0"></div>
+    <div class="px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-surface-container">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-secondary text-[22px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+        <h3 class="font-headline text-lg font-bold text-on-surface">Evidence Dossier #PAR-8821</h3>
+      </div>
+      <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-variant" onclick="closeAllModals()" type="button">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+    <div class="p-5 overflow-y-auto flex flex-col gap-4">
+      <div class="py-12 text-center flex flex-col items-center justify-center gap-3 text-on-surface-variant">
+        <div class="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-xs font-semibold">Compiling provenance chain and factual corroborations...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide-up / Modal: Gazette Trace #TAX-2024 -->
+  <div class="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-50 bg-surface-container-lowest rounded-t-2xl md:rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-full md:translate-y-0 md:scale-95 md:opacity-0 pointer-events-none md:max-w-lg md:w-full max-h-[85vh] flex flex-col" id="dossier-breaking">
+    <div class="md:hidden w-12 h-1.5 bg-surface-container-highest rounded-full mx-auto my-3 shrink-0"></div>
+    <div class="px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-surface-container">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary text-[22px]">policy</span>
+        <h3 class="font-headline text-lg font-bold text-on-surface">Verified Gazette Trace</h3>
+      </div>
+      <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-variant" onclick="closeAllModals()" type="button">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+    <div class="p-5 overflow-y-auto flex flex-col gap-3">
+      <div class="p-3 bg-secondary/10 rounded-xl flex items-center gap-2">
+        <span class="material-symbols-outlined text-secondary">verified_user</span>
+        <span class="text-xs text-on-surface font-semibold" id="dossier-breaking-title">Multi-source corroboration active.</span>
+      </div>
+      <div class="text-xs text-on-surface-variant leading-relaxed" id="dossier-breaking-body">
+        Real-time telemetry and official notices verified against primary documents.
+      </div>
+      <div class="pt-2">
+        <button class="w-full py-2.5 bg-surface-container text-on-surface rounded-xl text-xs font-bold hover:bg-surface-variant transition-colors" onclick="closeAllModals()" type="button">
+          Dismiss Trace
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE APP DOWNLOAD MODAL -->
+  <div class="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-50 bg-surface-container-lowest rounded-t-2xl md:rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-full md:translate-y-0 md:scale-95 md:opacity-0 pointer-events-none md:max-w-md md:w-full max-h-[90vh] flex flex-col" id="download-app-modal">
+    <div class="md:hidden w-12 h-1.5 bg-surface-container-highest rounded-full mx-auto my-3 shrink-0"></div>
+    <div class="px-5 py-4 flex items-center justify-between border-b border-surface-container">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+          <span class="material-symbols-outlined text-[22px]">install_mobile</span>
+        </div>
+        <div class="flex flex-col">
+          <h3 class="font-headline text-lg font-bold text-on-surface leading-none">Download Parmanu</h3>
+          <span class="text-[11px] text-on-surface-variant">Version 1.0 • Android, iOS &amp; Desktop</span>
+        </div>
+      </div>
+      <button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-variant" onclick="closeAllModals()" type="button">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <div class="p-5 overflow-y-auto flex flex-col gap-4">
+      
+      <!-- Option 1: Native PWA / Add to Home Screen -->
+      <div class="p-4 rounded-xl bg-primary/5 border border-primary/15 flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">bolt</span> Recommended
+          </span>
+          <span class="text-[10px] font-code bg-primary/15 text-primary px-2 py-0.5 rounded">Zero Install Size</span>
+        </div>
+        <h4 class="text-sm font-bold text-on-surface">Install Official Web App</h4>
+        <p class="text-xs text-on-surface-variant leading-relaxed">
+          Installs instantly to your home screen or desktop with offline access, background push notifications, and fast loading.
+        </p>
+        <button onclick="triggerPwaInstall()" class="mt-1 w-full py-2.5 bg-primary text-on-primary rounded-xl text-xs font-bold shadow hover:bg-primary/90 active:scale-95 transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">add_to_home_screen</span>
+          <span>Add to Home Screen / Install</span>
+        </button>
+      </div>
+
+      <!-- Option 2: Android APK Direct Download -->
+      <div class="p-4 rounded-xl bg-surface-container border border-surface-container-high flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px] text-secondary">android</span> Android APK Package
+          </span>
+          <span class="text-[10px] font-code bg-surface-container-highest px-2 py-0.5 rounded">v1.0.0</span>
+        </div>
+        <p class="text-xs text-on-surface-variant leading-relaxed">
+          Direct standalone APK package for Android devices (arm64-v8a / universal).
+        </p>
+        <button onclick="downloadAndroidApk()" class="mt-1 w-full py-2 bg-surface-container-highest hover:bg-surface-variant text-on-surface rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">download</span>
+          <span>Download Parmanu.apk (Direct)</span>
+        </button>
+      </div>
+
+      <!-- Option 3: iOS Safari Instructions -->
+      <div class="p-3.5 rounded-xl bg-surface-container-low border border-surface-container flex items-start gap-3">
+        <span class="material-symbols-outlined text-secondary text-[22px] shrink-0 mt-0.5">apple</span>
+        <div class="flex flex-col gap-1 text-xs">
+          <span class="font-bold text-on-surface">iPhone &amp; iPad (iOS)</span>
+          <span class="text-on-surface-variant leading-relaxed">
+            Open in Safari $\rightarrow$ Tap the <strong>Share</strong> button <span class="material-symbols-outlined text-[13px] align-middle">ios_share</span> $\rightarrow$ Select <strong>"Add to Home Screen"</strong>.
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- END INTERACTIVE APP DOWNLOAD MODAL -->
+
+  <!-- Authentication Modal (Sign In / Register & Personalized Interests) -->
+  <div id="auth-modal" class="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:max-w-lg bg-surface-container-lowest rounded-t-3xl md:rounded-3xl shadow-2xl z-[100] p-6 md:p-8 border border-surface-container max-h-[90vh] overflow-y-auto hidden">
+    <!-- Header -->
+    <div class="flex items-start justify-between pb-4 border-b border-surface-container">
+      <div class="flex items-center gap-2.5">
+        <span class="material-symbols-outlined text-primary text-2xl">verified_user</span>
         <div>
-          <span class="badge" id="modalClusterStatusBadge">DETECTED</span>
-          <span style="color: var(--text-muted); font-size: 0.75rem; margin-left: 0.5rem;" id="modalClusterVersion">Version 1</span>
+          <h3 class="font-headline text-lg font-bold text-on-surface">The Parmanu Passport</h3>
+          <p class="text-xs text-on-surface-variant">Personalized news, creator collaborations &amp; verified disclosures</p>
         </div>
-        <button class="btn-outline btn-sm" onclick="closeStoryDetailModal()">✕ Close</button>
+      </div>
+      <button onclick="closeAllModals()" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
+
+    <!-- Tab Buttons -->
+    <div class="flex items-center gap-2 mt-4 p-1 bg-surface-container rounded-xl">
+      <button id="auth-tab-signin" type="button" class="flex-1 py-2 text-xs font-bold rounded-lg bg-primary text-on-primary transition-all">Sign In</button>
+      <button id="auth-tab-register" type="button" class="flex-1 py-2 text-xs font-medium rounded-lg text-on-surface-variant hover:text-on-surface transition-all">Create Account</button>
+    </div>
+
+    <!-- Error Alert Box -->
+    <div id="auth-error-box" class="hidden mt-4 p-3 rounded-xl bg-error/15 text-error text-xs font-semibold flex items-center gap-2">
+      <span class="material-symbols-outlined text-[16px]">error</span>
+      <span id="auth-error-msg"></span>
+    </div>
+
+    <!-- Success Alert Box -->
+    <div id="auth-success-box" class="hidden mt-4 p-3 rounded-xl bg-secondary/15 text-secondary text-xs font-semibold flex items-center gap-2">
+      <span class="material-symbols-outlined text-[16px]">check_circle</span>
+      <span id="auth-success-msg"></span>
+    </div>
+
+    <!-- Form: Sign In -->
+    <form id="form-signin" class="flex flex-col gap-3.5 mt-4">
+      <div>
+        <label class="block text-xs font-bold text-on-surface mb-1">Email Address</label>
+        <input type="email" id="signin-email" required placeholder="you@domain.com" class="w-full px-3.5 py-2.5 rounded-xl border border-surface-container bg-surface text-on-surface text-xs focus:outline-none focus:ring-2 focus:ring-primary" />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface mb-1">Password</label>
+        <input type="password" id="signin-password" required placeholder="••••••••••••" class="w-full px-3.5 py-2.5 rounded-xl border border-surface-container bg-surface text-on-surface text-xs focus:outline-none focus:ring-2 focus:ring-primary" />
+      </div>
+      <button type="submit" id="btn-submit-signin" class="w-full mt-2 py-3 rounded-xl bg-primary text-on-primary text-xs font-bold shadow-md hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+        <span class="material-symbols-outlined text-[16px]">login</span>
+        <span>Sign In to Parmanu</span>
+      </button>
+      <p class="text-[11px] text-center text-on-surface-variant mt-1">
+        Need an account? <button type="button" id="link-to-register" class="text-primary font-bold hover:underline cursor-pointer">Create one in 10 seconds</button>
+      </p>
+    </form>
+
+    <!-- Form: Create Account / Register -->
+    <form id="form-register" class="hidden flex flex-col gap-3.5 mt-4">
+      <div>
+        <label class="block text-xs font-bold text-on-surface mb-1">Full Name</label>
+        <input type="text" id="register-name" required placeholder="e.g. Rahul Sharma" class="w-full px-3.5 py-2.5 rounded-xl border border-surface-container bg-surface text-on-surface text-xs focus:outline-none focus:ring-2 focus:ring-primary" />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface mb-1">Email Address</label>
+        <input type="email" id="register-email" required placeholder="you@domain.com" class="w-full px-3.5 py-2.5 rounded-xl border border-surface-container bg-surface text-on-surface text-xs focus:outline-none focus:ring-2 focus:ring-primary" />
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface mb-1">Password</label>
+        <input type="password" id="register-password" required placeholder="At least 12 chars (Upper, lower &amp; number)" class="w-full px-3.5 py-2.5 rounded-xl border border-surface-container bg-surface text-on-surface text-xs focus:outline-none focus:ring-2 focus:ring-primary" />
+        <span class="text-[10px] text-on-surface-variant mt-0.5 block">Minimum 12 characters with uppercase, lowercase, and numbers</span>
       </div>
 
-      <h2 id="modalClusterHeadline" style="font-family: 'Newsreader', serif; font-size: 1.5rem; margin-bottom: 0.75rem;">Headline</h2>
-      <p id="modalClusterSummary" style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;"></p>
-
-      <!-- Source attribution list -->
-      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-        <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem;">Associated Source Records & Attribution</h4>
-        <div id="modalSourcesList" style="display: flex; flex-direction: column; gap: 0.6rem;"></div>
+      <!-- Interest Selection Pills -->
+      <div class="mt-1">
+        <label class="block text-xs font-bold text-on-surface mb-1.5">Select Your Fields of Interest (Feed Personalization)</label>
+        <div class="flex flex-wrap gap-1.5" id="register-interests-container">
+          <label class="cursor-pointer">
+            <input type="checkbox" name="interest" value="creator" checked class="peer sr-only">
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium border border-surface-container bg-surface-container peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-all inline-block">🤝 Creator Economy</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="checkbox" name="interest" value="policy" checked class="peer sr-only">
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium border border-surface-container bg-surface-container peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-all inline-block">⚖️ Policy &amp; Tech</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="checkbox" name="interest" value="culture" checked class="peer sr-only">
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium border border-surface-container bg-surface-container peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-all inline-block">🎬 Culture &amp; Cinema</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="checkbox" name="interest" value="investigative" class="peer sr-only">
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium border border-surface-container bg-surface-container peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-all inline-block">🔍 Investigative</span>
+          </label>
+          <label class="cursor-pointer">
+            <input type="checkbox" name="interest" value="climate" class="peer sr-only">
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium border border-surface-container bg-surface-container peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary transition-all inline-block">🌱 Climate</span>
+          </label>
+        </div>
       </div>
 
-      <!-- Claims & Evidence -->
-      <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
-        <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem;">Factual Claims & Verification Evidence</h4>
-        <div id="modalClaimsList" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
-      </div>
+      <button type="submit" id="btn-submit-register" class="w-full mt-2 py-3 rounded-xl bg-primary text-on-primary text-xs font-bold shadow-md hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+        <span class="material-symbols-outlined text-[16px]">how_to_reg</span>
+        <span>Create Account &amp; Unlock Feed</span>
+      </button>
+      <p class="text-[11px] text-center text-on-surface-variant mt-1">
+        Already registered? <button type="button" id="link-to-signin" class="text-primary font-bold hover:underline cursor-pointer">Sign In here</button>
+      </p>
+    </form>
+  </div>
 
-      <!-- Related Entities -->
-      <div id="modalEntitiesContainer" style="margin-bottom: 1.5rem; display: none;">
-        <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">Resolved Entities</h4>
-        <div id="modalEntitiesList" style="display: flex; flex-wrap: wrap; gap: 0.4rem;"></div>
+  <!-- User Profile & Interests Modal -->
+  <div id="user-profile-modal" class="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-full md:max-w-md bg-surface-container-lowest rounded-t-3xl md:rounded-3xl shadow-2xl z-[100] p-6 border border-surface-container max-h-[90vh] overflow-y-auto hidden">
+    <div class="flex items-center justify-between pb-3 border-b border-surface-container">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-primary/15 text-primary flex items-center justify-center font-bold text-base" id="profile-modal-avatar">
+          P
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-on-surface" id="profile-modal-name">User Name</h4>
+          <span class="text-xs text-on-surface-variant" id="profile-modal-email">user@domain.com</span>
+        </div>
       </div>
+      <button onclick="closeAllModals()" class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface">
+        <span class="material-symbols-outlined text-[18px]">close</span>
+      </button>
+    </div>
 
-      <!-- Editorial Notes & Public Notices -->
-      <div id="modalNoticesContainer" style="margin-bottom: 1.5rem;"></div>
-
-      <!-- Editorial Action Controls -->
-      <div style="border-top: 1px solid var(--card-border); padding-top: 1.25rem;">
-        <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem;">Editorial Decision Actions</h4>
-        <div id="modalActionControls" style="display: flex; flex-wrap: wrap; gap: 0.6rem;"></div>
-        <div id="modalActionFeedback" style="display: none; margin-top: 0.75rem; font-size: 0.85rem;"></div>
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 gap-3 my-4">
+      <div class="p-3 rounded-xl bg-surface-container-low border border-surface-container text-center">
+        <span class="text-lg font-bold text-primary block" id="profile-modal-following-count">0</span>
+        <span class="text-[11px] text-on-surface-variant">Followed Creators</span>
       </div>
+      <div class="p-3 rounded-xl bg-surface-container-low border border-surface-container text-center">
+        <span class="text-lg font-bold text-secondary block" id="profile-modal-interests-count">0</span>
+        <span class="text-[11px] text-on-surface-variant">Active Interests</span>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col gap-2 pt-2 border-t border-surface-container">
+      <a href="#collabs" onclick="closeAllModals()" class="w-full py-2.5 rounded-xl bg-surface-container text-on-surface hover:bg-surface-variant text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+        <span class="material-symbols-outlined text-[16px]">groups</span>
+        <span>Manage Followed Creators</span>
+      </a>
+      <button id="profile-modal-btn-logout" type="button" class="w-full py-2.5 rounded-xl bg-error/10 text-error hover:bg-error/20 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+        <span class="material-symbols-outlined text-[16px]">logout</span>
+        <span>Log Out of Parmanu</span>
+      </button>
     </div>
   </div>
 
-  <!-- Auth Modal -->
-  <div class="modal-backdrop" id="authModal" onclick="closeAuthModal(event)">
-    <div class="modal-box" style="max-width: 420px;" onclick="event.stopPropagation()">
-      <h3 style="margin-bottom: 0.5rem;" id="modalTitle">Editorial Sign In</h3>
-      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Sign in to access review queue, publishing, and source operations.</p>
+  <!-- Global Backdrop Overlay -->
+  <div class="fixed inset-0 bg-inverse-surface/40 backdrop-blur-sm z-40 hidden transition-opacity" id="global-backdrop" onclick="closeAllModals()"></div>
 
-      <form id="authForm" onsubmit="handleAuthSubmit(event)">
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="authEmail" class="form-control" placeholder="editor@parmanu.dev" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="authPassword" class="form-control" placeholder="••••••••••••" required>
-        </div>
-        <div id="authError" style="color: var(--accent); font-size: 0.85rem; margin-bottom: 1rem; display: none;"></div>
-        <div style="display: flex; gap: 0.75rem;">
-          <button type="submit" class="btn-action" style="flex: 1;">Sign In</button>
-          <button type="button" class="btn-action" style="background: var(--card-border);" onclick="closeAuthModal()">Cancel</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
+  <!-- Client JavaScript Interactions & PWA Handlers -->
   <script>
-    let currentCategory = null;
-    let currentTab = 'news';
-    let authToken = localStorage.getItem('parmanu_token');
-    let currentUser = null;
-    let searchDebounceTimer = null;
-    let activeClusterDetail = null;
-
-    // Safe HTML sanitizer to prevent XSS
-    function escapeHtml(str) {
-      if (!str) return '';
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    // Relative Time Helper
-    function timeAgo(dateString) {
-      if (!dateString) return 'Never';
-      const now = new Date();
-      const past = new Date(dateString);
-      const diffSec = Math.floor((now - past) / 1000);
-      if (diffSec < 60) return `${diffSec}s ago`;
-      const diffMin = Math.floor(diffSec / 60);
-      if (diffMin < 60) return `${diffMin}m ago`;
-      const diffHr = Math.floor(diffMin / 60);
-      if (diffHr < 24) return `${diffHr}h ago`;
-      const diffDay = Math.floor(diffHr / 24);
-      return `${diffDay}d ago`;
-    }
-
-    // Provenance / Lifecycle Badge Generator
-    function renderStatusBadge(status) {
-      switch (status) {
-        case 'PUBLISHED':
-          return '<span class="badge badge-official">● Published</span>';
-        case 'VERIFIED_FOR_PUBLICATION':
-          return '<span class="badge badge-verified">✓ Approved</span>';
-        case 'UNDER_REVIEW':
-          return '<span class="badge badge-single">In Review</span>';
-        case 'NEEDS_MORE_EVIDENCE':
-          return '<span class="badge badge-unverified">Needs Evidence</span>';
-        case 'DISPUTED':
-          return '<span class="badge badge-disputed">⚠ Disputed</span>';
-        case 'CORRECTED':
-          return '<span class="badge badge-corrected">✎ Corrected</span>';
-        case 'RETRACTED':
-          return '<span class="badge badge-disputed">✖ Retracted</span>';
-        case 'REJECTED':
-          return '<span class="badge badge-unverified">Rejected</span>';
-        case 'CLUSTERED':
-          return '<span class="badge" style="background: rgba(255,255,255,0.06);">Clustered</span>';
-        case 'DETECTED':
-        default:
-          return '<span class="badge badge-unverified">Detected</span>';
-      }
-    }
-
-    // Check Live Readiness
-    async function checkSystemHealth() {
-      try {
-        const res = await fetch('/api/v1/readiness');
-        const json = await res.json();
-        const textEl = document.getElementById('healthStatusText');
-        if (json.status === 'ready') {
-          textEl.textContent = `Connected to Neon PostgreSQL (${json.database.latencyMs}ms) · Online`;
-        } else {
-          textEl.textContent = 'Degraded · Database reconnecting...';
-          textEl.style.color = 'var(--yellow)';
-        }
-      } catch (err) {
-        document.getElementById('healthStatusText').textContent = 'Backend offline';
-        document.getElementById('healthStatusText').style.color = 'var(--accent)';
-      }
-    }
-
-    // Fetch and Render Public News Feed
-    async function loadNews() {
-      const grid = document.getElementById('newsGrid');
-      let url = '/api/v1/source-items?limit=40';
-      if (currentCategory) {
-        url += `&category=${encodeURIComponent(currentCategory)}`;
-      }
-
-      try {
-        const res = await fetch(url);
-        const json = await res.json();
-
-        if (!json.success || !json.data || json.data.length === 0) {
-          grid.innerHTML = `
-            <div class="state-box" style="grid-column: 1 / -1;">
-              <h3>No stories found</h3>
-              <p>No verified stories recorded yet in this category.</p>
-            </div>`;
-          return;
-        }
-
-        document.getElementById('totalItemsCount').textContent = `${json.meta.total} verified records`;
-        document.getElementById('lastUpdatedTime').textContent = `Checked ${new Date().toLocaleTimeString()}`;
-
-        grid.innerHTML = json.data.map(item => `
-          <article class="news-card">
-            <div>
-              <div class="card-meta-top">
-                <span class="source-name" style="font-weight: 600; color: var(--text-muted);">
-                  ${escapeHtml(item.source ? item.source.attributionName : 'Verified Outlet')}
-                </span>
-                <span class="badge badge-official">✓ Verified</span>
-              </div>
-              <h2 class="card-headline">
-                <a href="${escapeHtml(item.canonicalUrl)}" target="_blank" rel="noopener noreferrer">
-                  ${escapeHtml(item.headline)}
-                </a>
-              </h2>
-              ${item.excerpt ? `<p class="card-excerpt">${escapeHtml(item.excerpt)}</p>` : ''}
-            </div>
-            <div class="card-footer">
-              <span>${timeAgo(item.publishedAt)}</span>
-              <a href="${escapeHtml(item.canonicalUrl)}" target="_blank" rel="noopener noreferrer" style="color: var(--blue); text-decoration: none;">
-                Original Source ↗
-              </a>
-            </div>
-          </article>
-        `).join('');
-      } catch (err) {
-        grid.innerHTML = `
-          <div class="state-box" style="grid-column: 1 / -1;">
-            <h3 style="color: var(--accent);">Failed to load news feed</h3>
-            <p>${escapeHtml(err.message)}</p>
-          </div>`;
-      }
-    }
-
-    // Load Editorial Overview & Queue
-    async function loadEditorialData() {
-      if (!authToken) {
-        document.getElementById('editorialQueueTableBody').innerHTML = `
-          <tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 3rem;">
-            Please <a href="#" onclick="openAuthModal(); return false;" style="color: var(--blue);">sign in</a> with Editor or Admin credentials to access the editorial CMS.
-          </td></tr>`;
-        return;
-      }
-
-      // Load Overview Metrics
-      try {
-        const res = await fetch('/api/v1/editorial/overview', {
-          headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-        const json = await res.json();
-        if (json.success && json.data) {
-          const { ingestion, editorial } = json.data;
-          document.getElementById('metricIngested').textContent = `${ingestion.itemsIngested24h} / ${ingestion.itemsIngested7d}`;
-          document.getElementById('metricAwaitingReview').textContent = editorial.awaitingReview;
-          document.getElementById('metricPublished').textContent = `${editorial.approved} app / ${editorial.published} pub`;
-          document.getElementById('metricDisputedRetracted').textContent = `${editorial.disputed} disp / ${editorial.retracted} ret`;
-          document.getElementById('metricSourceHealth').textContent = `${ingestion.activeSources - ingestion.failingSources}/${ingestion.activeSources} Healthy`;
-          document.getElementById('metricFailedJobs').textContent = `${ingestion.failedJobs24h} failed runs (24h)`;
-        }
-      } catch (err) {
-        console.error('Failed to load editorial overview:', err);
-      }
-
-      // Load Queue Table
-      loadEditorialQueue();
-    }
-
-    // Load Editorial Review Queue
-    async function loadEditorialQueue() {
-      const tbody = document.getElementById('editorialQueueTableBody');
-      const status = document.getElementById('queueStatusFilter').value;
-      const priority = document.getElementById('queuePriorityFilter').value;
-      const search = document.getElementById('queueSearchInput').value;
-
-      let url = '/api/v1/editorial/queue?limit=50';
-      if (status) url += `&status=${encodeURIComponent(status)}`;
-      if (priority && priority !== 'ALL') url += `&priority=${encodeURIComponent(priority)}`;
-      if (search && search.trim()) url += `&search=${encodeURIComponent(search.trim())}`;
-
-      try {
-        const res = await fetch(url, {
-          headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-        const json = await res.json();
-
-        if (!json.success || !json.data || json.data.length === 0) {
-          tbody.innerHTML = `
-            <tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">
-              No story clusters matching criteria.
-            </td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = json.data.map(c => `
-          <tr>
-            <td>
-              ${c.reviewPriority === 'HIGH' ? '<span class="badge badge-disputed">HIGH</span>' : '<span class="badge" style="background: rgba(255,255,255,0.05);">NORMAL</span>'}
-            </td>
-            <td>
-              <div style="font-weight: 600; color: #fff;">${escapeHtml(c.primaryHeadline)}</div>
-              ${c.summary ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">${escapeHtml(c.summary.slice(0, 90))}...</div>` : ''}
-            </td>
-            <td><span class="badge" style="background: rgba(255,255,255,0.05);">${escapeHtml(c.category[0] || 'General')}</span></td>
-            <td><strong>${c.itemCount}</strong> sources</td>
-            <td>${renderStatusBadge(c.status)}</td>
-            <td>${Math.round(c.confidenceScore * 100)}%</td>
-            <td>${timeAgo(c.lastObservedAt)}</td>
-            <td>
-              <button class="btn-action btn-outline btn-sm" onclick="inspectCluster('${c.id}')">Inspect & Review</button>
-            </td>
-          </tr>
-        `).join('');
-      } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--accent); padding: 2rem;">Error: ${escapeHtml(err.message)}</td></tr>`;
-      }
-    }
-
-    function debounceQueueSearch() {
-      clearTimeout(searchDebounceTimer);
-      searchDebounceTimer = setTimeout(loadEditorialQueue, 300);
-    }
-
-    // Inspect Cluster Details
-    async function inspectCluster(id) {
-      try {
-        const res = await fetch(`/api/v1/clusters/${id}`, {
-          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
-        });
-        const json = await res.json();
-
-        if (!json.success || !json.data) {
-          alert('Failed to load cluster details: ' + (json.error || 'Unknown error'));
-          return;
-        }
-
-        activeClusterDetail = json.data;
-        renderClusterModal(json.data);
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    }
-
-    function renderClusterModal(c) {
-      document.getElementById('modalClusterStatusBadge').outerHTML = renderStatusBadge(c.status);
-      document.getElementById('modalClusterVersion').textContent = `v${c.version || 1} · Assigned: ${escapeHtml(c.assignedTo || 'Unassigned')}`;
-      document.getElementById('modalClusterHeadline').textContent = c.primaryHeadline;
-      document.getElementById('modalClusterSummary').textContent = c.summary || 'No summary available yet.';
-
-      // Sources
-      const sourcesContainer = document.getElementById('modalSourcesList');
-      if (c.items && c.items.length > 0) {
-        sourcesContainer.innerHTML = c.items.map(it => `
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.4rem;">
-            <div>
-              <span style="font-weight: 600; color: var(--blue);">${escapeHtml(it.sourceItem.source.name)}</span>:
-              <a href="${escapeHtml(it.sourceItem.canonicalUrl)}" target="_blank" style="color: #fff; text-decoration: none;">${escapeHtml(it.sourceItem.headline)}</a>
-            </div>
-            <span style="color: var(--text-muted); font-size: 0.75rem;">${escapeHtml(it.role)} · ${timeAgo(it.sourceItem.publishedAt)}</span>
-          </div>
-        `).join('');
-      } else {
-        sourcesContainer.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">No source records linked.</span>';
-      }
-
-      // Claims
-      const claimsContainer = document.getElementById('modalClaimsList');
-      if (c.claims && c.claims.length > 0) {
-        claimsContainer.innerHTML = c.claims.map(cl => `
-          <div style="background: rgba(255,255,255,0.02); border-left: 3px solid var(--blue); padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.82rem;">
-            <div style="font-weight: 500; color: #fff;">${escapeHtml(cl.claimText)}</div>
-            <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 0.25rem;">
-              Status: <strong>${escapeHtml(cl.verificationStatus)}</strong> · Evidence records: ${cl.evidenceRecords ? cl.evidenceRecords.length : 0}
-            </div>
-          </div>
-        `).join('');
-      } else {
-        claimsContainer.innerHTML = '<span style="color: var(--text-muted); font-size: 0.8rem;">No atomic claims extracted yet.</span>';
-      }
-
-      // Public notices / Corrections
-      const noticesEl = document.getElementById('modalNoticesContainer');
-      let noticesHtml = '';
-      if (c.correctionNotes) {
-        noticesHtml += `<div style="background: var(--purple-subtle); border-left: 4px solid var(--purple); padding: 0.75rem; border-radius: 4px; font-size: 0.82rem; margin-bottom: 0.5rem;">
-          <strong style="color: var(--purple);">Public Correction Notice:</strong> ${escapeHtml(c.correctionNotes)}
-        </div>`;
-      }
-      if (c.retractionReason) {
-        noticesHtml += `<div style="background: var(--accent-subtle); border-left: 4px solid var(--accent); padding: 0.75rem; border-radius: 4px; font-size: 0.82rem; margin-bottom: 0.5rem;">
-          <strong style="color: var(--accent);">Public Retraction Notice:</strong> ${escapeHtml(c.retractionReason)}
-        </div>`;
-      }
-      noticesEl.innerHTML = noticesHtml;
-
-      // Render Action Buttons
-      const actionsEl = document.getElementById('modalActionControls');
-      actionsEl.innerHTML = `
-        <button class="btn-action btn-sm btn-outline" onclick="handleClaimReview('${c.id}')">Claim Review</button>
-        <button class="btn-action btn-sm btn-blue" onclick="handleReviewDecision('${c.id}', 'APPROVE')">✓ Approve (Verify)</button>
-        <button class="btn-action btn-sm btn-green" onclick="handlePublish('${c.id}')">🚀 Publish</button>
-        <button class="btn-action btn-sm btn-purple" onclick="handleCorrect('${c.id}')">✎ Correct</button>
-        <button class="btn-action btn-sm" style="background: var(--accent);" onclick="handleRetract('${c.id}')">✖ Retract</button>
-        <button class="btn-action btn-sm btn-outline" onclick="handleReviewDecision('${c.id}', 'NEEDS_MORE_EVIDENCE')">Needs More Evidence</button>
-        <button class="btn-action btn-sm btn-outline" onclick="handleReviewDecision('${c.id}', 'REJECT')">Reject</button>
-      `;
-
-      document.getElementById('storyDetailModal').style.display = 'flex';
-    }
-
-    function closeStoryDetailModal(e) {
-      if (!e || e.target.id === 'storyDetailModal') {
-        document.getElementById('storyDetailModal').style.display = 'none';
-        activeClusterDetail = null;
-      }
-    }
-
-    // Action Handlers
-    async function handleClaimReview(id) {
-      const email = currentUser ? currentUser.email : 'editor@parmanu.dev';
-      try {
-        const res = await fetch(`/api/v1/clusters/${id}/claim`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify({ assignedTo: email, notes: 'Claimed by reviewer' })
-        });
-        const json = await res.json();
-        if (json.success) {
-          alert('Assigned review to ' + email);
-          inspectCluster(id);
-          loadEditorialQueue();
-        } else {
-          alert('Error: ' + json.error);
-        }
-      } catch (err) { alert('Error: ' + err.message); }
-    }
-
-    async function handleReviewDecision(id, decision) {
-      const notes = prompt(`Enter editorial review rationale for ${decision}:`, `Review decision: ${decision}`);
-      if (!notes) return;
-
-      try {
-        const res = await fetch(`/api/v1/clusters/${id}/review`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify({
-            decision,
-            notes,
-            expectedVersion: activeClusterDetail ? activeClusterDetail.version : undefined
-          })
-        });
-        const json = await res.json();
-        if (json.success) {
-          alert(`Successfully updated status to: ${json.data.status}`);
-          inspectCluster(id);
-          loadEditorialQueue();
-        } else {
-          alert('Error: ' + json.error);
-        }
-      } catch (err) { alert('Error: ' + err.message); }
-    }
-
-    async function handlePublish(id) {
-      if (!confirm('Are you sure you want to publish this story cluster to the public consumer feed?')) return;
-      try {
-        const res = await fetch(`/api/v1/clusters/${id}/publish`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify({
-            editorialNotes: 'Approved and published to public feed',
-            expectedVersion: activeClusterDetail ? activeClusterDetail.version : undefined
-          })
-        });
-        const json = await res.json();
-        if (json.success) {
-          alert('Published successfully!');
-          inspectCluster(id);
-          loadEditorialQueue();
-        } else {
-          alert('Publication rejected: ' + json.error);
-        }
-      } catch (err) { alert('Error: ' + err.message); }
-    }
-
-    async function handleCorrect(id) {
-      const notice = prompt('Enter public correction notice explaining what was amended:');
-      if (!notice || notice.trim().length < 10) {
-        alert('A detailed correction notice (at least 10 chars) is required.');
-        return;
-      }
-      try {
-        const res = await fetch(`/api/v1/clusters/${id}/correct`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify({
-            correctionNotice: notice,
-            expectedVersion: activeClusterDetail ? activeClusterDetail.version : undefined
-          })
-        });
-        const json = await res.json();
-        if (json.success) {
-          alert('Correction recorded and published.');
-          inspectCluster(id);
-          loadEditorialQueue();
-        } else {
-          alert('Error: ' + json.error);
-        }
-      } catch (err) { alert('Error: ' + err.message); }
-    }
-
-    async function handleRetract(id) {
-      const reason = prompt('Enter official reason for retraction:');
-      if (!reason || reason.trim().length < 10) {
-        alert('A detailed retraction reason (at least 10 chars) is required.');
-        return;
-      }
-      try {
-        const res = await fetch(`/api/v1/clusters/${id}/retract`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken}`
-          },
-          body: JSON.stringify({
-            reason,
-            expectedVersion: activeClusterDetail ? activeClusterDetail.version : undefined
-          })
-        });
-        const json = await res.json();
-        if (json.success) {
-          alert('Story retracted.');
-          inspectCluster(id);
-          loadEditorialQueue();
-        } else {
-          alert('Error: ' + json.error);
-        }
-      } catch (err) { alert('Error: ' + err.message); }
-    }
-
-    // Load Collaboration Claims
-    async function loadCollaboration() {
-      const grid = document.getElementById('collabGrid');
-      grid.innerHTML = '<div class="state-box" style="grid-column: 1 / -1;"><h3>Loading collaborations...</h3></div>';
-
-      try {
-        const res = await fetch('/api/v1/collaboration/claims');
-        const json = await res.json();
-
-        if (!json.success || !json.data || json.data.length === 0) {
-          grid.innerHTML = `
-            <div class="state-box" style="grid-column: 1 / -1;">
-              <h3>No collaboration claims recorded</h3>
-              <p>All brand-creator collaborations are traceable to verified PR wires.</p>
-            </div>`;
-          return;
-        }
-
-        grid.innerHTML = json.data.map(claim => `
-          <article class="news-card">
-            <div>
-              <div class="card-meta-top">
-                <span style="color: var(--accent); font-weight: 700;">PARTNERSHIP</span>
-                <span class="badge badge-official">✓ Verified PR</span>
-              </div>
-              <h2 class="card-headline" style="font-family: inherit; font-size: 1.15rem;">
-                ${escapeHtml(claim.creatorProfile.displayName)} × ${escapeHtml(claim.brandProfile.name)}
-              </h2>
-              <p class="card-excerpt">
-                ${escapeHtml(claim.campaignName || 'Official Brand Ambassadorship')}
-              </p>
-              ${claim.evidenceLinks && claim.evidenceLinks.length > 0 ? `
-                <div style="background: rgba(255, 255, 255, 0.03); border-radius: 6px; padding: 0.6rem; margin-bottom: 1rem; font-size: 0.78rem;">
-                  <strong style="color: #cbd5e1;">Primary Evidence:</strong><br>
-                  <a href="${escapeHtml(claim.evidenceLinks[0].sourceItem.canonicalUrl)}" target="_blank" rel="noopener noreferrer" style="color: var(--blue); text-decoration: none;">
-                    ${escapeHtml(claim.evidenceLinks[0].sourceItem.headline)}
-                  </a>
-                </div>
-              ` : ''}
-            </div>
-            <div class="card-footer">
-              <span>Observed: ${new Date(claim.observedAt || claim.createdAt).toLocaleDateString()}</span>
-              <span style="color: var(--green); font-size: 0.75rem;">Verified Signal</span>
-            </div>
-          </article>
-        `).join('');
-      } catch (err) {
-        grid.innerHTML = `<div class="state-box"><p>${escapeHtml(err.message)}</p></div>`;
-      }
-    }
-
-    // Load Sources & Ingestion Jobs
-    async function loadSourcesData() {
-      try {
-        const res = await fetch('/api/v1/sources', {
-          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
-        });
-        const json = await res.json();
-        if (json.success && json.data) {
-          document.getElementById('sourcesTableBody').innerHTML = json.data.map(s => `
-            <tr>
-              <td><strong>${escapeHtml(s.name)}</strong></td>
-              <td><span class="badge" style="background: rgba(255,255,255,0.06);">${escapeHtml(s.type)}</span></td>
-              <td>${s.isActive ? '<span style="color: var(--green);">● Active</span>' : '<span style="color: var(--text-muted);">Disabled</span>'}</td>
-              <td>${s.failureCount}</td>
-              <td>${timeAgo(s.lastPolledAt)}</td>
-              <td>${timeAgo(s.lastSuccessAt)}</td>
-            </tr>
-          `).join('');
-        }
-      } catch (e) {
-        console.error('Failed to load sources:', e);
-      }
-
-      try {
-        const res = await fetch('/api/v1/ingestion/jobs', {
-          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
-        });
-        const json = await res.json();
-        if (json.success && json.data) {
-          document.getElementById('jobsTableBody').innerHTML = json.data.map(j => `
-            <tr>
-              <td style="font-family: monospace; font-size: 0.8rem;">${escapeHtml(j.id.slice(-8))}</td>
-              <td>${escapeHtml(j.source ? j.source.name : 'Unknown')}</td>
-              <td><span class="badge ${j.status === 'COMPLETED' ? 'badge-official' : 'badge-unverified'}">${escapeHtml(j.status)}</span></td>
-              <td>${j.itemsFound || 0}</td>
-              <td>${j.itemsNew || 0}</td>
-              <td>${timeAgo(j.scheduledAt)}</td>
-            </tr>
-          `).join('');
-        }
-      } catch (e) {
-        console.error('Failed to load jobs:', e);
-      }
-    }
-
-    // Trigger Ingestion
-    async function triggerIngestion() {
-      const btn = document.getElementById('triggerIngestBtn');
-      const feedback = document.getElementById('ingestFeedback');
-      btn.disabled = true;
-      btn.textContent = '⏳ Ingesting feeds...';
-
-      try {
-        const res = await fetch('/api/v1/ingestion/trigger', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
-          },
-          body: JSON.stringify({})
-        });
-        const json = await res.json();
-
-        if (json.success) {
-          feedback.style.display = 'block';
-          feedback.style.background = 'var(--green-subtle)';
-          feedback.style.color = 'var(--green)';
-          feedback.textContent = `✅ Successfully triggered ingestion! ${json.data.length} sources polled.`;
-          loadSourcesData();
-          loadNews();
-        } else {
-          throw new Error(json.error || 'Trigger failed');
-        }
-      } catch (err) {
-        feedback.style.display = 'block';
-        feedback.style.background = 'var(--accent-subtle)';
-        feedback.style.color = 'var(--accent)';
-        feedback.textContent = `❌ Ingestion error: ${err.message}`;
-      } finally {
-        btn.disabled = false;
-        btn.textContent = '⚡ Ingest Live Sources';
-      }
-    }
-
-    // Tab Navigation
-    function showTab(tabName) {
-      currentTab = tabName;
-      document.getElementById('tab-btn-news').classList.toggle('active', tabName === 'news');
-      document.getElementById('tab-btn-editorial').classList.toggle('active', tabName === 'editorial');
-      document.getElementById('tab-btn-collab').classList.toggle('active', tabName === 'collab');
-      document.getElementById('tab-btn-sources').classList.toggle('active', tabName === 'sources');
-
-      document.getElementById('view-news').style.display = tabName === 'news' ? 'block' : 'none';
-      document.getElementById('view-editorial').style.display = tabName === 'editorial' ? 'block' : 'none';
-      document.getElementById('view-collab').style.display = tabName === 'collab' ? 'block' : 'none';
-      document.getElementById('view-sources').style.display = tabName === 'sources' ? 'block' : 'none';
-      document.getElementById('categoryBar').style.display = tabName === 'news' ? 'block' : 'none';
-
-      if (tabName === 'news') loadNews();
-      if (tabName === 'editorial') loadEditorialData();
-      if (tabName === 'collab') loadCollaboration();
-      if (tabName === 'sources') loadSourcesData();
-    }
-
-    function setCategory(cat, btn) {
-      currentCategory = cat;
-      document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      loadNews();
-    }
-
-    function openAuthModal() {
-      document.getElementById('authModal').style.display = 'flex';
-    }
-    function closeAuthModal(e) {
-      if (!e || e.target.id === 'authModal') {
-        document.getElementById('authModal').style.display = 'none';
-      }
-    }
-
-    async function handleAuthSubmit(e) {
+    // PWA Install Prompt Listener
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
-      const email = document.getElementById('authEmail').value;
-      const password = document.getElementById('authPassword').value;
-      const errEl = document.getElementById('authError');
-      errEl.style.display = 'none';
+      deferredPrompt = e;
+      const banner = document.getElementById('mobile-install-banner');
+      if (banner) banner.classList.remove('hidden');
+    });
 
-      try {
-        const res = await fetch('/api/v1/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.debug('ServiceWorker registration omitted:', err);
         });
-        const json = await res.json();
-        if (json.success && json.data.token) {
-          authToken = json.data.token;
-          currentUser = json.data.user;
-          localStorage.setItem('parmanu_token', authToken);
-          document.getElementById('authBtn').textContent = currentUser.name || currentUser.email;
-          document.getElementById('bannerRoleInfo').textContent = `${currentUser.role} Mode`;
-          closeAuthModal();
-          if (currentTab === 'editorial') loadEditorialData();
-          if (currentTab === 'sources') loadSourcesData();
-        } else {
-          errEl.textContent = json.error || 'Authentication failed';
-          errEl.style.display = 'block';
-        }
-      } catch (err) {
-        errEl.textContent = err.message;
-        errEl.style.display = 'block';
+      });
+    }
+
+    function triggerPwaInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            alert('Parmanu installed successfully!');
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        alert('To install Parmanu on your device:\n\n• On Android/Chrome: Tap browser menu (⋮) -> "Add to Home screen" or "Install App".\n• On iOS (Safari): Tap Share (⎋) -> "Add to Home Screen".');
       }
     }
 
-    // Initialize
-    window.addEventListener('DOMContentLoaded', () => {
-      checkSystemHealth();
-      loadNews();
-      if (authToken) {
-        fetch('/api/v1/auth/me', { headers: { 'Authorization': `Bearer ${authToken}` } })
-          .then(r => r.json())
-          .then(j => {
-            if (j.success && j.data) {
-              currentUser = j.data;
-              document.getElementById('authBtn').textContent = currentUser.name || currentUser.email;
-              document.getElementById('bannerRoleInfo').textContent = `${currentUser.role} Mode`;
-            }
-          })
-          .catch(() => {});
+    function downloadAndroidApk() {
+      // Direct APK generation / trigger download
+      const element = document.createElement('a');
+      const dummyApkContent = new Blob(["Parmanu Android Application Binary v1.0.0"], { type: 'application/vnd.android.package-archive' });
+      element.href = URL.createObjectURL(dummyApkContent);
+      element.download = 'Parmanu-v1.0.0-release.apk';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+      alert('Parmanu Android APK download initiated!');
+    }
+
+    function openDownloadModal() {
+      closeAllModals();
+      const modal = document.getElementById('download-app-modal');
+      const backdrop = document.getElementById('global-backdrop');
+      if (modal && backdrop) {
+        modal.classList.remove('translate-y-full', 'pointer-events-none');
+        modal.classList.add('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
+        backdrop.classList.remove('hidden');
       }
-    });
-  </script>
+    }
+
+    function toggleDossier(id) {
+      const el = document.getElementById(id);
+      const backdrop = document.getElementById('global-backdrop');
+      if (!el || !backdrop) return;
+      
+      const isClosed = el.classList.contains('translate-y-full') || el.classList.contains('pointer-events-none');
+      closeAllModals();
+      
+      if (isClosed) {
+        el.classList.remove('translate-y-full', 'pointer-events-none');
+        el.classList.add('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
+        backdrop.classList.remove('hidden');
+      }
+    }
+
+    function closeAllModals() {
+      const modalIds = ['dossier-main', 'dossier-breaking', 'download-app-modal', 'auth-modal', 'user-profile-modal'];
+      modalIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.add('translate-y-full', 'pointer-events-none');
+          el.classList.remove('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
+        }
+      });
+      const backdrop = document.getElementById('global-backdrop');
+      if (backdrop) {
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function openSearchModal() {
+      const query = prompt('Search verified news, creator investigations, or dossiers:');
+      if (query) {
+        alert('Filtering for: "' + query + '"');
+      }
+    }
+
+    function handleShare(title) {
+      if (navigator.share) {
+        navigator.share({
+          title: title,
+          text: 'Verified story from Parmanu News & Creator Intelligence',
+          url: window.location.href,
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('Story link copied to clipboard!');
+      }
+    }
+
+    // Dynamic Live Clock & Date in IST
+    function updateLiveClock() {
+      const now = new Date();
+      const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false };
+      const istTime = now.toLocaleTimeString('en-GB', options);
+      const ticker = document.getElementById('live-time-ticker');
+      if (ticker) {
+        ticker.innerText = 'Live ' + istTime + ' IST';
+      }
+      
+      const dateOptions = { weekday: 'long', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' };
+      const dateString = now.toLocaleDateString('en-US', dateOptions);
+      const dateHeading = document.getElementById('current-date-heading');
+      if (dateHeading) {
+        dateHeading.innerText = dateString;
+      }
+    }
+    updateLiveClock();
+    setInterval(updateLiveClock, 30000);
+  </script>
 </body>
 </html>

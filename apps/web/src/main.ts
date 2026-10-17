@@ -377,8 +377,6 @@ function updateAuthUI(): void {
   const tagsContainer = document.getElementById('dash-user-interest-tags');
   const desktopNav = document.getElementById('desktop-nav');
   const mobileNav = document.getElementById('mobile-nav-bar');
-  const avatarBtn = document.getElementById('btn-auth-avatar');
-  const mobileAvatarBtn = document.getElementById('btn-mobile-auth-avatar');
   const mobileAuthBtn = document.getElementById('btn-mobile-open-auth');
 
   if (currentUser) {
@@ -386,7 +384,7 @@ function updateAuthUI(): void {
     if (authContainer) {
       authContainer.innerHTML = `
         <div class="flex items-center gap-2">
-          <span class="text-xs font-semibold text-on-surface truncate max-w-[120px]">${escapeHtml(displayName)}</span>
+          <button onclick="window.openProfileModal()" type="button" class="text-xs font-semibold text-primary hover:underline truncate max-w-[120px] cursor-pointer">${escapeHtml(displayName)}</button>
           <button id="btn-logout" class="text-xs text-error hover:underline font-bold cursor-pointer">Logout</button>
         </div>
       `;
@@ -399,14 +397,6 @@ function updateAuthUI(): void {
       });
     }
 
-    if (avatarBtn) {
-      avatarBtn.classList.remove('hidden');
-      avatarBtn.classList.add('flex');
-    }
-    if (mobileAvatarBtn) {
-      mobileAvatarBtn.classList.remove('hidden');
-      mobileAvatarBtn.classList.add('flex');
-    }
     if (mobileAuthBtn) {
       mobileAuthBtn.classList.add('hidden');
     }
@@ -448,14 +438,6 @@ function updateAuthUI(): void {
       `;
     }
 
-    if (avatarBtn) {
-      avatarBtn.classList.add('hidden');
-      avatarBtn.classList.remove('flex');
-    }
-    if (mobileAvatarBtn) {
-      mobileAvatarBtn.classList.add('hidden');
-      mobileAvatarBtn.classList.remove('flex');
-    }
     if (mobileAuthBtn) {
       mobileAuthBtn.classList.remove('hidden');
     }
@@ -495,8 +477,8 @@ function openAuthModal(defaultTab: 'signin' | 'register' = 'signin'): void {
 
   switchAuthTab(defaultTab);
 
-  modal.classList.remove('translate-y-full', 'pointer-events-none', 'md:opacity-0', 'md:scale-95');
-  modal.classList.add('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
+  modal.classList.remove('hidden', 'translate-y-full', 'pointer-events-none', 'md:opacity-0', 'md:scale-95');
+  modal.classList.add('block', 'translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
   backdrop.classList.remove('hidden');
 }
 
@@ -528,8 +510,8 @@ function openProfileModal(): void {
     }
   });
 
-  modal.classList.remove('translate-y-full', 'pointer-events-none');
-  modal.classList.add('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
+  modal.classList.remove('hidden', 'translate-y-full', 'pointer-events-none');
+  modal.classList.add('block', 'translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
   backdrop.classList.remove('hidden');
 }
 
@@ -559,18 +541,28 @@ function switchAuthTab(tab: 'signin' | 'register'): void {
 }
 
 function setupAuthModal(): void {
-  document.getElementById('btn-auth-avatar')?.addEventListener('click', () => {
-    if (currentUser) openProfileModal();
-    else openAuthModal('signin');
-  });
-
-  document.getElementById('btn-mobile-auth-avatar')?.addEventListener('click', () => {
-    if (currentUser) openProfileModal();
-    else openAuthModal('signin');
-  });
-
   document.getElementById('btn-open-auth')?.addEventListener('click', () => {
     openAuthModal('signin');
+  });
+
+  document.getElementById('btn-mobile-open-auth')?.addEventListener('click', () => {
+    openAuthModal('signin');
+  });
+
+  document.getElementById('hero-btn-signin')?.addEventListener('click', () => {
+    openAuthModal('signin');
+  });
+
+  document.getElementById('hero-btn-register')?.addEventListener('click', () => {
+    openAuthModal('register');
+  });
+
+  document.getElementById('cta-btn-signin')?.addEventListener('click', () => {
+    openAuthModal('signin');
+  });
+
+  document.getElementById('cta-btn-register')?.addEventListener('click', () => {
+    openAuthModal('register');
   });
 
   document.getElementById('auth-tab-signin')?.addEventListener('click', () => switchAuthTab('signin'));
@@ -2372,7 +2364,8 @@ function closeAllModals(updateHistory = true): void {
       el.classList.add('translate-y-full', 'pointer-events-none');
       el.classList.remove('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
       if (id === 'auth-modal' || id === 'user-profile-modal') {
-        el.classList.add('md:opacity-0', 'md:scale-95');
+        el.classList.add('hidden', 'md:opacity-0', 'md:scale-95');
+        el.classList.remove('block');
       }
     }
   });
