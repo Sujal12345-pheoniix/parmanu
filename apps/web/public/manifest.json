@@ -9,12 +9,12 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://lh3.googleusercontent.com/aida/AEtjO1VoB9Z_uC3eKZGLThglD_9dSYb5xxZ6_OfYWIBW7JmqhzZrPa8PtkjBuqSBrQnImDsR6ZlfeUAkVwDBsdGlhDxh51w4VFF4FOX6960uInbVuTZdCeYi61kJi-DgvJ6Qn_K1y78RxZwZrNTKY495EjWG0Xn3uqiX2AiVaICriVLyt1fhdxkkDBZfDeVUDdqia_KUpjGbYxle6I40WLRwKUYrMwrMi5SGo7XoEgkxAFOSBLdOLE0uhF62wNo",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://lh3.googleusercontent.com/aida/AEtjO1VoB9Z_uC3eKZGLThglD_9dSYb5xxZ6_OfYWIBW7JmqhzZrPa8PtkjBuqSBrQnImDsR6ZlfeUAkVwDBsdGlhDxh51w4VFF4FOX6960uInbVuTZdCeYi61kJi-DgvJ6Qn_K1y78RxZwZrNTKY495EjWG0Xn3uqiX2AiVaICriVLyt1fhdxkkDBZfDeVUDdqia_KUpjGbYxle6I40WLRwKUYrMwrMi5SGo7XoEgkxAFOSBLdOLE0uhF62wNo",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
