@@ -9,6 +9,8 @@
   ],
   "scripts": {
     "build": "npm run --workspace=@parmanu/types build && npm run --workspace=@parmanu/web build && node -e \"const fs=require('fs'); fs.mkdirSync('dist', {recursive: true}); fs.cpSync('apps/web/dist', 'dist', {recursive: true});\"",
+    "build:api": "npm run --workspace=@parmanu/types build && npm run --workspace=@parmanu/api build",
+    "start:api": "npm run --workspace=@parmanu/api start",
     "typecheck": "npm run --workspace=@parmanu/types build && npm run db:generate && npm run --workspace=@parmanu/api typecheck && npm run --workspace=@parmanu/web build",
     "lint": "echo Lint check passed",
     "format:check": "echo Format check passed",
