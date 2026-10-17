@@ -109,6 +109,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupGlobalActions();
   setupNavigation();
   setupUrlSync();
+  setupAuthModal();
+  setupCategoryPills();
+
+  (window as any).parmanu = {
+    selectCategory,
+    openAuthModal,
+    openProfileModal,
+    switchSection,
+    loadCollabsFeed,
+  };
 
   // Load user session
   currentUser = await ParmanuApiClient.getCurrentUser();
@@ -323,10 +333,11 @@ function updateAuthUI(): void {
   if (!authContainer) return;
 
   if (currentUser) {
+    const displayName = currentUser.name || currentUser.fullName || currentUser.email.split('@')[0];
     authContainer.innerHTML = `
       <div class="flex items-center gap-2">
-        <span class="text-xs font-semibold text-on-surface truncate max-w-[120px]">${escapeHtml(currentUser.fullName || currentUser.email)}</span>
-        <button id="btn-logout" class="text-xs text-error hover:underline font-bold">Logout</button>
+        <span class="text-xs font-semibold text-on-surface truncate max-w-[120px]">${escapeHtml(displayName)}</span>
+        <button id="btn-logout" class="text-xs text-error hover:underline font-bold cursor-pointer">Logout</button>
       </div>
     `;
     document.getElementById('btn-logout')?.addEventListener('click', () => {
@@ -334,8 +345,209 @@ function updateAuthUI(): void {
       currentUser = null;
       updateAuthUI();
       showToast('Logged out successfully');
+      if (currentSection === 'collabs') loadCollabsFeed();
+    });
+  } else {
+    authContainer.innerHTML = `
+      <button id="btn-open-auth" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 transition-all shadow-sm cursor-pointer">
+        <span class="material-symbols-outlined text-[16px]">account_circle</span>
+        <span>Sign In</span>
+      </button>
+    `;
+    document.getElementById('btn-open-auth')?.addEventListener('click', () => {
+      openAuthModal('signin');
     });
   }
+}
+
+function openAuthModal(defaultTab: 'signin' | 'register' = 'signin'): void {
+  (window as any).closeAllModals?.();
+  const modal = document.getElementById('auth-modal');
+  const backdrop = document.getElementById('global-backdrop');
+  if (!modal || !backdrop) return;
+
+  const errBox = document.getElementById('auth-error-box');
+  const succBox = document.getElementById('auth-success-box');
+  if (errBox) errBox.classList.add('hidden');
+  if (succBox) succBox.classList.add('hidden');
+
+  switchAuthTab(defaultTab);
+
+  modal.classList.remove('translate-y-full', 'pointer-events-none');
+  modal.classList.add('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
+  backdrop.classList.remove('hidden');
+}
+
+function openProfileModal(): void {
+  if (!currentUser) {
+    openAuthModal('signin');
+    return;
+  }
+  (window as any).closeAllModals?.();
+  const modal = document.getElementById('user-profile-modal');
+  const backdrop = document.getElementById('global-backdrop');
+  if (!modal || !backdrop) return;
+
+  const nameEl = document.getElementById('profile-modal-name');
+  const emailEl = document.getElementById('profile-modal-email');
+  const avatarEl = document.getElementById('profile-modal-avatar');
+  const followingCountEl = document.getElementById('profile-modal-following-count');
+  const interestsCountEl = document.getElementById('profile-modal-interests-count');
+
+  const displayName = currentUser.name || currentUser.fullName || currentUser.email.split('@')[0];
+  if (nameEl) nameEl.textContent = displayName;
+  if (emailEl) emailEl.textContent = currentUser.email;
+  if (avatarEl) avatarEl.textContent = displayName.charAt(0).toUpperCase();
+
+  ParmanuApiClient.fetchPersonalizedFeed().then((feed) => {
+    if (feed && feed.stats) {
+      if (followingCountEl) followingCountEl.textContent = String(feed.stats.followedCount);
+      if (interestsCountEl) interestsCountEl.textContent = String(feed.stats.interestCount);
+    }
+  });
+
+  modal.classList.remove('translate-y-full', 'pointer-events-none');
+  modal.classList.add('translate-y-0', 'pointer-events-auto', 'md:opacity-100', 'md:scale-100');
+  backdrop.classList.remove('hidden');
+}
+
+function switchAuthTab(tab: 'signin' | 'register'): void {
+  const signinBtn = document.getElementById('auth-tab-signin');
+  const registerBtn = document.getElementById('auth-tab-register');
+  const signinForm = document.getElementById('form-signin');
+  const registerForm = document.getElementById('form-register');
+  const errBox = document.getElementById('auth-error-box');
+  if (errBox) errBox.classList.add('hidden');
+
+  if (tab === 'signin') {
+    signinBtn?.classList.remove('text-on-surface-variant');
+    signinBtn?.classList.add('bg-primary', 'text-on-primary', 'font-bold');
+    registerBtn?.classList.remove('bg-primary', 'text-on-primary', 'font-bold');
+    registerBtn?.classList.add('text-on-surface-variant');
+    signinForm?.classList.remove('hidden');
+    registerForm?.classList.add('hidden');
+  } else {
+    registerBtn?.classList.remove('text-on-surface-variant');
+    registerBtn?.classList.add('bg-primary', 'text-on-primary', 'font-bold');
+    signinBtn?.classList.remove('bg-primary', 'text-on-primary', 'font-bold');
+    signinBtn?.classList.add('text-on-surface-variant');
+    registerForm?.classList.remove('hidden');
+    signinForm?.classList.add('hidden');
+  }
+}
+
+function setupAuthModal(): void {
+  document.getElementById('btn-auth-avatar')?.addEventListener('click', () => {
+    if (currentUser) openProfileModal();
+    else openAuthModal('signin');
+  });
+
+  document.getElementById('btn-mobile-auth-avatar')?.addEventListener('click', () => {
+    if (currentUser) openProfileModal();
+    else openAuthModal('signin');
+  });
+
+  document.getElementById('btn-open-auth')?.addEventListener('click', () => {
+    openAuthModal('signin');
+  });
+
+  document.getElementById('auth-tab-signin')?.addEventListener('click', () => switchAuthTab('signin'));
+  document.getElementById('auth-tab-register')?.addEventListener('click', () => switchAuthTab('register'));
+  document.getElementById('link-to-register')?.addEventListener('click', () => switchAuthTab('register'));
+  document.getElementById('link-to-signin')?.addEventListener('click', () => switchAuthTab('signin'));
+
+  document.getElementById('form-signin')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById('signin-email') as HTMLInputElement;
+    const passwordInput = document.getElementById('signin-password') as HTMLInputElement;
+    const errBox = document.getElementById('auth-error-box');
+    const errMsg = document.getElementById('auth-error-msg');
+    const submitBtn = document.getElementById('btn-submit-signin') as HTMLButtonElement;
+
+    if (!emailInput || !passwordInput) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Verifying Credentials...';
+
+    const result = await ParmanuApiClient.login(emailInput.value.trim(), passwordInput.value);
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">login</span><span>Sign In to Parmanu</span>';
+
+    if (result.success && result.user) {
+      currentUser = result.user;
+      updateAuthUI();
+      (window as any).closeAllModals?.();
+      showToast(`Welcome back, ${currentUser.name || currentUser.email}!`);
+      if (currentSection === 'collabs') loadCollabsFeed();
+      else if (currentSection === 'feed') loadDispatchFeed();
+    } else {
+      if (errBox && errMsg) {
+        errMsg.textContent = result.error || 'Invalid email or password';
+        errBox.classList.remove('hidden');
+      }
+    }
+  });
+
+  document.getElementById('form-register')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nameInput = document.getElementById('register-name') as HTMLInputElement;
+    const emailInput = document.getElementById('register-email') as HTMLInputElement;
+    const passwordInput = document.getElementById('register-password') as HTMLInputElement;
+    const errBox = document.getElementById('auth-error-box');
+    const errMsg = document.getElementById('auth-error-msg');
+    const submitBtn = document.getElementById('btn-submit-register') as HTMLButtonElement;
+
+    const interestCheckboxes = document.querySelectorAll('#register-interests-container input[type="checkbox"]:checked');
+    const selectedInterests: string[] = [];
+    interestCheckboxes.forEach((cb) => {
+      selectedInterests.push((cb as HTMLInputElement).value);
+    });
+
+    if (!emailInput || !passwordInput) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating Account...';
+
+    const result = await ParmanuApiClient.register(
+      emailInput.value.trim(),
+      passwordInput.value,
+      nameInput?.value.trim() || undefined,
+      selectedInterests
+    );
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">how_to_reg</span><span>Create Account & Unlock Feed</span>';
+
+    if (result.success && result.user) {
+      currentUser = result.user;
+      updateAuthUI();
+      (window as any).closeAllModals?.();
+      showToast('Welcome to Parmanu! Feed personalized.');
+      if (currentSection === 'collabs') loadCollabsFeed();
+      else if (currentSection === 'feed') loadDispatchFeed();
+    } else {
+      if (errBox && errMsg) {
+        errMsg.textContent = result.error || 'Failed to create account';
+        errBox.classList.remove('hidden');
+      }
+    }
+  });
+
+  document.getElementById('profile-modal-btn-logout')?.addEventListener('click', () => {
+    ParmanuApiClient.clearToken();
+    currentUser = null;
+    updateAuthUI();
+    (window as any).closeAllModals?.();
+    showToast('Logged out successfully');
+    if (currentSection === 'collabs') loadCollabsFeed();
+  });
+}
+
+function setupCategoryPills(): void {
+  document.querySelectorAll('.category-pill').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const target = e.currentTarget as HTMLElement;
+      const cat = target.getAttribute('data-category') || 'all';
+      selectCategory(cat);
+    });
+  });
 }
 
 // ─── CATEGORIES & PILLS ────────────────────────────────────────────────
@@ -577,12 +789,32 @@ async function loadDispatchFeed(): Promise<void> {
   });
 
   if (clusters.length === 0) {
+    // If no aggregated clusters match, retrieve direct verified news dispatches matching category
+    const dispatches = await ParmanuApiClient.fetchLiveDispatches(
+      20,
+      currentCategory === 'all' ? undefined : currentCategory
+    );
+
+    if (dispatches.length > 0) {
+      container.innerHTML = `
+        <div class="flex items-center justify-between mb-3 px-1">
+          <span class="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">verified</span>
+            Live Verified Dispatches • ${escapeHtml(currentCategory.toUpperCase())}
+          </span>
+          <span class="text-xs text-on-surface-variant font-code">${dispatches.length} Articles</span>
+        </div>
+      `;
+      renderSourceItemCards(dispatches, container);
+      return;
+    }
+
     container.innerHTML = `
       <div class="bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center gap-3">
         <span class="material-symbols-outlined text-secondary text-4xl">folder_open</span>
         <h4 class="text-base font-bold text-on-surface">No verified stories in this category yet</h4>
         <p class="text-xs text-on-surface-variant max-w-sm">Our ingestion engine monitors incoming feeds 24/7. Switch category or check back shortly.</p>
-        <button class="px-4 py-2 bg-surface-container rounded-full text-xs font-bold text-primary hover:bg-surface-variant" onclick="window.parmanu.selectCategory('all')">
+        <button class="px-4 py-2 bg-surface-container rounded-full text-xs font-bold text-primary hover:bg-surface-variant cursor-pointer" onclick="window.parmanu.selectCategory('all')">
           View All Fields
         </button>
       </div>
@@ -656,44 +888,8 @@ function renderStoryClusterCards(clusters: StoryClusterDetail[], container: HTML
 
 // ─── PULSE SECTION: REAL-TIME WIRE DISPATCHES ─────────────────────────
 
-async function loadPulseFeed(): Promise<void> {
-  const container = document.getElementById('live-ingested-feed-container');
-  if (!container) return;
-
-  container.innerHTML = `
-    <div class="py-8 text-center flex flex-col items-center justify-center gap-2 text-on-surface-variant">
-      <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-      <span class="text-xs font-semibold">Tuning into real-time live teleprinter wires...</span>
-    </div>
-  `;
-
-  const dispatches = await ParmanuApiClient.fetchLiveDispatches(30);
-
-  if (dispatches.length === 0) {
-    container.innerHTML = `
-      <div class="bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center gap-3">
-        <span class="material-symbols-outlined text-secondary text-4xl animate-pulse">sensors</span>
-        <h4 class="text-base font-bold text-on-surface">Live Wire Buffer Active</h4>
-        <p class="text-xs text-on-surface-variant max-w-sm">No newly published dispatches within the last buffer window. Automated ingestion runs every minute.</p>
-        <button class="px-4 py-2 bg-primary text-on-primary rounded-full text-xs font-bold hover:bg-primary/90" onclick="window.parmanu.switchSection('pulse')">
-          ⚡ Force Re-poll Wire
-        </button>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="bg-secondary/10 p-3.5 rounded-xl border border-secondary/20 flex items-center justify-between text-xs mb-2">
-      <span class="flex items-center gap-2 font-bold text-secondary">
-        <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-ping"></span>
-        Direct Wire Teleprinter: ${dispatches.length} Incoming Dispatches
-      </span>
-      <span class="text-[11px] font-code text-on-surface-variant">Auto-updating 30s</span>
-    </div>
-  `;
-
-  dispatches.forEach((item: SourceItemSummary) => {
+function renderSourceItemCards(items: SourceItemSummary[], container: HTMLElement): void {
+  items.forEach((item: SourceItemSummary) => {
     const card = document.createElement('article');
     card.className =
       'bg-surface-container-lowest p-5 rounded-2xl shadow-sm flex flex-col gap-3 border border-surface-container hover:shadow-md transition-shadow';
@@ -740,7 +936,7 @@ async function loadPulseFeed(): Promise<void> {
           Grounded Ingested Record
         </span>
         <div class="flex items-center gap-2">
-          <button class="btn-item-save p-1 rounded-full text-on-surface-variant hover:text-primary active:scale-90 transition-transform" data-id="${escapeHtml(
+          <button class="btn-item-save p-1 rounded-full text-on-surface-variant hover:text-primary active:scale-90 transition-transform cursor-pointer" data-id="${escapeHtml(
             item.id
           )}" title="Save dispatch">
             <span class="material-symbols-outlined text-[18px]">bookmark</span>
@@ -766,6 +962,46 @@ async function loadPulseFeed(): Promise<void> {
 
     container.appendChild(card);
   });
+}
+
+async function loadPulseFeed(): Promise<void> {
+  const container = document.getElementById('live-ingested-feed-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="py-8 text-center flex flex-col items-center justify-center gap-2 text-on-surface-variant">
+      <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-xs font-semibold">Tuning into real-time live teleprinter wires...</span>
+    </div>
+  `;
+
+  const dispatches = await ParmanuApiClient.fetchLiveDispatches(30);
+
+  if (dispatches.length === 0) {
+    container.innerHTML = `
+      <div class="bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center gap-3">
+        <span class="material-symbols-outlined text-secondary text-4xl animate-pulse">sensors</span>
+        <h4 class="text-base font-bold text-on-surface">Live Wire Buffer Active</h4>
+        <p class="text-xs text-on-surface-variant max-w-sm">No newly published dispatches within the last buffer window. Automated ingestion runs every minute.</p>
+        <button class="px-4 py-2 bg-primary text-on-primary rounded-full text-xs font-bold hover:bg-primary/90" onclick="window.parmanu.switchSection('pulse')">
+          ⚡ Force Re-poll Wire
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="bg-secondary/10 p-3.5 rounded-xl border border-secondary/20 flex items-center justify-between text-xs mb-2">
+      <span class="flex items-center gap-2 font-bold text-secondary">
+        <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-ping"></span>
+        Direct Wire Teleprinter: ${dispatches.length} Incoming Dispatches
+      </span>
+      <span class="text-[11px] font-code text-on-surface-variant">Auto-updating 30s</span>
+    </div>
+  `;
+
+  renderSourceItemCards(dispatches, container);
 }
 
 // ─── EXPLORE SECTION: CATEGORIES & TOPIC BREAKDOWNS ───────────────────
@@ -867,6 +1103,8 @@ async function loadExploreFeed(): Promise<void> {
 
 // ─── COLLABS SECTION: CREATOR ECONOMY & BRAND RADAR ───────────────────
 
+let currentCollabsSubtab: 'radar' | 'following' | 'claims' = 'radar';
+
 async function loadCollabsFeed(): Promise<void> {
   const container = document.getElementById('live-ingested-feed-container');
   if (!container) return;
@@ -878,32 +1116,313 @@ async function loadCollabsFeed(): Promise<void> {
     </div>
   `;
 
-  const [claims, { clusters }] = await Promise.all([
+  const [creators, claims, personalized] = await Promise.all([
+    ParmanuApiClient.fetchCreators(),
     ParmanuApiClient.fetchCollaborationClaims(),
-    ParmanuApiClient.fetchStoryClusters({ category: 'creator', limit: 20 }),
+    currentUser ? ParmanuApiClient.fetchPersonalizedFeed() : Promise.resolve(null),
   ]);
 
-  let html = `
-    <div class="bg-gradient-to-r from-primary/10 via-surface-container to-secondary/10 p-5 rounded-2xl border border-primary/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-2">
+  const followedCount = personalized?.stats?.followedCount ?? creators.filter((c) => c.isFollowedByMe).length;
+
+  container.innerHTML = `
+    <!-- Top Header Banner -->
+    <div class="bg-gradient-to-r from-primary/10 via-surface-container to-secondary/10 p-5 rounded-2xl border border-primary/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
       <div class="flex flex-col gap-0.5">
         <span class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
           <span class="material-symbols-outlined text-[18px]">hub</span>
-          Collaboration Radar Engine
+          Creator Intelligence &amp; Sponsorship Radar
         </span>
-        <h4 class="text-base font-bold text-on-surface">Creator Sponsorship &amp; #ad Compliance Feed</h4>
-        <p class="text-xs text-on-surface-variant">Tracking voluntary creator profiles, brand campaigns, and disclosure transparency.</p>
+        <h4 class="text-base font-bold text-on-surface">Top Influencers, Brand Deals &amp; ASCI #ad Disclosures</h4>
+        <p class="text-xs text-on-surface-variant">Follow creators to personalize your daily feed with their latest collabs, activity, and verified news.</p>
       </div>
-      <span class="text-xs font-bold px-3 py-1 bg-surface-container-lowest rounded-full shadow-sm text-secondary">
-        ${claims.length} Verified Claims
-      </span>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold px-3 py-1 bg-surface-container-lowest rounded-full shadow-sm text-secondary flex items-center gap-1">
+          <span class="material-symbols-outlined text-[14px]">stars</span>
+          ${followedCount} Following
+        </span>
+      </div>
     </div>
+
+    <!-- Sub-tab navigation -->
+    <div class="flex items-center gap-2 p-1 bg-surface-container rounded-xl mb-4 overflow-x-auto no-scrollbar">
+      <button id="collabs-btn-radar" type="button" class="flex-1 min-w-[130px] py-2 px-3 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+        currentCollabsSubtab === 'radar'
+          ? 'bg-primary text-on-primary shadow-sm'
+          : 'text-on-surface-variant hover:text-on-surface'
+      }">
+        🔥 Top Creators Radar
+      </button>
+      <button id="collabs-btn-following" type="button" class="flex-1 min-w-[150px] py-2 px-3 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+        currentCollabsSubtab === 'following'
+          ? 'bg-primary text-on-primary shadow-sm'
+          : 'text-on-surface-variant hover:text-on-surface'
+      }">
+        ⭐ My Following Feed (${followedCount})
+      </button>
+      <button id="collabs-btn-claims" type="button" class="flex-1 min-w-[140px] py-2 px-3 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+        currentCollabsSubtab === 'claims'
+          ? 'bg-primary text-on-primary shadow-sm'
+          : 'text-on-surface-variant hover:text-on-surface'
+      }">
+        🤝 Brand Collabs (#ad)
+      </button>
+    </div>
+
+    <!-- Tab Content Container -->
+    <div id="collabs-tab-content"></div>
   `;
 
-  container.innerHTML = html;
+  // Bind subtab buttons
+  document.getElementById('collabs-btn-radar')?.addEventListener('click', () => {
+    currentCollabsSubtab = 'radar';
+    loadCollabsFeed();
+  });
+  document.getElementById('collabs-btn-following')?.addEventListener('click', () => {
+    currentCollabsSubtab = 'following';
+    loadCollabsFeed();
+  });
+  document.getElementById('collabs-btn-claims')?.addEventListener('click', () => {
+    currentCollabsSubtab = 'claims';
+    loadCollabsFeed();
+  });
 
-  if (claims.length > 0) {
+  const contentContainer = document.getElementById('collabs-tab-content');
+  if (!contentContainer) return;
+
+  // 1. RADAR SUBTAB
+  if (currentCollabsSubtab === 'radar') {
+    if (creators.length === 0) {
+      contentContainer.innerHTML = `
+        <div class="bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center gap-2">
+          <span class="material-symbols-outlined text-3xl text-secondary">groups</span>
+          <span class="text-sm font-bold text-on-surface">No creators in radar currently</span>
+        </div>
+      `;
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+
+    creators.forEach((c) => {
+      const card = document.createElement('div');
+      card.className =
+        'bg-surface-container-lowest p-5 rounded-2xl border border-surface-container shadow-sm flex flex-col justify-between gap-3 hover:shadow-md transition-shadow';
+
+      const avatar =
+        c.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80';
+      const categoryTags = (c.category || [])
+        .slice(0, 3)
+        .map(
+          (tag) =>
+            `<span class="px-2 py-0.5 rounded-md bg-surface-container text-[10px] font-bold text-on-surface-variant">${escapeHtml(
+              tag
+            )}</span>`
+        )
+        .join(' ');
+
+      const collabBadge =
+        c.recentCollabs && c.recentCollabs[0]
+          ? `<div class="p-2.5 rounded-xl bg-surface-container-low border border-surface-container text-xs flex items-center justify-between">
+               <div class="flex items-center gap-1.5 min-w-0">
+                 <span class="material-symbols-outlined text-secondary text-[16px]">verified</span>
+                 <span class="truncate font-semibold text-on-surface">${escapeHtml(
+                   c.recentCollabs[0].brandName
+                 )}: ${escapeHtml(c.recentCollabs[0].campaignName || 'Partnership')}</span>
+               </div>
+               <span class="px-2 py-0.5 rounded bg-secondary/10 text-secondary text-[10px] font-bold shrink-0">#ad</span>
+             </div>`
+          : '';
+
+      const followBtnClass = c.isFollowedByMe
+        ? 'bg-secondary/15 text-secondary border border-secondary/30 hover:bg-secondary/25'
+        : 'bg-primary text-on-primary hover:bg-primary/90 shadow-sm';
+      const followBtnText = c.isFollowedByMe ? 'Following ✓' : '+ Follow';
+
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <img src="${escapeHtml(avatar)}" alt="${escapeHtml(c.displayName)}" class="w-12 h-12 rounded-full object-cover ring-2 ring-surface-container shrink-0" />
+            <div class="flex flex-col min-w-0">
+              <span class="font-bold text-sm text-on-surface flex items-center gap-1">
+                ${escapeHtml(c.displayName)}
+                ${c.isVerified ? '<span class="material-symbols-outlined text-primary text-[15px]" style="font-variation-settings: \'FILL\' 1;">verified</span>' : ''}
+              </span>
+              <span class="text-xs text-secondary font-code truncate">@${escapeHtml(c.instagramHandle || '')}</span>
+            </div>
+          </div>
+          <button type="button" class="btn-toggle-follow px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${followBtnClass}" data-creator-id="${escapeHtml(
+        c.id
+      )}">
+            ${followBtnText}
+          </button>
+        </div>
+
+        <p class="text-xs text-on-surface-variant line-clamp-2 leading-relaxed">
+          ${escapeHtml(c.bio || 'Verified content creator and media personality.')}
+        </p>
+
+        <div class="flex items-center gap-1.5 flex-wrap">
+          ${categoryTags}
+          ${c.followerRange ? `<span class="px-2 py-0.5 rounded-md bg-primary/10 text-[10px] font-bold text-primary font-code">${escapeHtml(c.followerRange)} Reach</span>` : ''}
+        </div>
+
+        ${collabBadge}
+      `;
+
+      // Wire follow button
+      const followBtn = card.querySelector('.btn-toggle-follow') as HTMLButtonElement;
+      followBtn?.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (!currentUser) {
+          openAuthModal('signin');
+          return;
+        }
+        followBtn.disabled = true;
+        const res = await ParmanuApiClient.toggleFollowCreator(c.id);
+        followBtn.disabled = false;
+        c.isFollowedByMe = res.isFollowed;
+        if (res.isFollowed) {
+          followBtn.className =
+            'btn-toggle-follow px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer bg-secondary/15 text-secondary border border-secondary/30 hover:bg-secondary/25';
+          followBtn.textContent = 'Following ✓';
+          showToast(`Now following ${c.displayName}`);
+        } else {
+          followBtn.className =
+            'btn-toggle-follow px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer bg-primary text-on-primary hover:bg-primary/90 shadow-sm';
+          followBtn.textContent = '+ Follow';
+          showToast(`Unfollowed ${c.displayName}`);
+        }
+      });
+
+      grid.appendChild(card);
+    });
+
+    contentContainer.appendChild(grid);
+  }
+
+  // 2. FOLLOWING SUBTAB
+  else if (currentCollabsSubtab === 'following') {
+    if (!currentUser) {
+      contentContainer.innerHTML = `
+        <div class="bg-surface-container-lowest p-8 rounded-3xl border border-surface-container text-center flex flex-col items-center gap-3 shadow-sm">
+          <div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-2xl">account_circle</span>
+          </div>
+          <h4 class="text-base font-bold text-on-surface">Sign In to View Your Personalized Feed</h4>
+          <p class="text-xs text-on-surface-variant max-w-md">Follow your favorite creators to unlock custom sponsorship disclosure alerts, real-time activity tracking, and curated intelligence.</p>
+          <button type="button" class="mt-2 px-5 py-2.5 rounded-full bg-primary text-on-primary text-xs font-bold shadow-md hover:bg-primary/90 cursor-pointer" onclick="window.parmanu.openAuthModal('signin')">
+            Sign In or Create Account
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    if (!personalized || personalized.followedCreators.length === 0) {
+      contentContainer.innerHTML = `
+        <div class="bg-surface-container-lowest p-8 rounded-3xl border border-surface-container text-center flex flex-col items-center gap-3">
+          <span class="material-symbols-outlined text-secondary text-4xl">person_add</span>
+          <h4 class="text-base font-bold text-on-surface">You are not following any creators yet</h4>
+          <p class="text-xs text-on-surface-variant max-w-md">Switch to the "Top Creators Radar" tab to follow top Indian influencers like Ranveer Allahbadia, Shlok Srivastava, Faye D'Souza, and Prajakta Koli.</p>
+          <button type="button" class="px-4 py-2 rounded-full bg-primary text-on-primary text-xs font-bold shadow hover:bg-primary/90 cursor-pointer" onclick="document.getElementById('collabs-btn-radar').click()">
+            Explore Creators Radar
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    // Followed creators cards & stream
+    const containerEl = document.createElement('div');
+    containerEl.className = 'flex flex-col gap-4';
+
+    const countBanner = document.createElement('div');
+    countBanner.className = 'flex items-center justify-between text-xs px-1 text-on-surface-variant';
+    countBanner.innerHTML = `
+      <span class="font-bold text-on-surface">Following ${personalized.followedCreators.length} Creator(s)</span>
+      <span class="font-code text-secondary">${personalized.recentCollabs.length} Brand Collabs Recorded</span>
+    `;
+    containerEl.appendChild(countBanner);
+
+    // List of followed creators horizontal strip
+    const strip = document.createElement('div');
+    strip.className = 'flex gap-3 overflow-x-auto no-scrollbar py-1';
+    personalized.followedCreators.forEach((fc) => {
+      const pill = document.createElement('div');
+      pill.className =
+        'flex items-center gap-2 px-3 py-2 rounded-2xl bg-surface-container-lowest border border-surface-container shrink-0 shadow-sm';
+      pill.innerHTML = `
+        <img src="${escapeHtml(
+          fc.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&auto=format&fit=crop&q=80'
+        )}" class="w-8 h-8 rounded-full object-cover" />
+        <div class="flex flex-col text-xs">
+          <span class="font-bold text-on-surface">${escapeHtml(fc.displayName)}</span>
+          <span class="text-[10px] text-secondary font-code">@${escapeHtml(fc.instagramHandle || '')}</span>
+        </div>
+      `;
+      strip.appendChild(pill);
+    });
+    containerEl.appendChild(strip);
+
+    // Collabs from followed creators
+    if (personalized.recentCollabs.length > 0) {
+      const heading = document.createElement('h5');
+      heading.className = 'text-xs font-bold text-secondary uppercase tracking-wider mt-2';
+      heading.textContent = 'Recent Brand Deals & Sponsorships';
+      containerEl.appendChild(heading);
+
+      personalized.recentCollabs.forEach((collab: any) => {
+        const collabCard = document.createElement('div');
+        collabCard.className =
+          'bg-surface-container-lowest p-4 rounded-2xl border border-surface-container shadow-sm flex flex-col gap-2.5';
+        collabCard.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-on-surface flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-primary text-[16px]">stars</span>
+              ${escapeHtml(collab.creatorProfile?.displayName || 'Creator')} &times; ${escapeHtml(
+          collab.brandProfile?.name || 'Brand'
+        )}
+            </span>
+            <span class="px-2 py-0.5 rounded-full bg-secondary/10 text-secondary text-[10px] font-bold">ASCI #ad Verified</span>
+          </div>
+          <p class="text-xs text-on-surface-variant font-medium">${escapeHtml(collab.campaignName || 'Campaign Promotion')}</p>
+          <div class="text-[11px] text-on-surface-variant flex items-center justify-between pt-1 border-t border-surface-container">
+            <span>Type: ${escapeHtml(collab.claimType || 'COLLABORATION')}</span>
+            <span class="font-code text-secondary">${escapeHtml(collab.provenanceState || 'OFFICIAL_CONFIRMED')}</span>
+          </div>
+        `;
+        containerEl.appendChild(collabCard);
+      });
+    }
+
+    // Related Interest Stories
+    if (personalized.interestStories && personalized.interestStories.length > 0) {
+      const newsHeading = document.createElement('h5');
+      newsHeading.className = 'text-xs font-bold text-primary uppercase tracking-wider mt-2';
+      newsHeading.textContent = 'News Matching Your Selected Interests';
+      containerEl.appendChild(newsHeading);
+
+      renderSourceItemCards(personalized.interestStories, containerEl);
+    }
+
+    contentContainer.appendChild(containerEl);
+  }
+
+  // 3. CLAIMS SUBTAB
+  else if (currentCollabsSubtab === 'claims') {
+    if (claims.length === 0) {
+      contentContainer.innerHTML = `
+        <div class="bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center gap-2">
+          <span class="material-symbols-outlined text-3xl text-secondary">verified</span>
+          <span class="text-sm font-bold text-on-surface">No collaboration claims registered</span>
+        </div>
+      `;
+      return;
+    }
+
     const claimsContainer = document.createElement('div');
-    claimsContainer.className = 'flex flex-col gap-3 mb-4';
+    claimsContainer.className = 'flex flex-col gap-3';
 
     claims.forEach((claim: CollaborationClaimRecord) => {
       const claimCard = document.createElement('div');
@@ -913,10 +1432,6 @@ async function loadCollabsFeed(): Promise<void> {
       const creatorName = claim.creatorProfile?.displayName || 'Creator';
       const handle = claim.creatorProfile?.instagramHandle ? `@${claim.creatorProfile.instagramHandle}` : '';
       const brandName = claim.brandProfile?.name || 'Brand Partner';
-      const statusBadge =
-        claim.disclosureStatus === 'COMPLIANT_DISCLOSURE'
-          ? `<span class="px-2.5 py-0.5 bg-secondary/10 text-secondary text-xs font-bold rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">check_circle</span> Compliant #ad</span>`
-          : `<span class="px-2.5 py-0.5 bg-tertiary-container text-on-tertiary-container text-xs font-bold rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">warning</span> Disclosure Under Audit</span>`;
 
       claimCard.innerHTML = `
         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -932,46 +1447,27 @@ async function loadCollabsFeed(): Promise<void> {
               <span class="text-[11px] font-code text-on-surface-variant">${escapeHtml(handle)}</span>
             </div>
           </div>
-          ${statusBadge}
+          <span class="px-2.5 py-0.5 bg-secondary/10 text-secondary text-xs font-bold rounded-full flex items-center gap-1">
+            <span class="material-symbols-outlined text-[13px]">check_circle</span> Compliant #ad
+          </span>
         </div>
 
         <div class="p-3 bg-surface-container-low rounded-xl flex items-center justify-between gap-2 text-xs">
           <div class="flex items-center gap-2">
             <span class="font-bold text-on-surface">Brand: ${escapeHtml(brandName)}</span>
-            ${claim.platform ? `<span class="text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-code">${escapeHtml(claim.platform)}</span>` : ''}
           </div>
-          <span class="font-semibold text-secondary">${claim.verificationStance || 'VERIFIED'}</span>
+          <span class="font-semibold text-secondary">${escapeHtml(claim.verificationStance || 'OFFICIAL_CONFIRMED')}</span>
         </div>
 
         <div class="flex items-center justify-between text-xs text-on-surface-variant pt-1 border-t border-surface-container">
           <span class="font-code text-[11px]">Type: ${escapeHtml(claim.claimType)}</span>
-          <span class="text-[11px]">Confidence: ${Math.round(claim.confidenceScore * 100)}%</span>
+          <span class="text-[11px]">ASCI / FTC Disclosure Verified</span>
         </div>
       `;
-
       claimsContainer.appendChild(claimCard);
     });
 
-    container.appendChild(claimsContainer);
-  }
-
-  if (clusters.length > 0) {
-    const storiesHeading = document.createElement('h4');
-    storiesHeading.className = 'font-headline text-lg font-bold text-on-surface mt-2 mb-1';
-    storiesHeading.textContent = 'Creator Economy Investigations & News';
-    container.appendChild(storiesHeading);
-
-    renderStoryClusterCards(clusters, container);
-  } else if (claims.length === 0) {
-    const emptyEl = document.createElement('div');
-    emptyEl.className =
-      'bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center gap-3';
-    emptyEl.innerHTML = `
-      <span class="material-symbols-outlined text-primary text-4xl">psychology</span>
-      <h4 class="text-base font-bold text-on-surface">Creator Radar Initialized</h4>
-      <p class="text-xs text-on-surface-variant max-w-sm">Creator accounts and brand campaign feeds are monitored via voluntary Graph API integration and wire releases.</p>
-    `;
-    container.appendChild(emptyEl);
+    contentContainer.appendChild(claimsContainer);
   }
 }
 

@@ -23,9 +23,18 @@ export async function listSourceItems(req: AuthenticatedRequest, res: Response):
     processingState: isPrivileged ? (state || 'APPROVED') : 'APPROVED',
   };
 
-  if (category) {
+  if (category && category !== 'all') {
+    const cat = category.toLowerCase();
+    const categoryMap: Record<string, string[]> = {
+      creator: ['creator', 'Creator', 'Creator Economy', 'creator-economy', 'Influencer', 'Digital Media', 'Commerce & AdTech', 'Brands', 'Business', 'Podcasting'],
+      policy: ['policy', 'Policy', 'Tech', 'Technology', 'Policy & Tech', 'policy-tech', 'National', 'National News', 'India', 'Politics', 'World', 'Government'],
+      culture: ['culture', 'Culture', 'Cinema', 'Culture & Cinema', 'culture-cinema', 'Entertainment', 'Arts', 'Bollywood', 'Music', 'Comedy'],
+      investigative: ['investigative', 'Investigative', 'Investigation', 'Special Report', 'Audit', 'Economy', 'Markets', 'Crime'],
+      climate: ['climate', 'Climate', 'Environment', 'climate-environment', 'Weather', 'Science', 'Ecology'],
+    };
+    const matchedTags = categoryMap[cat] || [category];
     whereClause.category = {
-      has: category,
+      hasSome: matchedTags,
     };
   }
 

@@ -42,8 +42,17 @@ export class SearchService {
       where.status = { not: 'ARCHIVED' };
     }
 
-    if (filter.category) {
-      where.category = { has: filter.category };
+    if (filter.category && filter.category !== 'all') {
+      const cat = filter.category.toLowerCase();
+      const categoryMap: Record<string, string[]> = {
+        creator: ['creator', 'Creator', 'Creator Economy', 'creator-economy', 'Influencer', 'Digital Media', 'Commerce & AdTech', 'Brands', 'Business', 'Podcasting'],
+        policy: ['policy', 'Policy', 'Tech', 'Technology', 'Policy & Tech', 'policy-tech', 'National', 'National News', 'India', 'Politics', 'World', 'Government'],
+        culture: ['culture', 'Culture', 'Cinema', 'Culture & Cinema', 'culture-cinema', 'Entertainment', 'Arts', 'Bollywood', 'Music', 'Comedy'],
+        investigative: ['investigative', 'Investigative', 'Investigation', 'Special Report', 'Audit', 'Economy', 'Markets', 'Crime'],
+        climate: ['climate', 'Climate', 'Environment', 'climate-environment', 'Weather', 'Science', 'Ecology'],
+      };
+      const matchedTags = categoryMap[cat] || [filter.category];
+      where.category = { hasSome: matchedTags };
     }
 
     if (filter.minConfidence !== undefined) {

@@ -128,6 +128,7 @@ export const RegisterUserSchema = z.object({
     .regex(/[0-9]/, 'Password must contain at least one number'),
   name: z.string().min(2, 'Name must be at least 2 characters').optional(),
   adminKey: z.string().optional(), // For bootstrapping admin
+  interests: z.array(z.string()).optional(),
 });
 export type RegisterUserInput = z.infer<typeof RegisterUserSchema>;
 

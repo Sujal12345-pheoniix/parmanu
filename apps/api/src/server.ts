@@ -20,6 +20,7 @@ import * as EntitiesController from './controllers/entities.controller';
 import * as EditorialCmsController from './controllers/editorial-cms.controller';
 import * as BookmarksController from './controllers/bookmarks.controller';
 import * as ConsumerController from './controllers/consumer.controller';
+import * as CreatorController from './controllers/creator.controller';
 import { defaultIngestionScheduler } from './ingestion/scheduler.service';
 import { securityHeadersMiddleware } from './security/headers';
 import { apiRateLimiter, authRateLimiter } from './security/rate-limiter';
@@ -120,6 +121,13 @@ router.post('/clusters/:id/correct', authenticateToken, requireRole(['EDITOR', '
 // Collaboration Radar
 router.get('/collaboration/claims', optionalAuth, CollaborationController.listCollaborationClaims);
 router.post('/collaboration/claims', authenticateToken, requireRole(['EDITOR', 'ADMIN']), CollaborationController.createCollaborationClaim);
+
+// Creator Intelligence, Follows & Personalized Feed
+router.get('/creators', optionalAuth, CreatorController.listCreators);
+router.post('/creators/:id/follow', authenticateToken, CreatorController.toggleFollowCreator);
+router.get('/user/interests', authenticateToken, CreatorController.getUserInterests);
+router.put('/user/interests', authenticateToken, CreatorController.updateUserInterests);
+router.get('/user/personalized-feed', optionalAuth, CreatorController.getPersonalizedFeed);
 
 // Phase 2.2: Story Intelligence & Clustering
 router.get('/clusters', optionalAuth, StoryClustersController.listStoryClusters);

@@ -17,7 +17,7 @@ export async function register(req: AuthenticatedRequest, res: Response): Promis
     return;
   }
 
-  const { email, password, name, adminKey } = parseResult.data;
+  const { email, password, name, adminKey, interests } = parseResult.data;
   const env = getEnv();
 
   // Check if user already exists
@@ -48,6 +48,18 @@ export async function register(req: AuthenticatedRequest, res: Response): Promis
       role,
     },
   });
+
+  // Save selected category interests if supplied
+  if (Array.isArray(interests) && interests.length > 0) {
+    await prisma.userInterest.createMany({
+      data: interests.map((cat: string) => ({
+        userId: user.id,
+        category: cat.trim(),
+        weight: 1.0,
+      })),
+      skipDuplicates: true,
+    });
+  }
 
   // Record audit event
   await logAuditEvent({
