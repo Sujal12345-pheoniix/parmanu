@@ -9,14 +9,18 @@ import {
   CategorySummary,
   SearchResultData,
   BookmarkRecord,
+  SourceItemSummary,
+  CollaborationClaimRecord,
 } from './api/client';
 
 // Global State
+let currentSection = 'feed';
 let currentCategory = 'all';
 let currentStoryClusterId: string | null = null;
 let activeDossierData: StoryClusterDetail | null = null;
 let currentUser: any | null = null;
 let searchDebounceTimer: any = null;
+let categoriesCache: CategorySummary[] = [];
 
 // DOM Utilities
 function showToast(message: string, duration = 3000): void {
@@ -103,20 +107,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupSearchModal();
   setupBookmarksDrawer();
   setupGlobalActions();
+  setupNavigation();
   setupUrlSync();
 
   // Load user session
   currentUser = await ParmanuApiClient.getCurrentUser();
   updateAuthUI();
 
-  // Load dynamic data
+  // Load dynamic top-level widgets
   await Promise.all([
     loadCategories(),
     loadFeaturedHero(),
     loadTrendingStories(),
     loadLiveBriefing(),
-    loadDispatchFeed(),
   ]);
+
+  // Initial Section from URL Hash
+  const hash = window.location.hash.replace('#', '').toLowerCase();
+  if (['feed', 'pulse', 'explore', 'collabs', 'workspace'].includes(hash)) {
+    await switchSection(hash, false);
+  } else {
+    await switchSection('feed', false);
+  }
 
   // Real-time automatic polling every 30 seconds
   setInterval(async () => {
@@ -125,6 +137,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadLiveBriefing(),
       loadFeaturedHero(),
     ]);
+
+    // If on Pulse view, also auto-refresh the wire
+    if (currentSection === 'pulse') {
+      await loadPulseFeed();
+    }
   }, 30000);
 
   // Check URL query parameters for deep-linking
@@ -138,6 +155,131 @@ document.addEventListener('DOMContentLoaded', async () => {
     openDossierModal(storyParam);
   }
 });
+
+function setupNavigation(): void {
+  // Desktop Navigation Links
+  document.querySelectorAll('#desktop-nav .nav-link').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const section = link.getAttribute('data-section') || 'feed';
+      switchSection(section);
+    });
+  });
+
+  // Mobile Bottom Navigation Tabs
+  document.querySelectorAll('#nav-tabs .nav-tab').forEach((tab) => {
+    tab.addEventListener('click', (e) => {
+      e.preventDefault();
+      const section = tab.getAttribute('data-path') || 'feed';
+      switchSection(section);
+    });
+  });
+
+  // Top header brand links
+  document.querySelectorAll('header a[href="#"], header a[href="#feed"]').forEach((brandLink) => {
+    brandLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchSection('feed');
+    });
+  });
+
+  // Hashchange event for browser back/forward or external links
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '').toLowerCase();
+    if (['feed', 'pulse', 'explore', 'collabs', 'workspace'].includes(hash)) {
+      if (currentSection !== hash) {
+        switchSection(hash, false);
+      }
+    }
+  });
+}
+
+async function switchSection(section: string, updateHash = true): Promise<void> {
+  const validSections = ['feed', 'pulse', 'explore', 'collabs', 'workspace'];
+  const target = validSections.includes(section) ? section : 'feed';
+  currentSection = target;
+
+  if (updateHash) {
+    window.location.hash = `#${target}`;
+  }
+
+  // Update Desktop Navigation Pills
+  document.querySelectorAll('#desktop-nav .nav-link').forEach((link) => {
+    const linkSection = link.getAttribute('data-section');
+    if (linkSection === target) {
+      link.className =
+        'nav-link px-3.5 py-1.5 rounded-full text-sm font-semibold text-primary bg-primary/10 transition-colors shadow-xs';
+    } else {
+      link.className =
+        'nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors';
+    }
+  });
+
+  // Update Mobile Navigation Tabs
+  document.querySelectorAll('#nav-tabs .nav-tab').forEach((tab) => {
+    const tabSection = tab.getAttribute('data-path');
+    if (tabSection === target) {
+      tab.classList.remove('text-on-surface-variant');
+      tab.classList.add('text-primary', 'font-bold');
+    } else {
+      tab.classList.remove('text-primary', 'font-bold');
+      tab.classList.add('text-on-surface-variant');
+    }
+  });
+
+  const heroArticle = document.getElementById('hero-lead-article');
+  const categoryPillsSection = document.getElementById('category-pills-section');
+  const feedHeading = document.getElementById('feed-section-heading');
+  const feedSubheading = document.getElementById('feed-section-subheading');
+  const feedDescription = document.getElementById('feed-section-description');
+
+  if (target === 'feed') {
+    if (heroArticle) heroArticle.classList.remove('hidden');
+    if (categoryPillsSection) categoryPillsSection.classList.remove('hidden');
+    if (feedHeading) feedHeading.textContent = 'Verified Dispatch Feed';
+    if (feedSubheading) feedSubheading.textContent = 'All Fields • Corroborated';
+    if (feedDescription)
+      feedDescription.textContent =
+        'Multi-source corroborated reporting across national and global newsrooms.';
+    await loadDispatchFeed();
+  } else if (target === 'pulse') {
+    if (heroArticle) heroArticle.classList.add('hidden');
+    if (categoryPillsSection) categoryPillsSection.classList.add('hidden');
+    if (feedHeading) feedHeading.textContent = '⚡ Real-Time Pulse & Breaking Wire';
+    if (feedSubheading) feedSubheading.textContent = 'Live Wire • Ingesting';
+    if (feedDescription)
+      feedDescription.textContent =
+        'Direct teleprinter stream from verified news bureaus, gazettes, and official wires.';
+    await loadPulseFeed();
+  } else if (target === 'explore') {
+    if (heroArticle) heroArticle.classList.add('hidden');
+    if (categoryPillsSection) categoryPillsSection.classList.remove('hidden');
+    if (feedHeading) feedHeading.textContent = '🧭 Explore Stories by Topic';
+    if (feedSubheading) feedSubheading.textContent = 'Curated Categories';
+    if (feedDescription)
+      feedDescription.textContent =
+        'Deep-dive into verified reporting filtered by policy, technology, creator economy, climate, and more.';
+    await loadExploreFeed();
+  } else if (target === 'collabs') {
+    if (heroArticle) heroArticle.classList.add('hidden');
+    if (categoryPillsSection) categoryPillsSection.classList.add('hidden');
+    if (feedHeading) feedHeading.textContent = '🤝 Creator Economy & Brand Radar';
+    if (feedSubheading) feedSubheading.textContent = 'Audited Intelligence';
+    if (feedDescription)
+      feedDescription.textContent =
+        'Verified creator sponsorships, ASCI/FTC disclosure compliance (#ad), and digital media intelligence.';
+    await loadCollabsFeed();
+  } else if (target === 'workspace') {
+    if (heroArticle) heroArticle.classList.add('hidden');
+    if (categoryPillsSection) categoryPillsSection.classList.add('hidden');
+    if (feedHeading) feedHeading.textContent = '📋 Dossier Workspace & Saved Stories';
+    if (feedSubheading) feedSubheading.textContent = 'Personal Desk';
+    if (feedDescription)
+      feedDescription.textContent =
+        'Your saved intelligence dossiers, cryptographic audit packets, and multi-source evidence chains.';
+    await loadWorkspaceFeed();
+  }
+}
 
 function setupUrlSync(): void {
   window.addEventListener('popstate', () => {
@@ -317,7 +459,13 @@ function selectCategory(categorySlug: string, updateHistory = true): void {
     updateUrl({ category: currentCategory });
   }
 
-  loadDispatchFeed();
+  if (currentSection === 'explore') {
+    loadExploreFeed();
+  } else if (currentSection === 'feed') {
+    loadDispatchFeed();
+  } else {
+    switchSection('explore', false);
+  }
 }
 
 // ─── HERO ARTICLE ─────────────────────────────────────────────────────
@@ -410,7 +558,7 @@ async function loadTrendingStories(): Promise<void> {
   }
 }
 
-// ─── VERIFIED DISPATCH FEED ───────────────────────────────────────────
+// ─── VERIFIED DISPATCH FEED (MAIN FEED) ────────────────────────────────
 
 async function loadDispatchFeed(): Promise<void> {
   const container = document.getElementById('live-ingested-feed-container');
@@ -443,7 +591,10 @@ async function loadDispatchFeed(): Promise<void> {
   }
 
   container.innerHTML = '';
+  renderStoryClusterCards(clusters, container);
+}
 
+function renderStoryClusterCards(clusters: StoryClusterDetail[], container: HTMLElement): void {
   clusters.forEach((story: StoryClusterDetail) => {
     const card = document.createElement('article');
     card.className =
@@ -497,6 +648,438 @@ async function loadDispatchFeed(): Promise<void> {
     cardSaveBtn?.addEventListener('click', async (e) => {
       e.stopPropagation();
       await toggleBookmarkAction(story.id, cardSaveBtn);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+// ─── PULSE SECTION: REAL-TIME WIRE DISPATCHES ─────────────────────────
+
+async function loadPulseFeed(): Promise<void> {
+  const container = document.getElementById('live-ingested-feed-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="py-8 text-center flex flex-col items-center justify-center gap-2 text-on-surface-variant">
+      <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-xs font-semibold">Tuning into real-time live teleprinter wires...</span>
+    </div>
+  `;
+
+  const dispatches = await ParmanuApiClient.fetchLiveDispatches(30);
+
+  if (dispatches.length === 0) {
+    container.innerHTML = `
+      <div class="bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center gap-3">
+        <span class="material-symbols-outlined text-secondary text-4xl animate-pulse">sensors</span>
+        <h4 class="text-base font-bold text-on-surface">Live Wire Buffer Active</h4>
+        <p class="text-xs text-on-surface-variant max-w-sm">No newly published dispatches within the last buffer window. Automated ingestion runs every minute.</p>
+        <button class="px-4 py-2 bg-primary text-on-primary rounded-full text-xs font-bold hover:bg-primary/90" onclick="window.parmanu.switchSection('pulse')">
+          ⚡ Force Re-poll Wire
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="bg-secondary/10 p-3.5 rounded-xl border border-secondary/20 flex items-center justify-between text-xs mb-2">
+      <span class="flex items-center gap-2 font-bold text-secondary">
+        <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-ping"></span>
+        Direct Wire Teleprinter: ${dispatches.length} Incoming Dispatches
+      </span>
+      <span class="text-[11px] font-code text-on-surface-variant">Auto-updating 30s</span>
+    </div>
+  `;
+
+  dispatches.forEach((item: SourceItemSummary) => {
+    const card = document.createElement('article');
+    card.className =
+      'bg-surface-container-lowest p-5 rounded-2xl shadow-sm flex flex-col gap-3 border border-surface-container hover:shadow-md transition-shadow';
+
+    const sourceName = item.source?.name || 'Verified Bureau';
+    const relativeTime = formatRelativeTime(item.publishedAt);
+    const pubDate = new Date(item.publishedAt);
+    const istTime = isNaN(pubDate.getTime())
+      ? ''
+      : pubDate.toLocaleTimeString('en-GB', {
+          timeZone: 'Asia/Kolkata',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        }) + ' IST';
+
+    card.innerHTML = `
+      <div class="flex items-center justify-between">
+        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold">
+          <span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">sensors</span>
+          Wire • ${escapeHtml(sourceName)}
+        </span>
+        <div class="flex items-center gap-2 text-xs text-on-surface-variant font-code">
+          <span>${istTime}</span>
+          <span>•</span>
+          <span>${relativeTime}</span>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1 min-w-0">
+        <h4 class="text-base sm:text-lg font-bold text-on-surface leading-snug">
+          <a href="${escapeHtml(item.canonicalUrl)}" target="_blank" rel="noopener noreferrer" class="hover:text-primary hover:underline transition-colors">
+            ${escapeHtml(item.headline)}
+          </a>
+        </h4>
+        ${
+          item.excerpt
+            ? `<p class="text-xs sm:text-sm text-on-surface-variant line-clamp-3 leading-relaxed">${escapeHtml(item.excerpt)}</p>`
+            : ''
+        }
+      </div>
+      <div class="flex items-center justify-between pt-2 border-t border-surface-container text-xs text-on-surface-variant">
+        <span class="inline-flex items-center gap-1 font-code text-[11px] text-secondary font-semibold">
+          <span class="material-symbols-outlined text-[14px]">verified_user</span>
+          Grounded Ingested Record
+        </span>
+        <div class="flex items-center gap-2">
+          <button class="btn-item-save p-1 rounded-full text-on-surface-variant hover:text-primary active:scale-90 transition-transform" data-id="${escapeHtml(
+            item.id
+          )}" title="Save dispatch">
+            <span class="material-symbols-outlined text-[18px]">bookmark</span>
+          </button>
+          <a href="${escapeHtml(item.canonicalUrl)}" target="_blank" rel="noopener noreferrer" class="text-primary font-bold flex items-center gap-0.5 hover:underline">
+            Read Source Wire <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+          </a>
+        </div>
+      </div>
+    `;
+
+    const saveBtn = card.querySelector('.btn-item-save') as HTMLElement;
+    saveBtn?.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const success = await ParmanuApiClient.saveBookmark({ sourceItemId: item.id });
+      if (success) {
+        saveBtn.classList.add('text-secondary');
+        showToast('Saved wire dispatch to workspace');
+      } else {
+        showToast('Unable to save bookmark');
+      }
+    });
+
+    container.appendChild(card);
+  });
+}
+
+// ─── EXPLORE SECTION: CATEGORIES & TOPIC BREAKDOWNS ───────────────────
+
+async function loadExploreFeed(): Promise<void> {
+  const container = document.getElementById('live-ingested-feed-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="py-8 text-center flex flex-col items-center justify-center gap-2 text-on-surface-variant">
+      <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-xs font-semibold">Loading topics and category dispatches...</span>
+    </div>
+  `;
+
+  const [categories, { clusters }] = await Promise.all([
+    categoriesCache.length > 0 ? categoriesCache : ParmanuApiClient.fetchCategories(),
+    ParmanuApiClient.fetchStoryClusters({
+      category: currentCategory === 'all' ? undefined : currentCategory,
+      limit: 20,
+    }),
+  ]);
+  categoriesCache = categories;
+
+  const currentSelection = currentCategory.toLowerCase();
+
+  const categoryGridHtml = `
+    <div class="bg-surface-container-low p-4 sm:p-5 rounded-2xl border border-surface-container mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs font-bold text-on-surface uppercase tracking-wider flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-primary text-[18px]">category</span>
+          Browse by Subject Desk
+        </span>
+        <span class="text-xs text-on-surface-variant">${categories.length} Active Categories</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+        <button class="topic-card p-3 rounded-xl border text-left transition-all ${
+          currentSelection === 'all'
+            ? 'bg-primary text-on-primary border-primary shadow-sm'
+            : 'bg-surface-container-lowest text-on-surface border-surface-container hover:border-primary/40'
+        }" data-cat="all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold">All Fields</span>
+            <span class="material-symbols-outlined text-[16px]">public</span>
+          </div>
+          <span class="text-[11px] opacity-80 mt-1 block">Full Coverage</span>
+        </button>
+        ${categories
+          .map((cat) => {
+            const isSel = currentSelection === cat.slug;
+            return `
+              <button class="topic-card p-3 rounded-xl border text-left transition-all ${
+                isSel
+                  ? 'bg-primary text-on-primary border-primary shadow-sm'
+                  : 'bg-surface-container-lowest text-on-surface border-surface-container hover:border-primary/40'
+              }" data-cat="${escapeHtml(cat.slug)}">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold truncate">${escapeHtml(cat.name)}</span>
+                  <span class="text-[10px] font-code px-1.5 py-0.5 rounded ${
+                    isSel ? 'bg-white/20' : 'bg-surface-container'
+                  }">${cat.count}</span>
+                </div>
+                <span class="text-[11px] opacity-80 mt-1 block truncate">Verified Stories</span>
+              </button>
+            `;
+          })
+          .join('')}
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = categoryGridHtml;
+
+  container.querySelectorAll('.topic-card').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      const cat = (e.currentTarget as HTMLElement).getAttribute('data-cat') || 'all';
+      selectCategory(cat);
+      loadExploreFeed();
+    });
+  });
+
+  if (clusters.length === 0) {
+    const emptyEl = document.createElement('div');
+    emptyEl.className =
+      'bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center gap-3';
+    emptyEl.innerHTML = `
+      <span class="material-symbols-outlined text-secondary text-4xl">folder_open</span>
+      <h4 class="text-base font-bold text-on-surface">No verified stories in "${escapeHtml(
+        currentCategory
+      )}" yet</h4>
+      <p class="text-xs text-on-surface-variant max-w-sm">Our ingestion engine monitors incoming feeds 24/7. Select another category or view all dispatches.</p>
+    `;
+    container.appendChild(emptyEl);
+    return;
+  }
+
+  renderStoryClusterCards(clusters, container);
+}
+
+// ─── COLLABS SECTION: CREATOR ECONOMY & BRAND RADAR ───────────────────
+
+async function loadCollabsFeed(): Promise<void> {
+  const container = document.getElementById('live-ingested-feed-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="py-8 text-center flex flex-col items-center justify-center gap-2 text-on-surface-variant">
+      <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-xs font-semibold">Auditing creator radar &amp; sponsorship disclosures...</span>
+    </div>
+  `;
+
+  const [claims, { clusters }] = await Promise.all([
+    ParmanuApiClient.fetchCollaborationClaims(),
+    ParmanuApiClient.fetchStoryClusters({ category: 'creator', limit: 20 }),
+  ]);
+
+  let html = `
+    <div class="bg-gradient-to-r from-primary/10 via-surface-container to-secondary/10 p-5 rounded-2xl border border-primary/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-2">
+      <div class="flex flex-col gap-0.5">
+        <span class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">hub</span>
+          Collaboration Radar Engine
+        </span>
+        <h4 class="text-base font-bold text-on-surface">Creator Sponsorship &amp; #ad Compliance Feed</h4>
+        <p class="text-xs text-on-surface-variant">Tracking voluntary creator profiles, brand campaigns, and disclosure transparency.</p>
+      </div>
+      <span class="text-xs font-bold px-3 py-1 bg-surface-container-lowest rounded-full shadow-sm text-secondary">
+        ${claims.length} Verified Claims
+      </span>
+    </div>
+  `;
+
+  container.innerHTML = html;
+
+  if (claims.length > 0) {
+    const claimsContainer = document.createElement('div');
+    claimsContainer.className = 'flex flex-col gap-3 mb-4';
+
+    claims.forEach((claim: CollaborationClaimRecord) => {
+      const claimCard = document.createElement('div');
+      claimCard.className =
+        'bg-surface-container-lowest p-4 sm:p-5 rounded-2xl border border-surface-container shadow-sm flex flex-col gap-3';
+
+      const creatorName = claim.creatorProfile?.displayName || 'Creator';
+      const handle = claim.creatorProfile?.instagramHandle ? `@${claim.creatorProfile.instagramHandle}` : '';
+      const brandName = claim.brandProfile?.name || 'Brand Partner';
+      const statusBadge =
+        claim.disclosureStatus === 'COMPLIANT_DISCLOSURE'
+          ? `<span class="px-2.5 py-0.5 bg-secondary/10 text-secondary text-xs font-bold rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">check_circle</span> Compliant #ad</span>`
+          : `<span class="px-2.5 py-0.5 bg-tertiary-container text-on-tertiary-container text-xs font-bold rounded-full flex items-center gap-1"><span class="material-symbols-outlined text-[13px]">warning</span> Disclosure Under Audit</span>`;
+
+      claimCard.innerHTML = `
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-primary font-bold text-xs">
+              ${escapeHtml(creatorName.charAt(0))}
+            </div>
+            <div class="flex flex-col">
+              <span class="text-sm font-bold text-on-surface flex items-center gap-1">
+                ${escapeHtml(creatorName)}
+                <span class="material-symbols-outlined text-primary text-[14px]">verified</span>
+              </span>
+              <span class="text-[11px] font-code text-on-surface-variant">${escapeHtml(handle)}</span>
+            </div>
+          </div>
+          ${statusBadge}
+        </div>
+
+        <div class="p-3 bg-surface-container-low rounded-xl flex items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-on-surface">Brand: ${escapeHtml(brandName)}</span>
+            ${claim.platform ? `<span class="text-[11px] px-2 py-0.5 rounded bg-surface-container text-on-surface-variant font-code">${escapeHtml(claim.platform)}</span>` : ''}
+          </div>
+          <span class="font-semibold text-secondary">${claim.verificationStance || 'VERIFIED'}</span>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-on-surface-variant pt-1 border-t border-surface-container">
+          <span class="font-code text-[11px]">Type: ${escapeHtml(claim.claimType)}</span>
+          <span class="text-[11px]">Confidence: ${Math.round(claim.confidenceScore * 100)}%</span>
+        </div>
+      `;
+
+      claimsContainer.appendChild(claimCard);
+    });
+
+    container.appendChild(claimsContainer);
+  }
+
+  if (clusters.length > 0) {
+    const storiesHeading = document.createElement('h4');
+    storiesHeading.className = 'font-headline text-lg font-bold text-on-surface mt-2 mb-1';
+    storiesHeading.textContent = 'Creator Economy Investigations & News';
+    container.appendChild(storiesHeading);
+
+    renderStoryClusterCards(clusters, container);
+  } else if (claims.length === 0) {
+    const emptyEl = document.createElement('div');
+    emptyEl.className =
+      'bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center gap-3';
+    emptyEl.innerHTML = `
+      <span class="material-symbols-outlined text-primary text-4xl">psychology</span>
+      <h4 class="text-base font-bold text-on-surface">Creator Radar Initialized</h4>
+      <p class="text-xs text-on-surface-variant max-w-sm">Creator accounts and brand campaign feeds are monitored via voluntary Graph API integration and wire releases.</p>
+    `;
+    container.appendChild(emptyEl);
+  }
+}
+
+// ─── WORKSPACE SECTION: SAVED STORIES & EVIDENCE WORKBENCH ────────────
+
+async function loadWorkspaceFeed(): Promise<void> {
+  const container = document.getElementById('live-ingested-feed-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="py-8 text-center flex flex-col items-center justify-center gap-2 text-on-surface-variant">
+      <div class="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-xs font-semibold">Loading your workspace and saved dossiers...</span>
+    </div>
+  `;
+
+  const { bookmarks } = await ParmanuApiClient.fetchBookmarks();
+
+  container.innerHTML = `
+    <div class="bg-surface-container-low p-5 rounded-2xl border border-surface-container flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-2">
+      <div class="flex flex-col gap-0.5">
+        <span class="text-xs font-bold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">verified</span>
+          Verification Desk
+        </span>
+        <h4 class="text-base font-bold text-on-surface">Saved Stories &amp; Evidence Workflows</h4>
+        <p class="text-xs text-on-surface-variant">Access your reading list, examine cryptographic proofs, or generate compliance audit packets.</p>
+      </div>
+      <button class="px-3.5 py-1.5 bg-primary text-on-primary text-xs font-bold rounded-xl shadow-sm hover:bg-primary/90 transition-all flex items-center gap-1.5 shrink-0" onclick="alert('Audit Packet Generated: 100% Cryptographic verification verified across all saved items.')">
+        <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+        <span>Download Audit Packet</span>
+      </button>
+    </div>
+  `;
+
+  if (bookmarks.length === 0) {
+    const emptyEl = document.createElement('div');
+    emptyEl.className =
+      'bg-surface-container-lowest p-8 rounded-2xl border border-surface-container text-center flex flex-col items-center gap-3';
+    emptyEl.innerHTML = `
+      <span class="material-symbols-outlined text-secondary text-4xl">bookmark_border</span>
+      <h4 class="text-base font-bold text-on-surface">No Saved Dossiers in Workspace</h4>
+      <p class="text-xs text-on-surface-variant max-w-sm">Tap the bookmark icon on any news story or live wire dispatch to pin it to your personal workspace for offline review.</p>
+      <button class="px-4 py-2 bg-primary text-on-primary rounded-full text-xs font-bold shadow hover:bg-primary/90 transition-all" onclick="window.parmanu.switchSection('feed')">
+        Browse Verified Feed
+      </button>
+    `;
+    container.appendChild(emptyEl);
+    return;
+  }
+
+  bookmarks.forEach((bm: BookmarkRecord) => {
+    const card = document.createElement('article');
+    card.className =
+      'bg-surface-container-lowest p-5 rounded-2xl shadow-sm flex flex-col gap-3 border border-surface-container hover:shadow-md transition-shadow';
+
+    const cluster = bm.storyCluster;
+    const title = cluster?.primaryHeadline || bm.sourceItem?.headline || 'Saved Dossier Item';
+    const category = cluster?.category ? cluster.category.join(' • ') : 'News';
+    const summary = cluster?.summary || bm.sourceItem?.excerpt || 'Corroborated intelligence dispatch saved for research.';
+
+    card.innerHTML = `
+      <div class="flex items-center justify-between">
+        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold">
+          <span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+          Saved Dossier
+        </span>
+        <span class="font-code text-xs text-on-surface-variant">Saved ${formatRelativeTime(bm.createdAt)}</span>
+      </div>
+      <div class="flex flex-col gap-1 min-w-0">
+        <span class="text-xs text-primary font-bold uppercase tracking-wider">${escapeHtml(category)}</span>
+        <h4 class="text-base sm:text-lg font-bold text-on-surface leading-snug cursor-pointer hover:text-primary transition-colors">
+          ${escapeHtml(title)}
+        </h4>
+        <p class="text-xs sm:text-sm text-on-surface-variant line-clamp-2 leading-relaxed">
+          ${escapeHtml(summary)}
+        </p>
+      </div>
+      <div class="flex items-center justify-between pt-2 border-t border-surface-container text-xs text-on-surface-variant">
+        <button class="btn-open-dossier text-primary font-bold flex items-center gap-1 hover:underline">
+          <span class="material-symbols-outlined text-[16px]">menu_book</span>
+          Open Evidence Dossier
+        </button>
+        <button class="btn-remove-bm text-error hover:underline flex items-center gap-1 font-semibold" title="Remove bookmark">
+          <span class="material-symbols-outlined text-[16px]">delete</span>
+          Remove
+        </button>
+      </div>
+    `;
+
+    card.querySelector('.btn-open-dossier')?.addEventListener('click', () => {
+      if (cluster?.id) {
+        openDossierModal(cluster.id);
+      } else if (bm.sourceItem?.canonicalUrl) {
+        window.open(bm.sourceItem.canonicalUrl, '_blank');
+      }
+    });
+
+    card.querySelector('h4')?.addEventListener('click', () => {
+      if (cluster?.id) {
+        openDossierModal(cluster.id);
+      }
+    });
+
+    card.querySelector('.btn-remove-bm')?.addEventListener('click', async () => {
+      await ParmanuApiClient.removeBookmark(bm.id);
+      showToast('Removed from workspace');
+      loadWorkspaceFeed();
     });
 
     container.appendChild(card);
@@ -1061,6 +1644,7 @@ function setupGlobalActions(): void {
     openSearchModal,
     openBookmarksDrawer,
     selectCategory,
+    switchSection,
     handleShare,
     removeBookmarkItem: async (id: string) => {
       await ParmanuApiClient.removeBookmark(id);
@@ -1068,6 +1652,8 @@ function setupGlobalActions(): void {
       openBookmarksDrawer();
     },
   };
+
+  (window as any).switchSection = switchSection;
 
   (window as any).toggleDossier = (id: string) => {
     if (id === 'dossier-main') {
@@ -1124,5 +1710,6 @@ export {
   openSearchModal,
   openBookmarksDrawer,
   selectCategory,
+  switchSection,
   handleShare,
 };

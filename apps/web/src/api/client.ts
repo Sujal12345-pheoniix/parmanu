@@ -89,6 +89,47 @@ export interface SearchResultData {
   }>;
 }
 
+export interface CollaborationClaimRecord {
+  id: string;
+  creatorProfileId: string;
+  brandProfileId: string;
+  claimType: string;
+  disclosureStatus: string;
+  verificationStance: string;
+  confidenceScore: number;
+  dealValueEstimate?: string | null;
+  platform?: string | null;
+  campaignName?: string | null;
+  createdAt: string;
+  creatorProfile?: {
+    id: string;
+    displayName: string;
+    instagramHandle?: string | null;
+    avatarUrl?: string | null;
+    category?: string | null;
+    isVerified: boolean;
+  };
+  brandProfile?: {
+    id: string;
+    name: string;
+    slug: string;
+    sector?: string | null;
+    logoUrl?: string | null;
+  };
+  evidenceLinks?: Array<{
+    id: string;
+    sourceItem?: {
+      id: string;
+      headline: string;
+      canonicalUrl: string;
+      publishedAt: string;
+      source: {
+        name: string;
+      };
+    };
+  }>;
+}
+
 export interface BookmarkRecord {
   id: string;
   userId: string;
@@ -249,6 +290,20 @@ export class ParmanuApiClient {
       return json.data || [];
     } catch (err) {
       console.error('Failed to fetch live dispatches', err);
+      return [];
+    }
+  }
+
+  public static async fetchCollaborationClaims(): Promise<CollaborationClaimRecord[]> {
+    try {
+      const res = await fetch('/api/v1/collaboration/claims', {
+        headers: this.getHeaders(),
+      });
+      if (!res.ok) return [];
+      const json = await res.json();
+      return json.data || [];
+    } catch (err) {
+      console.error('Failed to fetch collaboration claims', err);
       return [];
     }
   }

@@ -139,12 +139,12 @@
       </a>
 
       <!-- Desktop Navigation Links -->
-      <nav class="flex items-center gap-1 lg:gap-2">
-        <a href="#" class="px-3.5 py-1.5 rounded-full text-sm font-semibold text-primary bg-primary/10 transition-colors">Feed</a>
-        <a href="#pulse" class="px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Pulse</a>
-        <a href="#explore" class="px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Explore</a>
-        <a href="#collabs" class="px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Creator Collabs</a>
-        <a href="#workspace" class="px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Dossier Workspace</a>
+      <nav class="flex items-center gap-1 lg:gap-2" id="desktop-nav">
+        <a href="#feed" data-section="feed" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-semibold text-primary bg-primary/10 transition-colors">Feed</a>
+        <a href="#pulse" data-section="pulse" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Pulse</a>
+        <a href="#explore" data-section="explore" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Explore</a>
+        <a href="#collabs" data-section="collabs" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Creator Collabs</a>
+        <a href="#workspace" data-section="workspace" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Dossier Workspace</a>
       </nav>
 
       <!-- Search, Download App CTA & Profile -->
@@ -257,7 +257,7 @@
     </div>
 
     <!-- Category Filter Pills (Horizontal Scroll) -->
-    <div class="w-full mb-6">
+    <div id="category-pills-section" class="w-full mb-6">
       <div class="flex gap-2 overflow-x-auto no-scrollbar py-1" id="category-pills">
         <button class="category-pill px-4 py-1.5 rounded-full bg-primary text-on-primary text-xs font-bold shrink-0 shadow-sm transition-all active:scale-95" type="button" data-category="all">All Fields</button>
         <button class="category-pill px-4 py-1.5 rounded-full bg-surface-container text-on-surface text-xs font-medium shrink-0 transition-all hover:bg-surface-variant active:scale-95" type="button" data-category="creator">Creator Economy</button>
@@ -365,7 +365,7 @@
       <section class="lg:col-span-8 xl:col-span-6 flex flex-col gap-6 order-1 lg:order-2">
 
         <!-- Hero Deep Dive Lead Article -->
-        <article class="bg-surface-container-lowest rounded-2xl shadow-md overflow-hidden flex flex-col border border-surface-container hover:shadow-lg transition-shadow">
+        <article id="hero-lead-article" class="bg-surface-container-lowest rounded-2xl shadow-md overflow-hidden flex flex-col border border-surface-container hover:shadow-lg transition-shadow">
           <div class="relative w-full h-64 sm:h-80 overflow-hidden">
             <img id="hero-lead-image" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" data-alt="Editorial newsroom" src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=1600&q=80"/>
             <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/85 via-inverse-surface/25 to-transparent"></div>
@@ -444,56 +444,16 @@
 
         <!-- Verified Dispatch Feed List -->
         <div class="flex flex-col gap-4">
-          <div class="flex items-center justify-between">
-            <h3 class="font-headline text-xl font-bold text-on-surface tracking-tight">Verified Dispatch Feed</h3>
-            <button class="flex items-center gap-1 text-on-surface-variant text-xs hover:text-on-surface transition-colors" type="button">
-              <span>Chronological</span>
-              <span class="material-symbols-outlined text-[18px]">sort</span>
-            </button>
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center justify-between">
+              <h3 class="font-headline text-xl font-bold text-on-surface tracking-tight" id="feed-section-heading">Verified Dispatch Feed</h3>
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-surface-container text-primary" id="feed-section-subheading">All Fields • Corroborated</span>
+            </div>
+            <p class="text-xs text-on-surface-variant" id="feed-section-description">Multi-source corroborated reporting across national and global newsrooms.</p>
           </div>
 
-          <!-- Dispatch Article 1 -->
-          <article class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm flex flex-col gap-3 transition-all hover:shadow-md border border-surface-container">
-            <div class="flex items-center justify-between">
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed text-xs font-bold">
-                <span class="material-symbols-outlined text-[13px]">hourglass_empty</span>
-                Single Source • Developing
-              </span>
-              <span class="font-code text-xs text-on-surface-variant">42m ago</span>
-            </div>
-            
-            <div class="flex gap-4 items-start">
-              <div class="flex-1 flex flex-col gap-1 min-w-0">
-                <span class="text-xs text-primary font-bold uppercase tracking-wider">Commerce &amp; AdTech</span>
-                <h4 class="text-base sm:text-lg font-bold text-on-surface leading-snug">
-                  Fintech Unicorns Shift 40% of Ad Spend to Micro-Creators in Tier 2/3 Cities
-                </h4>
-                <p class="text-xs sm:text-sm text-on-surface-variant line-clamp-2 leading-relaxed">
-                  Internal quarterly marketing retrospectives reveal hyper-localized regional influencers are delivering 3.4x higher conversion than standard banner campaigns.
-                </p>
-              </div>
-              <div class="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-xl overflow-hidden relative shadow-sm">
-                <img class="w-full h-full object-cover" data-alt="Fintech graph on phone" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAdH7KwORT_JI55XTrEaSGyv1jIG_Ix4NAYctNY_gcj3vIciN33My-UVGeuJ16xB9ng4Ig-WEMuboHZdKBoNueBWjyxs637TPUjiG9OBBekNZ21Pm2X1dXDeE9xui4IOoS8-opw-7kp3kUUNOLve85DtEBCIveypjrDilmDIZtEWts1NeJlYvYF-HRxIrK9BU56c5-JJtvzBkfugRIYnca45pDuNYOGhaXld6WtlI6CwrlhVc6yIsa"/>
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between pt-2 border-t border-surface-container text-xs text-on-surface-variant">
-              <div class="flex items-center gap-4">
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-[16px]">visibility</span> 12.8k
-                </span>
-                <span class="flex items-center gap-1">
-                  <span class="material-symbols-outlined text-[16px]">fact_check</span> 1 Corroboration Needed
-                </span>
-              </div>
-              <button class="text-primary font-bold flex items-center gap-0.5 hover:underline" type="button" onclick="alert('Followed lead: Updates will be notified')">
-                Follow Lead <span class="material-symbols-outlined text-[14px]">add</span>
-              </button>
-            </div>
-          </article>
-
-          <!-- Ingested Live Feed Container (Dynamically populates from Neon DB) -->
-          <div id="live-ingested-feed-container" class="flex flex-col gap-4"></div>
+          <!-- Dynamic Ingested & Clustered Feed Container -->
+          <div id="live-ingested-feed-container" class="flex flex-col gap-4 min-h-[300px]"></div>
         </div>
 
       </section>
@@ -901,75 +861,6 @@
     }
     updateLiveClock();
     setInterval(updateLiveClock, 30000);
-
-    // Category Pill Selection
-    document.querySelectorAll('.category-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        document.querySelectorAll('.category-pill').forEach(p => {
-          p.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
-          p.classList.add('bg-surface-container', 'text-on-surface');
-        });
-        pill.classList.remove('bg-surface-container', 'text-on-surface');
-        pill.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
-      });
-    });
-
-    // Mobile Navigation Tab Selection
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', (e) => {
-        e.preventDefault();
-        document.querySelectorAll('.nav-tab').forEach(t => {
-          t.classList.remove('text-primary', 'font-bold');
-          t.classList.add('text-on-surface-variant');
-        });
-        tab.classList.add('text-primary', 'font-bold');
-        tab.classList.remove('text-on-surface-variant');
-      });
-    });
-
-    // Dynamic Live Ingestion Feed Fetcher
-    async function loadLiveFeed() {
-      try {
-        const res = await fetch('/api/v1/feed?limit=6');
-        if (!res.ok) return;
-        const data = await res.json();
-        const container = document.getElementById('live-ingested-feed-container');
-        if (!container || !data.stories || data.stories.length === 0) return;
-
-        data.stories.slice(0, 3).forEach(story => {
-          const card = document.createElement('article');
-          card.className = "bg-surface-container-lowest p-5 rounded-2xl shadow-sm flex flex-col gap-3 border border-surface-container hover:shadow-md transition-shadow";
-          card.innerHTML = `
-            <div class="flex items-center justify-between">
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold">
-                <span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">verified</span>
-                Verified • ${story.source || 'The Hindu'}
-              </span>
-              <span class="font-code text-xs text-on-surface-variant">Live Ingested</span>
-            </div>
-            <div class="flex flex-col gap-1 min-w-0">
-              <span class="text-xs text-primary font-bold uppercase tracking-wider">${story.category || 'National News'}</span>
-              <h4 class="text-base sm:text-lg font-bold text-on-surface leading-snug">
-                <a href="${story.url}" target="_blank" rel="noopener noreferrer" class="hover:underline">${story.title}</a>
-              </h4>
-              <p class="text-xs sm:text-sm text-on-surface-variant line-clamp-2 leading-relaxed">
-                ${story.summary || 'Verified primary reporting corroborated via Parmanu RSS ingestion engine.'}
-              </p>
-            </div>
-            <div class="flex items-center justify-between pt-2 border-t border-surface-container text-xs text-on-surface-variant">
-              <span class="font-code text-on-surface-variant">Hash: ${story.deduplication_hash ? story.deduplication_hash.substring(0, 10) + '...' : 'Verified'}</span>
-              <a href="${story.url}" target="_blank" rel="noopener noreferrer" class="text-primary font-bold flex items-center gap-0.5 hover:underline">
-                Read Source <span class="material-symbols-outlined text-[14px]">open_in_new</span>
-              </a>
-            </div>
-          `;
-          container.appendChild(card);
-        });
-      } catch (e) {
-        // Fallback gracefully
-      }
-    }
-    loadLiveFeed();
   </script>
   <script type="module" src="/src/main.ts"></script>
 </body>
