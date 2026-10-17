@@ -217,6 +217,11 @@ export class ParmanuApiClient {
     }
   }
 
+  private static apiUrl(endpoint: string): string {
+    const base = ((import.meta as any).env?.VITE_API_URL || '').replace(/\/$/, '');
+    return `${base}${endpoint}`;
+  }
+
   private static getHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -230,7 +235,7 @@ export class ParmanuApiClient {
 
   public static async fetchFeaturedStory(): Promise<StoryClusterDetail | null> {
     try {
-      const res = await fetch('/api/v1/stories/featured', {
+      const res = await fetch(this.apiUrl('/api/v1/stories/featured'), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return null;
@@ -248,7 +253,7 @@ export class ParmanuApiClient {
       if (category && category !== 'ALL') params.set('category', category);
       params.set('limit', String(limit));
 
-      const res = await fetch(`/api/v1/stories/trending?${params.toString()}`, {
+      const res = await fetch(this.apiUrl(`/api/v1/stories/trending?${params.toString()}`), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return [];
@@ -273,7 +278,7 @@ export class ParmanuApiClient {
       if (params.limit) qs.set('limit', String(params.limit));
       if (params.search) qs.set('search', params.search);
 
-      const res = await fetch(`/api/v1/clusters?${qs.toString()}`, {
+      const res = await fetch(this.apiUrl(`/api/v1/clusters?${qs.toString()}`), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return { clusters: [], total: 0 };
@@ -290,7 +295,7 @@ export class ParmanuApiClient {
 
   public static async fetchStoryDetail(id: string): Promise<StoryClusterDetail | null> {
     try {
-      const res = await fetch(`/api/v1/clusters/${encodeURIComponent(id)}`, {
+      const res = await fetch(this.apiUrl(`/api/v1/clusters/${encodeURIComponent(id)}`), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return null;
@@ -304,7 +309,7 @@ export class ParmanuApiClient {
 
   public static async fetchCategories(): Promise<CategorySummary[]> {
     try {
-      const res = await fetch('/api/v1/categories', {
+      const res = await fetch(this.apiUrl('/api/v1/categories'), {
         headers: this.getHeaders(),
       });
       if (res.ok) {
@@ -333,7 +338,7 @@ export class ParmanuApiClient {
       if (category && category !== 'all' && category !== 'ALL') {
         qs.set('category', category);
       }
-      const res = await fetch(`/api/v1/news?${qs.toString()}`, {
+      const res = await fetch(this.apiUrl(`/api/v1/news?${qs.toString()}`), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return [];
@@ -347,7 +352,7 @@ export class ParmanuApiClient {
 
   public static async fetchCollaborationClaims(): Promise<CollaborationClaimRecord[]> {
     try {
-      const res = await fetch('/api/v1/collaboration/claims', {
+      const res = await fetch(this.apiUrl('/api/v1/collaboration/claims'), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return [];
@@ -366,7 +371,7 @@ export class ParmanuApiClient {
       if (category && category !== 'ALL') qs.set('category', category);
       qs.set('page', String(page));
 
-      const res = await fetch(`/api/v1/search?${qs.toString()}`, {
+      const res = await fetch(this.apiUrl(`/api/v1/search?${qs.toString()}`), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return { clusters: [], entities: [] };
@@ -380,7 +385,7 @@ export class ParmanuApiClient {
 
   public static async fetchBookmarks(page = 1, limit = 20): Promise<{ bookmarks: BookmarkRecord[]; total: number }> {
     try {
-      const res = await fetch(`/api/v1/bookmarks?page=${page}&limit=${limit}`, {
+      const res = await fetch(this.apiUrl(`/api/v1/bookmarks?page=${page}&limit=${limit}`), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return { bookmarks: [], total: 0 };
@@ -397,7 +402,7 @@ export class ParmanuApiClient {
 
   public static async checkBookmark(storyClusterId: string): Promise<boolean> {
     try {
-      const res = await fetch(`/api/v1/bookmarks/check/${encodeURIComponent(storyClusterId)}`, {
+      const res = await fetch(this.apiUrl(`/api/v1/bookmarks/check/${encodeURIComponent(storyClusterId)}`), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return false;
@@ -410,7 +415,7 @@ export class ParmanuApiClient {
 
   public static async saveBookmark(payload: { storyClusterId?: string; sourceItemId?: string }): Promise<boolean> {
     try {
-      const res = await fetch('/api/v1/bookmarks', {
+      const res = await fetch(this.apiUrl('/api/v1/bookmarks'), {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(payload),
@@ -424,7 +429,7 @@ export class ParmanuApiClient {
 
   public static async removeBookmark(idOrTargetId: string): Promise<boolean> {
     try {
-      const res = await fetch(`/api/v1/bookmarks/${encodeURIComponent(idOrTargetId)}`, {
+      const res = await fetch(this.apiUrl(`/api/v1/bookmarks/${encodeURIComponent(idOrTargetId)}`), {
         method: 'DELETE',
         headers: this.getHeaders(),
       });
@@ -439,7 +444,7 @@ export class ParmanuApiClient {
     try {
       const token = this.getToken();
       if (!token) return null;
-      const res = await fetch('/api/v1/auth/me', {
+      const res = await fetch(this.apiUrl('/api/v1/auth/me'), {
         headers: this.getHeaders(),
       });
       if (!res.ok) {
@@ -455,7 +460,7 @@ export class ParmanuApiClient {
 
   public static async login(email: string, password: string): Promise<{ success: boolean; user?: any; error?: string }> {
     try {
-      const res = await fetch('/api/v1/auth/login', {
+      const res = await fetch(this.apiUrl('/api/v1/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -478,7 +483,7 @@ export class ParmanuApiClient {
     interests?: string[]
   ): Promise<{ success: boolean; user?: any; error?: string }> {
     try {
-      const res = await fetch('/api/v1/auth/register', {
+      const res = await fetch(this.apiUrl('/api/v1/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name, interests }),
@@ -496,7 +501,7 @@ export class ParmanuApiClient {
 
   public static async fetchCreators(): Promise<CreatorCardData[]> {
     try {
-      const res = await fetch('/api/v1/creators', {
+      const res = await fetch(this.apiUrl('/api/v1/creators'), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return [];
@@ -510,7 +515,7 @@ export class ParmanuApiClient {
 
   public static async toggleFollowCreator(creatorId: string): Promise<{ isFollowed: boolean; message: string }> {
     try {
-      const res = await fetch(`/api/v1/creators/${encodeURIComponent(creatorId)}/follow`, {
+      const res = await fetch(this.apiUrl(`/api/v1/creators/${encodeURIComponent(creatorId)}/follow`), {
         method: 'POST',
         headers: this.getHeaders(),
       });
@@ -527,7 +532,7 @@ export class ParmanuApiClient {
 
   public static async fetchPersonalizedFeed(): Promise<PersonalizedFeedData | null> {
     try {
-      const res = await fetch('/api/v1/user/personalized-feed', {
+      const res = await fetch(this.apiUrl('/api/v1/user/personalized-feed'), {
         headers: this.getHeaders(),
       });
       if (!res.ok) return null;
@@ -541,7 +546,7 @@ export class ParmanuApiClient {
 
   public static async updateUserInterests(categories: string[]): Promise<boolean> {
     try {
-      const res = await fetch('/api/v1/user/interests', {
+      const res = await fetch(this.apiUrl('/api/v1/user/interests'), {
         method: 'PUT',
         headers: this.getHeaders(),
         body: JSON.stringify({ categories }),
