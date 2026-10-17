@@ -134,10 +134,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Initial Section from URL Hash
   const hash = window.location.hash.replace('#', '').toLowerCase();
-  if (['feed', 'pulse', 'explore', 'collabs', 'workspace'].includes(hash)) {
+  if (['about', 'feed', 'pulse', 'explore', 'collabs', 'workspace'].includes(hash)) {
     await switchSection(hash, false);
   } else {
-    await switchSection('feed', false);
+    // If user is already authenticated, go directly to Feed; otherwise show Landing & Story
+    if (currentUser) {
+      await switchSection('feed', false);
+    } else {
+      await switchSection('about', false);
+    }
   }
 
   // Real-time automatic polling every 30 seconds
@@ -151,6 +156,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // If on Pulse view, also auto-refresh the wire
     if (currentSection === 'pulse') {
       await loadPulseFeed();
+    } else if (currentSection === 'feed') {
+      await loadDispatchFeed();
+    } else if (currentSection === 'collabs') {
+      await loadCollabsFeed();
     }
   }, 30000);
 
@@ -185,18 +194,18 @@ function setupNavigation(): void {
     });
   });
 
-  // Top header brand links
+  // Top header brand links (takes to feed if logged in, otherwise about)
   document.querySelectorAll('header a[href="#"], header a[href="#feed"]').forEach((brandLink) => {
     brandLink.addEventListener('click', (e) => {
       e.preventDefault();
-      switchSection('feed');
+      switchSection(currentUser ? 'feed' : 'about');
     });
   });
 
   // Hashchange event for browser back/forward or external links
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash.replace('#', '').toLowerCase();
-    if (['feed', 'pulse', 'explore', 'collabs', 'workspace'].includes(hash)) {
+    if (['about', 'feed', 'pulse', 'explore', 'collabs', 'workspace'].includes(hash)) {
       if (currentSection !== hash) {
         switchSection(hash, false);
       }
@@ -205,8 +214,8 @@ function setupNavigation(): void {
 }
 
 async function switchSection(section: string, updateHash = true): Promise<void> {
-  const validSections = ['feed', 'pulse', 'explore', 'collabs', 'workspace'];
-  const target = validSections.includes(section) ? section : 'feed';
+  const validSections = ['about', 'feed', 'pulse', 'explore', 'collabs', 'workspace'];
+  const target = validSections.includes(section) ? section : (currentUser ? 'feed' : 'about');
   currentSection = target;
 
   if (updateHash) {
@@ -236,6 +245,28 @@ async function switchSection(section: string, updateHash = true): Promise<void> 
       tab.classList.add('text-on-surface-variant');
     }
   });
+
+  const landingView = document.getElementById('landing-page-view');
+  const dashboardView = document.getElementById('dashboard-view');
+  const userPersonalizedHeader = document.getElementById('user-personalized-header');
+
+  if (target === 'about') {
+    if (landingView) landingView.classList.remove('hidden');
+    if (dashboardView) dashboardView.classList.add('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+
+  // Target is one of the dashboard sections
+  if (landingView) landingView.classList.add('hidden');
+  if (dashboardView) dashboardView.classList.remove('hidden');
+
+  // Handle personalized header visibility
+  if (currentUser) {
+    if (userPersonalizedHeader) userPersonalizedHeader.classList.remove('hidden');
+  } else {
+    if (userPersonalizedHeader) userPersonalizedHeader.classList.add('hidden');
+  }
 
   const heroArticle = document.getElementById('hero-lead-article');
   const categoryPillsSection = document.getElementById('category-pills-section');
@@ -330,33 +361,61 @@ function updateUrl(params: { category?: string; story?: string | null }): void {
 
 function updateAuthUI(): void {
   const authContainer = document.getElementById('user-auth-badge');
-  if (!authContainer) return;
+  const userPersonalizedHeader = document.getElementById('user-personalized-header');
+  const greetingEl = document.getElementById('dash-user-greeting');
+  const avatarEl = document.getElementById('dash-user-avatar');
+  const tagsContainer = document.getElementById('dash-user-interest-tags');
 
   if (currentUser) {
     const displayName = currentUser.name || currentUser.fullName || currentUser.email.split('@')[0];
-    authContainer.innerHTML = `
-      <div class="flex items-center gap-2">
-        <span class="text-xs font-semibold text-on-surface truncate max-w-[120px]">${escapeHtml(displayName)}</span>
-        <button id="btn-logout" class="text-xs text-error hover:underline font-bold cursor-pointer">Logout</button>
-      </div>
-    `;
-    document.getElementById('btn-logout')?.addEventListener('click', () => {
-      ParmanuApiClient.clearToken();
-      currentUser = null;
-      updateAuthUI();
-      showToast('Logged out successfully');
-      if (currentSection === 'collabs') loadCollabsFeed();
-    });
+    if (authContainer) {
+      authContainer.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-on-surface truncate max-w-[120px]">${escapeHtml(displayName)}</span>
+          <button id="btn-logout" class="text-xs text-error hover:underline font-bold cursor-pointer">Logout</button>
+        </div>
+      `;
+      document.getElementById('btn-logout')?.addEventListener('click', async () => {
+        ParmanuApiClient.clearToken();
+        currentUser = null;
+        updateAuthUI();
+        showToast('Logged out successfully');
+        await switchSection('about');
+      });
+    }
+
+    if (greetingEl) greetingEl.textContent = `Welcome back, ${displayName}!`;
+    if (avatarEl) avatarEl.textContent = displayName.charAt(0).toUpperCase();
+
+    if (tagsContainer) {
+      const interests: string[] = currentUser.interests || ['creator', 'policy', 'culture'];
+      tagsContainer.innerHTML = interests
+        .map(
+          (i: string) =>
+            `<span class="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface text-[11px] font-semibold border border-surface-container-high">${escapeHtml(i.toUpperCase())}</span>`
+        )
+        .join('');
+    }
+
+    if (userPersonalizedHeader && currentSection !== 'about') {
+      userPersonalizedHeader.classList.remove('hidden');
+    }
   } else {
-    authContainer.innerHTML = `
-      <button id="btn-open-auth" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 transition-all shadow-sm cursor-pointer">
-        <span class="material-symbols-outlined text-[16px]">account_circle</span>
-        <span>Sign In</span>
-      </button>
-    `;
-    document.getElementById('btn-open-auth')?.addEventListener('click', () => {
-      openAuthModal('signin');
-    });
+    if (authContainer) {
+      authContainer.innerHTML = `
+        <button id="btn-open-auth" type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary text-on-secondary text-xs font-bold hover:bg-secondary/90 transition-all shadow-sm cursor-pointer">
+          <span class="material-symbols-outlined text-[16px]">account_circle</span>
+          <span>Sign In</span>
+        </button>
+      `;
+      document.getElementById('btn-open-auth')?.addEventListener('click', () => {
+        openAuthModal('signin');
+      });
+    }
+
+    if (userPersonalizedHeader) {
+      userPersonalizedHeader.classList.add('hidden');
+    }
   }
 }
 
@@ -476,9 +535,8 @@ function setupAuthModal(): void {
       currentUser = result.user;
       updateAuthUI();
       (window as any).closeAllModals?.();
-      showToast(`Welcome back, ${currentUser.name || currentUser.email}!`);
-      if (currentSection === 'collabs') loadCollabsFeed();
-      else if (currentSection === 'feed') loadDispatchFeed();
+      showToast(`Welcome back, ${currentUser.name || currentUser.email}! Dashboard loaded.`);
+      await switchSection('feed');
     } else {
       if (errBox && errMsg) {
         errMsg.textContent = result.error || 'Invalid email or password';
@@ -519,9 +577,8 @@ function setupAuthModal(): void {
       currentUser = result.user;
       updateAuthUI();
       (window as any).closeAllModals?.();
-      showToast('Welcome to Parmanu! Feed personalized.');
-      if (currentSection === 'collabs') loadCollabsFeed();
-      else if (currentSection === 'feed') loadDispatchFeed();
+      showToast('Welcome to Parmanu! Your personalized dashboard is active.');
+      await switchSection('feed');
     } else {
       if (errBox && errMsg) {
         errMsg.textContent = result.error || 'Failed to create account';
@@ -530,13 +587,13 @@ function setupAuthModal(): void {
     }
   });
 
-  document.getElementById('profile-modal-btn-logout')?.addEventListener('click', () => {
+  document.getElementById('profile-modal-btn-logout')?.addEventListener('click', async () => {
     ParmanuApiClient.clearToken();
     currentUser = null;
     updateAuthUI();
     (window as any).closeAllModals?.();
     showToast('Logged out successfully');
-    if (currentSection === 'collabs') loadCollabsFeed();
+    await switchSection('about');
   });
 }
 

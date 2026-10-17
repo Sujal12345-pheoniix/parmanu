@@ -140,6 +140,7 @@
 
       <!-- Desktop Navigation Links -->
       <nav class="flex items-center gap-1 lg:gap-2" id="desktop-nav">
+        <a href="#about" data-section="about" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Story &amp; About</a>
         <a href="#feed" data-section="feed" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-semibold text-primary bg-primary/10 transition-colors">Feed</a>
         <a href="#pulse" data-section="pulse" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Pulse</a>
         <a href="#explore" data-section="explore" class="nav-link px-3.5 py-1.5 rounded-full text-sm font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors">Explore</a>
@@ -235,9 +236,388 @@
 
   <!-- Main Responsive Container (Fluid Grid on Desktop, Single Column on Mobile) -->
   <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 pt-20 md:pt-24 pb-24 md:pb-12">
-    
-    <!-- Top Edition & Live Status Strip (Responsive Banner) -->
-    <div class="w-full bg-surface-container-low rounded-2xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-surface-container shadow-sm">
+
+    <!-- ================================================== -->
+    <!-- PUBLIC LANDING PAGE & STORY VIEW (#about)          -->
+    <!-- ================================================== -->
+    <div id="landing-page-view" class="w-full flex flex-col gap-12 sm:gap-16 pb-12">
+      
+      <!-- HERO SECTION -->
+      <section class="relative w-full rounded-3xl overflow-hidden bg-gradient-to-br from-primary via-[#1e107a] to-inverse-surface text-on-primary p-6 sm:p-10 md:p-14 shadow-xl border border-primary/30">
+        <div class="relative z-10 max-w-4xl flex flex-col gap-6">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold uppercase tracking-wider shadow-sm">
+              <span class="material-symbols-outlined text-[15px]">verified</span>
+              India's Sovereign Truth &amp; Provenance Engine
+            </span>
+            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 text-white/90 text-xs font-semibold backdrop-blur-md">
+              <span class="material-symbols-outlined text-[14px]">bolt</span>
+              Sub-Minute Multi-Wire Ingestion
+            </span>
+          </div>
+
+          <h1 class="font-headline text-3xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.15]">
+            The Atomic Unit of Truth in News &amp; Creator Intelligence
+          </h1>
+
+          <p class="text-base sm:text-lg text-primary-fixed-dim max-w-3xl leading-relaxed">
+            Monolithic media narratives deconstructed into falsifiable, corroborated claims. Backed by deterministic cryptographic deduplication, cross-wire evidence verification, and real-time creator disclosure audits.
+          </p>
+
+          <!-- Key Metrics Badges -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 flex flex-col">
+              <span class="font-headline text-2xl sm:text-3xl font-bold text-secondary-fixed">100%</span>
+              <span class="text-[11px] text-primary-fixed-dim font-medium uppercase tracking-wide">Grounded Proofs</span>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 flex flex-col">
+              <span class="font-headline text-2xl sm:text-3xl font-bold text-white">SHA-256</span>
+              <span class="text-[11px] text-primary-fixed-dim font-medium uppercase tracking-wide">Deduplication</span>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 flex flex-col">
+              <span class="font-headline text-2xl sm:text-3xl font-bold text-secondary-fixed">6+ Wires</span>
+              <span class="text-[11px] text-primary-fixed-dim font-medium uppercase tracking-wide">Govt &amp; Global Feeds</span>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10 flex flex-col">
+              <span class="font-headline text-2xl sm:text-3xl font-bold text-white">0%</span>
+              <span class="text-[11px] text-primary-fixed-dim font-medium uppercase tracking-wide">AI Hallucinations</span>
+            </div>
+          </div>
+
+          <!-- Hero Action CTAs -->
+          <div class="flex items-center gap-3 sm:gap-4 flex-wrap pt-3">
+            <button onclick="openAuthModal('signin')" class="px-6 py-3.5 rounded-full bg-secondary text-on-secondary text-sm font-bold shadow-lg hover:bg-secondary/90 active:scale-95 transition-all flex items-center gap-2 cursor-pointer">
+              <span class="material-symbols-outlined text-[18px]">login</span>
+              <span>Sign In to Dashboard</span>
+            </button>
+            <button onclick="openAuthModal('register')" class="px-6 py-3.5 rounded-full bg-white text-primary text-sm font-bold shadow-lg hover:bg-white/95 active:scale-95 transition-all flex items-center gap-2 cursor-pointer">
+              <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+              <span>Create Account (Personalized Feed)</span>
+            </button>
+            <button onclick="switchSection('feed')" class="px-5 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold backdrop-blur-md transition-all flex items-center gap-1.5 cursor-pointer">
+              <span>Explore Live Dispatches</span>
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Subtle Background Glows -->
+        <div class="absolute -right-24 -bottom-24 w-96 h-96 bg-secondary/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute right-1/3 -top-24 w-72 h-72 bg-primary-container/40 rounded-full blur-3xl pointer-events-none"></div>
+      </section>
+
+      <!-- 1. ABOUT PARMANU & THE GENESIS STORY -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-surface-container-lowest p-6 sm:p-10 rounded-3xl border border-surface-container shadow-sm">
+        <div class="lg:col-span-7 flex flex-col gap-4">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">The Genesis</span>
+            <span class="text-xs text-on-surface-variant font-code">Origin • Meaning • Mission</span>
+          </div>
+
+          <h2 class="font-headline text-2xl sm:text-4xl font-bold text-on-surface tracking-tight leading-tight">
+            Why "Parmanu"? Truth Broken Down to Its Indivisible Atom.
+          </h2>
+
+          <p class="text-sm sm:text-base text-on-surface-variant leading-relaxed">
+            In Sanskrit epistemology and classical Indian philosophy, <strong>Parmanu (परमाणु)</strong> signifies the ultimate indivisible building block of matter. For centuries, philosophers recognized that complex structures can only be understood by isolating their fundamental atoms.
+          </p>
+
+          <p class="text-sm sm:text-base text-on-surface-variant leading-relaxed">
+            In the modern digital era, journalism and media have devolved into monolithic, weaponized narratives. Sensationalist headlines conflate verified events with anonymous speculation, while viral algorithms reward shock value over evidentiary ground truth.
+          </p>
+
+          <div class="bg-surface-container-low p-4 rounded-2xl border-l-4 border-primary flex flex-col gap-1.5">
+            <h4 class="text-xs font-bold text-on-surface uppercase tracking-wider">The Modern Indian Information Crisis:</h4>
+            <p class="text-xs sm:text-sm text-on-surface leading-relaxed italic">
+              “Over 800 million Indians consume news through bite-sized social feeds and forward chains. Fact-checkers take 48 hours to debunk a lie that circulated in 4 minutes. Meanwhile, the creator economy blends authentic reviews with hidden commercial payouts without disclosure.”
+            </p>
+          </div>
+
+          <p class="text-sm sm:text-base text-on-surface-variant leading-relaxed">
+            <strong>Parmanu was conceived as the antidote.</strong> We deconstruct every news dispatch into its atomic claims, independently cross-corroborate them against primary gazettes and verified records, and deliver the truth at the exact speed of information.
+          </p>
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <div class="relative rounded-2xl overflow-hidden shadow-md border border-surface-container">
+            <img src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80" alt="Cryptographic truth code" class="w-full h-64 object-cover"/>
+            <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/90 via-inverse-surface/30 to-transparent p-5 flex flex-col justify-end text-white">
+              <span class="text-xs font-bold text-secondary-fixed uppercase tracking-wider">Immutable Verification</span>
+              <h4 class="font-headline text-lg font-bold">Every claim cryptographically fingerprinted.</h4>
+              <p class="text-xs text-white/80 mt-1">Syndicated PR copies are mathematically quarantined from genuine multi-source corroboration.</p>
+            </div>
+          </div>
+
+          <div class="p-4 bg-surface-container rounded-2xl flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary text-2xl">verified_user</span>
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-on-surface">Audited Intelligence Desk</span>
+                <span class="text-[11px] text-on-surface-variant">Continuous automated background verification</span>
+              </div>
+            </div>
+            <button onclick="openAuthModal('signin')" class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 transition-all cursor-pointer">
+              Access Desk
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. EXECUTIVE SUMMARY -->
+      <section class="bg-surface-container-low p-6 sm:p-10 rounded-3xl border border-surface-container flex flex-col gap-6">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold uppercase tracking-wider">Executive Summary</span>
+          <span class="text-xs text-on-surface-variant font-code">Architecture &amp; Mandate</span>
+        </div>
+
+        <h3 class="font-headline text-2xl sm:text-3xl font-bold text-on-surface tracking-tight">
+          A Sovereign Intelligence Terminal for Citizens, Journalists &amp; Brands
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="p-5 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-2.5 shadow-xs">
+            <span class="material-symbols-outlined text-primary text-3xl">hub</span>
+            <h4 class="font-bold text-base text-on-surface">Universal Wire Ingestion</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Automated ingestion pipelines normalize data from official gazettes (PIB, ISRO, SEBI), premium newspapers (The Hindu, Indian Express, Guardian), and digital platforms without manual latency.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-2.5 shadow-xs">
+            <span class="material-symbols-outlined text-secondary text-3xl">psychology</span>
+            <h4 class="font-bold text-base text-on-surface">Gemini Anti-Hallucination Gate</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Proprietary AI extraction that isolates discrete claims and evidence stances (Supports, Contradicts, Contextualizes), strictly dropping any citation not grounded in the source text.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-2.5 shadow-xs">
+            <span class="material-symbols-outlined text-tertiary-container text-3xl">radar</span>
+            <h4 class="font-bold text-base text-on-surface">Creator Sponsorship Radar</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Real-time surveillance of creator partnerships, detecting undisclosed brand sponsorships, affiliate ties, and ASCI regulatory compliance across Indian digital platforms.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. WHAT WE DO -->
+      <section class="flex flex-col gap-8">
+        <div class="flex flex-col gap-2 max-w-2xl">
+          <span class="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider w-fit">Core Platform Capabilities</span>
+          <h2 class="font-headline text-2xl sm:text-4xl font-bold text-on-surface tracking-tight">What We Do</h2>
+          <p class="text-xs sm:text-sm text-on-surface-variant">The five autonomous verification pipelines powering Parmanu's real-time accuracy.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="p-6 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-3 shadow-xs hover:border-primary/40 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">1</div>
+            <h4 class="font-bold text-base text-on-surface">Multi-Wire Live Ingestion</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Listens continuously to accredited domestic and international RSS feeds, government gazettes, and public APIs. Dispatches are captured within seconds of publication.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-3 shadow-xs hover:border-primary/40 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold">2</div>
+            <h4 class="font-bold text-base text-on-surface">Deterministic Deduplication</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Computes SHA-256 canonical headline and URL hashes. When 30 different websites syndicate the exact same PTI or ANI press release, Parmanu groups them as copies rather than distinct confirmations.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-3 shadow-xs hover:border-primary/40 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-tertiary-container/15 text-tertiary-container flex items-center justify-center font-bold">3</div>
+            <h4 class="font-bold text-base text-on-surface">Atomic Claim Stance Engine</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Breaks complex articles down into individual factual propositions. Automatically pairs each claim with supporting or contradicting excerpts from other independent desks.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-3 shadow-xs hover:border-primary/40 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">4</div>
+            <h4 class="font-bold text-base text-on-surface">Creator &amp; Brand Radar</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Monitors leading tech, finance, and lifestyle creators. Flags paid partnerships, deals, and unlabelled endorsements to ensure complete consumer transparency.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-surface-container-lowest border border-surface-container flex flex-col gap-3 shadow-xs hover:border-primary/40 transition-colors">
+            <div class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-bold">5</div>
+            <h4 class="font-bold text-base text-on-surface">Provenance Badging &amp; Dossiers</h4>
+            <p class="text-xs text-on-surface-variant leading-relaxed">
+              Every story cluster is assigned a rigorous state badge: <code class="text-[11px] font-code bg-surface-container px-1 py-0.5 rounded">OFFICIAL_CONFIRMED</code>, <code class="text-[11px] font-code bg-surface-container px-1 py-0.5 rounded">CORROBORATED</code>, or <code class="text-[11px] font-code bg-surface-container px-1 py-0.5 rounded">DEVELOPING</code> with full audit packet downloads.
+            </p>
+          </div>
+
+          <div class="p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20 flex flex-col justify-between gap-4">
+            <div class="flex flex-col gap-2">
+              <span class="text-xs font-bold text-primary uppercase tracking-wider">Ready to Explore?</span>
+              <h4 class="font-bold text-base text-on-surface">Personalized to Your Chosen Fields</h4>
+              <p class="text-xs text-on-surface-variant">Sign in to filter by Creator Economy, Policy, Science, Climate, and more.</p>
+            </div>
+            <button onclick="openAuthModal('signin')" class="w-full py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+              <span class="material-symbols-outlined text-[16px]">login</span>
+              <span>Sign In to Unlock</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. WHY CHOOSE US -->
+      <section class="bg-surface-container-lowest p-6 sm:p-10 rounded-3xl border border-surface-container shadow-sm flex flex-col gap-8">
+        <div class="flex flex-col gap-2 max-w-2xl">
+          <span class="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-xs font-bold uppercase tracking-wider w-fit">Rigor vs Convenience</span>
+          <h2 class="font-headline text-2xl sm:text-4xl font-bold text-on-surface tracking-tight">Why Choose Parmanu?</h2>
+          <p class="text-xs sm:text-sm text-on-surface-variant">How Parmanu's mathematical veracity architecture outperforms traditional feeds and generic AI.</p>
+        </div>
+
+        <div class="overflow-x-auto no-scrollbar">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b-2 border-surface-container bg-surface-container-low text-on-surface">
+                <th class="p-3.5 font-bold uppercase tracking-wider">Evaluation Vector</th>
+                <th class="p-3.5 font-bold uppercase tracking-wider text-on-surface-variant">Legacy News Feeds</th>
+                <th class="p-3.5 font-bold uppercase tracking-wider text-on-surface-variant">Generic LLM / Chatbots</th>
+                <th class="p-3.5 font-bold uppercase tracking-wider text-primary bg-primary/10 rounded-t-xl">Parmanu Platform</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container">
+              <tr>
+                <td class="p-3.5 font-bold text-on-surface">Verification Ground Truth</td>
+                <td class="p-3.5 text-on-surface-variant">Editorial subjective bias</td>
+                <td class="p-3.5 text-on-surface-variant">Prone to hallucinations &amp; plausible untruths</td>
+                <td class="p-3.5 font-bold text-primary bg-primary/5">Deterministic source-grounded evidence</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-on-surface">Wire Syndication Handling</td>
+                <td class="p-3.5 text-on-surface-variant">Treats syndicated reposts as multiple stories</td>
+                <td class="p-3.5 text-on-surface-variant">Confuses repetitions with consensus</td>
+                <td class="p-3.5 font-bold text-primary bg-primary/5">SHA-256 dedupe quarantines syndicated copies</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-on-surface">Creator Sponsorship Audits</td>
+                <td class="p-3.5 text-on-surface-variant">None (completely ignored)</td>
+                <td class="p-3.5 text-on-surface-variant">No real-time social graph integration</td>
+                <td class="p-3.5 font-bold text-primary bg-primary/5">Automated #ad &amp; brand deal compliance radar</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-on-surface">Latency</td>
+                <td class="p-3.5 text-on-surface-variant">Fact-checks take 24–72 hours</td>
+                <td class="p-3.5 text-on-surface-variant">Static training cutoff or rate-limited search</td>
+                <td class="p-3.5 font-bold text-primary bg-primary/5">Continuous automated sub-minute polling</td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-on-surface">Auditable Proof Trails</td>
+                <td class="p-3.5 text-on-surface-variant">Hidden sources / proprietary archives</td>
+                <td class="p-3.5 text-on-surface-variant">Opaque reasoning without verifiable links</td>
+                <td class="p-3.5 font-bold text-primary bg-primary/5">Downloadable PDF audit dossiers with gazette hashes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 5. IMPORTANCE -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-3xl bg-surface-container-low border border-surface-container flex flex-col gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">gavel</span>
+          </div>
+          <h3 class="font-headline text-lg font-bold text-on-surface">Defending Democratic Discourse</h3>
+          <p class="text-xs text-on-surface-variant leading-relaxed">
+            In an era where synthetic disinformation and deepfakes can alter elections and crash markets in minutes, rapid automated triangulation protects public trust before hysteria sets in.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-3xl bg-surface-container-low border border-surface-container flex flex-col gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">shield_person</span>
+          </div>
+          <h3 class="font-headline text-lg font-bold text-on-surface">Consumer &amp; Investor Protection</h3>
+          <p class="text-xs text-on-surface-variant leading-relaxed">
+            Unlabelled influencer endorsements in finance, health, and tech mislead millions of young Indians daily. Parmanu enforces transparent disclosure under ASCI and Consumer Protection guidelines.
+          </p>
+        </div>
+
+        <div class="p-6 rounded-3xl bg-surface-container-low border border-surface-container flex flex-col gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-tertiary-container/15 text-tertiary-container flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">flag</span>
+          </div>
+          <h3 class="font-headline text-lg font-bold text-on-surface">India-First Sovereign Infrastructure</h3>
+          <p class="text-xs text-on-surface-variant leading-relaxed">
+            Engineered specifically for the Indian media ecosystem — integrating Gazette notices, regional press bureaus, bilingual vernacular reporting, and domestic regulatory frameworks.
+          </p>
+        </div>
+      </section>
+
+      <!-- 6. FINAL SIGN-IN / CTA BANNER -->
+      <section class="rounded-3xl bg-gradient-to-r from-primary via-primary-container to-secondary p-8 sm:p-12 text-on-primary shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex flex-col gap-2 max-w-xl text-center md:text-left">
+          <span class="text-xs font-bold uppercase tracking-wider text-secondary-fixed">Get Started in Seconds</span>
+          <h2 class="font-headline text-2xl sm:text-4xl font-bold text-white leading-tight">
+            Unlock Your Real-Time Personalized Intelligence Desk
+          </h2>
+          <p class="text-xs sm:text-sm text-primary-fixed-dim leading-relaxed">
+            Sign in or create your account to follow creators, track brand collaborations, and customize your news stream with atomic cryptographic provenance.
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full sm:w-auto">
+          <button onclick="openAuthModal('signin')" class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white text-primary text-xs font-bold shadow-lg hover:bg-white/95 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">login</span>
+            <span>Sign In to Dashboard</span>
+          </button>
+          <button onclick="openAuthModal('register')" class="w-full sm:w-auto px-6 py-3.5 rounded-full bg-secondary text-on-secondary text-xs font-bold shadow-lg hover:bg-secondary/90 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span class="material-symbols-outlined text-[18px]">how_to_reg</span>
+            <span>Create Free Account</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+    <!-- END LANDING PAGE VIEW -->
+
+    <!-- ================================================== -->
+    <!-- LIVE DASHBOARD VIEW (#feed, #pulse, #collabs, etc.)-->
+    <!-- ================================================== -->
+    <div id="dashboard-view" class="w-full">
+
+      <!-- Dynamic Personalized User Banner (Shown when authenticated) -->
+      <div id="user-personalized-header" class="hidden w-full bg-gradient-to-r from-primary/10 via-surface-container-low to-secondary/10 rounded-2xl p-4 sm:p-5 mb-6 border border-primary/20 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="w-11 h-11 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-lg shadow-sm shrink-0" id="dash-user-avatar">
+            P
+          </div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-2">
+              <h3 class="font-headline text-lg font-bold text-on-surface truncate" id="dash-user-greeting">
+                Welcome back!
+              </h3>
+              <span class="px-2 py-0.5 rounded-full bg-secondary/15 text-secondary text-[10px] font-bold uppercase tracking-wider">
+                Personalized Active
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 flex-wrap mt-1" id="dash-user-interest-tags">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 self-end md:self-auto shrink-0">
+          <button onclick="switchSection('about')" class="px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface hover:bg-surface-variant text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer">
+            <span class="material-symbols-outlined text-[15px]">auto_stories</span>
+            <span>Read Story</span>
+          </button>
+          <button onclick="openProfileModal()" class="px-3.5 py-1.5 rounded-full bg-primary text-on-primary text-xs font-bold hover:bg-primary/90 transition-all shadow-xs flex items-center gap-1 cursor-pointer">
+            <span class="material-symbols-outlined text-[15px]">tune</span>
+            <span>Interests &amp; Following</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Top Edition & Live Status Strip (Responsive Banner) -->
+      <div class="w-full bg-surface-container-low rounded-2xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-surface-container shadow-sm">
       <div class="flex flex-col gap-0.5">
         <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
           <span>New Delhi • Global Edition</span>
@@ -557,29 +937,34 @@
       </aside>
 
     </div>
+    <!-- END DASHBOARD VIEW -->
 
   </main>
 
   <!-- Mobile Bottom Navigation Bar (Hidden on Desktop) -->
   <nav class="md:hidden fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-lg border-t border-surface-container">
     <div class="flex justify-around items-center h-16 px-2" id="nav-tabs">
-      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-primary font-bold transition-colors" data-path="feed" href="#">
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="about" href="#about">
+        <span class="material-symbols-outlined text-[24px]">auto_stories</span>
+        <span class="text-[10px] mt-0.5">Story</span>
+      </a>
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-primary font-bold transition-colors" data-path="feed" href="#feed">
         <span class="material-symbols-outlined text-[24px]">newspaper</span>
         <span class="text-[10px] mt-0.5 font-bold">Feed</span>
       </a>
-      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="pulse" href="#">
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="pulse" href="#pulse">
         <span class="material-symbols-outlined text-[24px]">sensors</span>
         <span class="text-[10px] mt-0.5">Pulse</span>
       </a>
-      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="explore" href="#">
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="explore" href="#explore">
         <span class="material-symbols-outlined text-[24px]">explore</span>
         <span class="text-[10px] mt-0.5">Explore</span>
       </a>
-      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="collabs" href="#">
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="collabs" href="#collabs">
         <span class="material-symbols-outlined text-[24px]">hub</span>
         <span class="text-[10px] mt-0.5">Collabs</span>
       </a>
-      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="workspace" href="#">
+      <a class="nav-tab flex flex-col items-center justify-center flex-1 h-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="workspace" href="#workspace">
         <span class="material-symbols-outlined text-[24px]">fact_check</span>
         <span class="text-[10px] mt-0.5">Workspace</span>
       </a>
